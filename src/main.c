@@ -1,8 +1,10 @@
-#include "stm32l1xx_nucleo.h"
 
+#include "I2C.h"
 
 int main(void){
 
+	i2c_begin();
+	NVIC_config();
 
 
 return 0;

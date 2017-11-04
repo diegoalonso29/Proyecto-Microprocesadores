@@ -51,6 +51,7 @@
       (++) Active the needed channel Request using I2C_DMACmd() or
            I2C_DMALastTransferCmd() function.
    (#) Enable the I2C using the I2C_Cmd() function.
+
    (#) Enable the DMA using the DMA_Cmd() function when using DMA mode in the 
        transfers. 
     @endverbatim
