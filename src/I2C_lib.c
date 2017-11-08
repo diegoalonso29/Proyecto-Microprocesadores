@@ -1,6 +1,6 @@
 #include "I2C_lib.h"
 
-void i2c_begin(uint32_t I2C_ClockSpeed){
+void I2C_Config(uint32_t I2C_ClockSpeed){
 
 	GPIO_InitTypeDef gpio_init_struct;
     I2C_InitTypeDef i2c_init_struct;
@@ -41,7 +41,7 @@ void i2c_begin(uint32_t I2C_ClockSpeed){
 
 }
 
-void NVIC_config(){
+void NVIC_Config(){
 
 	/*Configuracion de NVIC para la interrupcion I2C */
 	NVIC_InitTypeDef NVIC_InitStructure;
@@ -67,7 +67,6 @@ void I2C_ByteWrite(uint8_t SlaveAddress, uint8_t* Buffer_ptr, uint8_t AddressWri
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
     I2C_GenerateSTOP(I2Cx, ENABLE);
-
 }
 
 void I2C_ByteRead(uint8_t SlaveAddress, uint8_t* Buffer_ptr, uint8_t AddressReadReg, uint16_t NumByteToRead)

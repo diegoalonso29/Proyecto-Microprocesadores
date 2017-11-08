@@ -19,8 +19,8 @@
 #define I2Cx_EV_IRQn			I2C1_EV_IRQn
 
 
-void i2c_begin(uint32_t I2C_ClockSpeed);
-void NVIC_config(void);
+void I2C_Config(uint32_t I2C_ClockSpeed);
+void NVIC_Config(void);
 void I2C_ByteWrite(uint8_t SlaveAddress, uint8_t* Buffer_ptr, uint8_t AddressWriteReg);
 void I2C_ByteRead(uint8_t SlaveAddress, uint8_t* Buffer_ptr, uint8_t AddressReadReg, uint16_t NumByteToRead);
 
