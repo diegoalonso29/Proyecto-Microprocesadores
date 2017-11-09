@@ -3,8 +3,8 @@
 #ifndef MPU6050_H_
 #define MPU6050_H_
 
-#define MPU6050_Address 		0x68
-#define MPU6050_I2C_Speed 		100000
+#define MPU6050_Address 			0x68
+#define MPU6050_I2C_Speed 			100000
 
 #define MPU6050_RA_XG_OFFS_TC       0x00 //[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
 #define MPU6050_RA_YG_OFFS_TC       0x01 //[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
@@ -354,5 +354,17 @@
 #define MPU6050_DMP_MEMORY_BANKS        8
 #define MPU6050_DMP_MEMORY_BANK_SIZE    256
 #define MPU6050_DMP_MEMORY_CHUNK_SIZE   16
+
+
+typedef struct
+{
+  uint16_t raw_accel_x;
+  uint16_t raw_accel_y;
+  uint16_t raw_accel_z;
+  uint16_t raw_gyro_x;
+  uint16_t raw_gyro_y;
+  uint16_t raw_gyro_z;
+
+}raw_data;
 
 #endif /* MPU6050_H_ */
