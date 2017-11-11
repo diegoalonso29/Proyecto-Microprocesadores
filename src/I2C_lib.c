@@ -41,8 +41,8 @@ void I2C_Config(uint32_t I2C_ClockSpeed){
 
 }
 
-void NVIC_Config(){
-
+void NVIC_Config()
+{
 	/*Configuracion de NVIC para la interrupcion I2C */
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_InitStructure.NVIC_IRQChannel = I2Cx_EV_IRQn;
@@ -51,8 +51,11 @@ void NVIC_Config(){
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }
+void I2C_WriteData(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t* Buffer_ptr,  uint16_t NumBytesToWrite)
+{
 
-void I2C_WriteByte(uint8_t SlaveAddress, uint8_t* Buffer_ptr, uint8_t AddressWriteReg)
+}
+void I2C_WriteByte(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t* Buffer_ptr)
 {
     I2C_GenerateSTART(I2Cx, ENABLE);
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));
@@ -60,7 +63,7 @@ void I2C_WriteByte(uint8_t SlaveAddress, uint8_t* Buffer_ptr, uint8_t AddressWri
     I2C_Send7bitAddress(I2Cx, SlaveAddress, I2C_Direction_Transmitter);
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
 
-    I2C_SendData(I2Cx, AddressWriteReg);
+    I2C_SendData(I2Cx, WriteAddressReg);
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
     I2C_SendData(I2Cx, *Buffer_ptr);
@@ -68,8 +71,32 @@ void I2C_WriteByte(uint8_t SlaveAddress, uint8_t* Buffer_ptr, uint8_t AddressWri
 
     I2C_GenerateSTOP(I2Cx, ENABLE);
 }
-
-void I2C_ReadData(uint8_t SlaveAddress, uint8_t* Buffer_ptr, uint8_t AddressReadReg, uint16_t NumByteToRead)
+void I2C_WriteBits(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t BitStart, uint8_t length, uint8_t data)
+{
+    //      010 value to write
+    // 76543210 bit numbers
+    //    xxx   args: bitStart=4, length=3
+    // 00011100 mask byte
+    // 10101111 original value (sample)
+    // 10100011 original & ~mask
+    // 10101011 masked | value
+    uint8_t tmp;
+    I2C_ReadByte(SlaveAddress, WriteAddressReg, &tmp);
+    uint8_t mask = ((1 << length) - 1) << (BitStart - length + 1);
+    data <<= (BitStart - length + 1); // shift data into correct position
+    data &= mask; // zero all non-important bits in data
+    tmp &= ~(mask); // zero all important bits in existing byte
+    tmp |= data; // combine data with existing byte
+    I2C_WriteByte(SlaveAddress, WriteAddressReg, &tmp);
+}
+void I2C_WriteBit (uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t BitNum, uint8_t data)
+{
+    uint8_t tmp;
+    I2C_WriteByte(SlaveAddress, WriteAddressReg, &tmp);
+    tmp = (data != 0) ? (tmp | (1 << BitNum)) : (tmp & ~(1 << BitNum));
+    I2C_WriteByte(SlaveAddress, WriteAddressReg, &tmp);
+}
+void I2C_ReadData(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t* Buffer_ptr,  uint16_t NumByteToRead)
 {
     /* While the bus is busy */
     while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
@@ -90,7 +117,7 @@ void I2C_ReadData(uint8_t SlaveAddress, uint8_t* Buffer_ptr, uint8_t AddressRead
     I2C_Cmd(I2Cx, ENABLE);
 
     /* Send the MPU6050's internal address to write to */
-    I2C_SendData(I2Cx, AddressReadReg);
+    I2C_SendData(I2Cx, ReadAddressReg);
 
     /* Test on EV8 and clear it */
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
@@ -137,49 +164,38 @@ void I2C_ReadData(uint8_t SlaveAddress, uint8_t* Buffer_ptr, uint8_t AddressRead
     I2C_AcknowledgeConfig(I2Cx, ENABLE);
     // EXT_CRT_SECTION();
 }
-
-void I2C_WriteBits(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t BitStart, uint8_t length, uint8_t data)
+void I2C_ReadByte(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t* Buffer_ptr)
 {
-    //      010 value to write
-    // 76543210 bit numbers
-    //    xxx   args: bitStart=4, length=3
-    // 00011100 mask byte
-    // 10101111 original value (sample)
-    // 10100011 original & ~mask
-    // 10101011 masked | value
-    uint8_t tmp;
-    I2C_ByteRead(SlaveAddress, &tmp, WriteAddressReg, 1);
-    uint8_t mask = ((1 << length) - 1) << (BitStart - length + 1);
-    data <<= (BitStart - length + 1); // shift data into correct position
-    data &= mask; // zero all non-important bits in data
-    tmp &= ~(mask); // zero all important bits in existing byte
-    tmp |= data; // combine data with existing byte
-    I2C_ByteWrite(SlaveAddress, &tmp, WriteAddressReg);
-}
 
-/** write a single bit in an 8-bit device register.
- * @param slaveAddr I2C slave device address
- * @param regAddr Register regAddr to write to
- * @param bitNum Bit position to write (0-7)
- * @param value New bit value to write
- */
-void MPU6050_WriteBit(uint8_t slaveAddr, uint8_t regAddr, uint8_t bitNum, uint8_t data)
-{
-    uint8_t tmp;
-    MPU6050_I2C_BufferRead(slaveAddr, &tmp, regAddr, 1);
-    tmp = (data != 0) ? (tmp | (1 << bitNum)) : (tmp & ~(1 << bitNum));
-    MPU6050_I2C_ByteWrite(slaveAddr, &tmp, regAddr);
-}
+    while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
 
-/** Read multiple bits from an 8-bit device register.
- * @param slaveAddr I2C slave device address
- * @param regAddr Register regAddr to read from
- * @param bitStart First bit position to read (0-7)
- * @param length Number of bits to read (not more than 8)
- * @param data Container for right-aligned value (i.e. '101' read from any bitStart position will equal 0x05)
- * @param timeout Optional read timeout in milliseconds (0 to disable, leave off to use default class value in readTimeout)
- */
-void I2C_ReadBits(uint8_t SlaveAddr, uint8_t ReadAddressReg, uint8_t BitStart, uint8_t length, uint8_t *data)
+    I2C_GenerateSTART(I2Cx, ENABLE);
+    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));
+
+    I2C_Send7bitAddress(I2Cx, SlaveAddress, I2C_Direction_Transmitter);
+    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+
+    I2C_Cmd(I2Cx, ENABLE);
+    I2C_SendData(I2Cx, ReadAddressReg);
+    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+
+    I2C_GenerateSTART(I2Cx, ENABLE);
+    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));
+
+    I2C_Send7bitAddress(I2Cx, SlaveAddress, I2C_Direction_Receiver);
+    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
+
+    I2C_AcknowledgeConfig(I2Cx, DISABLE);
+    I2C_GenerateSTOP(I2Cx, ENABLE);
+
+    if (I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED))
+        {
+            *Buffer_ptr = I2C_ReceiveData(I2Cx);
+        }
+
+    I2C_AcknowledgeConfig(I2Cx, ENABLE);
+}
+void I2C_ReadBits(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t BitStart, uint8_t length, uint8_t *data)
 {
     // 01101001 read byte
     // 76543210 bit numbers
@@ -187,23 +203,15 @@ void I2C_ReadBits(uint8_t SlaveAddr, uint8_t ReadAddressReg, uint8_t BitStart, u
     //    010   masked
     //   -> 010 shifted
     uint8_t tmp;
-    I2C_ReadData(slaveAddr, &tmp, ReadAddressReg, 1);
+    I2C_ReadByte(SlaveAddress, ReadAddressReg, &tmp);
     uint8_t mask = ((1 << length) - 1) << (BitStart - length + 1);
     tmp &= mask;
     tmp >>= (BitStart - length + 1);
     *data = tmp;
 }
-
-/** Read a single bit from an 8-bit device register.
- * @param slaveAddr I2C slave device address
- * @param regAddr Register regAddr to read from
- * @param bitNum Bit position to read (0-7)
- * @param data Container for single bit value
- * @param timeout Optional read timeout in milliseconds (0 to disable, leave off to use default class value in readTimeout)
- */
 void I2C_ReadBit(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t BitNum, uint8_t *data)
 {
     uint8_t tmp;
-    I2C_ReadData(SlaveAddress, &tmp, ReadAddressReg, 1);
+    I2C_ReadByte(SlaveAddress, ReadAddressReg, &tmp);
     *data = tmp & (1 << BitNum);
 }
