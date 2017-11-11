@@ -45,7 +45,7 @@ void NVIC_Config()
 {
 	/*Configuracion de NVIC para la interrupcion I2C */
 	NVIC_InitTypeDef NVIC_InitStructure;
-	NVIC_InitStructure.NVIC_IRQChannel = I2Cx_EV_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannel = I2Cx_ER_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -53,7 +53,20 @@ void NVIC_Config()
 }
 void I2C_WriteData(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t* Buffer_ptr,  uint16_t NumBytesToWrite)
 {
+    I2C_GenerateSTART(I2Cx, ENABLE);
+    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));
 
+    I2C_Send7bitAddress(I2Cx, SlaveAddress, I2C_Direction_Transmitter);
+    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+
+    I2C_SendData(I2Cx, WriteAddressReg);
+    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+
+
+    I2C_SendData(I2Cx, *Buffer_ptr);
+    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+
+    I2C_GenerateSTOP(I2Cx, ENABLE);
 }
 void I2C_WriteByte(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t* Buffer_ptr)
 {
@@ -103,66 +116,37 @@ void I2C_ReadData(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t* Buffer_
 
     /* Send START condition */
     I2C_GenerateSTART(I2Cx, ENABLE);
-
-    /* Test on EV5 and clear it */
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));
 
-    /* Send MPU6050 address for write */
     I2C_Send7bitAddress(I2Cx, SlaveAddress, I2C_Direction_Transmitter);
-
-    /* Test on EV6 and clear it */
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
 
-    /* Clear EV6 by setting again the PE bit */
     I2C_Cmd(I2Cx, ENABLE);
-
-    /* Send the MPU6050's internal address to write to */
     I2C_SendData(I2Cx, ReadAddressReg);
-
-    /* Test on EV8 and clear it */
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
-    /* Send STRAT condition a second time */
     I2C_GenerateSTART(I2Cx, ENABLE);
-
-    /* Test on EV5 and clear it */
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));
 
-    /* Send MPU6050 address for read */
     I2C_Send7bitAddress(I2Cx, SlaveAddress, I2C_Direction_Receiver);
-
-    /* Test on EV6 and clear it */
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
 
-    /* While there is data to be read */
     while (NumByteToRead)
     {
         if (NumByteToRead == 1)
         {
-            /* Disable Acknowledgement */
             I2C_AcknowledgeConfig(I2Cx, DISABLE);
-
-            /* Send STOP Condition */
             I2C_GenerateSTOP(I2Cx, ENABLE);
         }
-
-        /* Test on EV7 and clear it */
         if (I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED))
         {
-            /* Read a byte from the MPU6050 */
             *Buffer_ptr = I2C_ReceiveData(I2Cx);
-
-            /* Point to the next location where the byte read will be saved */
             Buffer_ptr++;
-
-            /* Decrement the read bytes counter */
             NumByteToRead--;
         }
     }
 
-    /* Enable Acknowledgement to be ready for another reception */
     I2C_AcknowledgeConfig(I2Cx, ENABLE);
-    // EXT_CRT_SECTION();
 }
 void I2C_ReadByte(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t* Buffer_ptr)
 {

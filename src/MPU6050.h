@@ -367,4 +367,6 @@ typedef struct
 
 }raw_data;
 
+uint8_t MPU6050_TestConnection(void);
+
 #endif /* MPU6050_H_ */

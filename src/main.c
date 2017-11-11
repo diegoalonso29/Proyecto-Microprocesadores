@@ -3,8 +3,8 @@
 
 int main(void){
 
-i2c_begin(100000);
-	//NVIC_config();
+      I2C_Config(10);
+      NVIC_Config();
 
 
 return 0;
