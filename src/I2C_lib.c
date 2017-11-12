@@ -62,7 +62,6 @@ void I2C_WriteData(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t* Buffe
     I2C_SendData(I2Cx, WriteAddressReg);
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
-
     I2C_SendData(I2Cx, *Buffer_ptr);
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 

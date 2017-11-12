@@ -365,6 +365,7 @@ typedef struct
   int16_t raw_gyro_x;
   int16_t raw_gyro_y;
   int16_t raw_gyro_z;
+  int16_t raw_temp;
 
 }raw_data;
 
@@ -378,9 +379,10 @@ uint8_t MPU6050_GetFullScaleAccelRange(void);
 void MPU6050_SetFullScaleAccelRange(uint8_t range);
 
 uint8_t MPU6050_GetSleepModeStatus(void);
-void MPU6050_SetSleepModeStatus(FunctionalState NewState);
+void MPU6050_SleepMode(FunctionalState NewState);
 
-void MPU6050_GetRawAccelGyro(int16_t* AccelGyro);
+void MPU6050_GetRawAccelGyro(raw_data* data);
+
 
 
 

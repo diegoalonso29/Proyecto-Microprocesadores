@@ -138,33 +138,85 @@ uint8_t MPU6050_GetSleepModeStatus()
     return tmp == 0x00 ? 0x00 : 0x01;
 }
 
-/** Set sleep mode status.
- * @param enabled New sleep mode enabled status
- * @see MPU6050_GetSleepModeStatus()
- * @see MPU6050_RA_PWR_MGMT_1
- * @see MPU6050_PWR1_SLEEP_BIT
- */
-void MPU6050_SetSleepModeStatus(FunctionalState NewState)
+
+void MPU6050_SleepMode(FunctionalState NewState)
 {
-    I2C_WriteBit(MPU6050_Address, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_SLEEP_BIT, NewState);
+    I2C_WriteBit(MPU6050_Address, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_SLEEP_BIT, !NewState);
 }
 
-/** Get raw 6-axis motion sensor readings (accel/gyro).
- * Retrieves all currently available motion sensor values.
- * @param AccelGyro 16-bit signed integer array of length 6
- * @see MPU6050_RA_ACCEL_XOUT_H
- */
-void MPU6050_GetRawAccelGyro(int16_t* AccelGyro)
+void MPU6050_GetRawAccelGyro(raw_data* data)
 {
-	int16_t i;
-	int16_t y;
     uint8_t tmpBuffer[14];
 
-    I2C_ReadData(MPU6050_Address, MPU6050_RA_ACCEL_XOUT_H, tmpBuffer,  14);
-    /* Get acceleration */
-    for (i = 0; i < 3; i++)
-        AccelGyro[i] = ((int16_t) ((uint16_t) tmpBuffer[2 * i] << 8) + tmpBuffer[2 * i + 1]);
-    /* Get Angular rate */
-    for (y = 4; y < 7; y++)
-        AccelGyro[i - 1] = ((int16_t) ((uint16_t) tmpBuffer[2 * i] << 8) + tmpBuffer[2 * i + 1]);
+    I2C_ReadData(MPU6050_Address, MPU6050_RA_ACCEL_XOUT_H, &tmpBuffer[0],  14);
+    /*
+     * 10010111 00000000
+     * 00000000 10011001
+     * ------------------ OR
+     * 10010111 10011001
+     */
+    data->raw_accel_x = ( ((int16_t)tmpBuffer[0] << 8) & 0xFFFF ) | ((int16_t)tmpBuffer[1] & 0xFFFF);
+    data->raw_accel_y = ( ((int16_t)tmpBuffer[2] << 8) & 0xFFFF ) | ((int16_t)tmpBuffer[3] & 0xFFFF);
+    data->raw_accel_z = ( ((int16_t)tmpBuffer[4] << 8) & 0xFFFF ) | ((int16_t)tmpBuffer[5] & 0xFFFF);
+
+    data->raw_gyro_x = ( ((int16_t)tmpBuffer[6] << 8) & 0xFFFF ) | ((int16_t)tmpBuffer[7] & 0xFFFF);
+    data->raw_gyro_y = ( ((int16_t)tmpBuffer[8] << 8) & 0xFFFF ) | ((int16_t)tmpBuffer[9] & 0xFFFF);
+    data->raw_gyro_z = ( ((int16_t)tmpBuffer[10] << 8) & 0xFFFF) | ((int16_t)tmpBuffer[11] & 0xFFFF);
+
+    data->raw_temp = ( ((int16_t)tmpBuffer[12] << 8) & 0xFFFF ) | ((int16_t)tmpBuffer[13] & 0xFFFF);
+}
+
+void MPU6050_CalibrateSensor()
+{
+	  int                   num_readings = 10;
+	  float                 x_accel = 0;
+	  float                 y_accel = 0;
+	  float                 z_accel = 0;
+	  float                 x_gyro = 0;
+	  float                 y_gyro = 0;
+	  float                 z_gyro = 0;
+	  IMU data;
+
+	  os_printf("Starting Calibration\n");
+	  // Give MPU6050 time to initialize.
+	  vTaskDelay(200);
+	  // Discard the first set of values read from the IMU
+	  readIMU(&data);
+
+	  // Read and average the raw values from the IMU
+	  for (int i = 0; i < num_readings; i++) {
+		  readIMU(&data);
+	    x_accel += data.x_accel;
+	    y_accel += data.y_accel;
+	    z_accel += data.z_accel;
+	    x_gyro += data.x_gyro;
+	    y_gyro += data.y_gyro;
+	    z_gyro += data.z_gyro;
+	    vTaskDelay(100);
+	  }
+	  x_accel /= num_readings;
+	  y_accel /= num_readings;
+	  z_accel /= num_readings;
+	  x_gyro /= num_readings;
+	  y_gyro /= num_readings;
+	  z_gyro /= num_readings;
+
+	  // Store the raw calibration values globally
+	  base_x_accel = x_accel;
+	  base_y_accel = y_accel;
+	  base_z_accel = z_accel;
+	  base_x_gyro = x_gyro;
+	  base_y_gyro = y_gyro;
+	  base_z_gyro = z_gyro;
+
+	  os_printf("Finishing Calibration\n");
+}
+
+
+void MPU6050_Init(void)
+{
+	MPU6050_SleepMode(DISABLE);
+	MPU6050_SetFullScaleAccelRange(1);
+	MPU6050_SetFullScaleGyroRange(1);
+	MPU6050_CalibrateSensor();
 }
