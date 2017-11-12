@@ -14,6 +14,7 @@
 #define RCC_AHBPeriph_GPIO_I2C	RCC_AHBPeriph_GPIOB
 #define GPIO_AF_I2Cx			GPIO_AF_I2C1
 #define I2Cx_EV_IRQn			I2C1_EV_IRQn
+#define I2Cx_ER_IRQn			I2C1_ER_IRQn
 
 
 void I2C_Config(uint32_t I2C_ClockSpeed);

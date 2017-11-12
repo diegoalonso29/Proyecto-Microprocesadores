@@ -1,5 +1,6 @@
 #include "stm32l1xx_nucleo.h"
 
+
 #ifndef MPU6050_H_
 #define MPU6050_H_
 
@@ -358,15 +359,30 @@
 
 typedef struct
 {
-  uint16_t raw_accel_x;
-  uint16_t raw_accel_y;
-  uint16_t raw_accel_z;
-  uint16_t raw_gyro_x;
-  uint16_t raw_gyro_y;
-  uint16_t raw_gyro_z;
+  int16_t raw_accel_x;
+  int16_t raw_accel_y;
+  int16_t raw_accel_z;
+  int16_t raw_gyro_x;
+  int16_t raw_gyro_y;
+  int16_t raw_gyro_z;
 
 }raw_data;
 
+uint8_t MPU6050_GetDeviceID(void);
 uint8_t MPU6050_TestConnection(void);
+
+void MPU6050_SetClockSource(uint8_t source);
+void MPU6050_SetFullScaleGyroRange(uint8_t range);
+uint8_t MPU6050_GetFullScaleGyroRange(void);
+uint8_t MPU6050_GetFullScaleAccelRange(void);
+void MPU6050_SetFullScaleAccelRange(uint8_t range);
+
+uint8_t MPU6050_GetSleepModeStatus(void);
+void MPU6050_SetSleepModeStatus(FunctionalState NewState);
+
+void MPU6050_GetRawAccelGyro(int16_t* AccelGyro);
+
+
+
 
 #endif /* MPU6050_H_ */
