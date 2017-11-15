@@ -1,13 +1,7 @@
-/*
- * SPI_lib.c
- *
- *  Created on: Nov 15, 2017
- *      Author: Liberto
- */
 
 
-#include <spi1.h>
-#include <stm32f4xx.h>
+
+#include "SPI_lib.h"
 
 /**
  * @addtogroup SPI1

@@ -1,9 +1,4 @@
-/*
- * SPI_lib.h
- *
- *  Created on: Nov 15, 2017
- *      Author: Liberto
- */
+
 
 #include "stm32l1xx_nucleo.h"
 
@@ -11,6 +6,7 @@
 #define SPI_H_
 
 #include <inttypes.h>
+#include "stm32l1xx_spi.h"
 
 /**
  * @defgroup  SPI1 SPI1
