@@ -166,50 +166,43 @@ void MPU6050_GetRawAccelGyro(raw_data* data)
     data->raw_temp = ( ((int16_t)tmpBuffer[12] << 8) & 0xFFFF ) | ((int16_t)tmpBuffer[13] & 0xFFFF);
 }
 
-void MPU6050_CalibrateSensor()
+void MPU6050_ConvertToFloat(raw_data* raw, accel_data *a_data, gyro_data *g_data )
 {
-	  int                   num_readings = 10;
-	  float                 x_accel = 0;
-	  float                 y_accel = 0;
-	  float                 z_accel = 0;
-	  float                 x_gyro = 0;
-	  float                 y_gyro = 0;
-	  float                 z_gyro = 0;
-	  IMU data;
+   	a_data->accel_x = (raw->raw_accel_x / 32767)*MPU6050_Accel_Range;
+   	a_data->accel_y = (raw->raw_accel_y / 32767)*MPU6050_Accel_Range;
+   	a_data->accel_z = (raw->raw_accel_z / 32767)*MPU6050_Accel_Range;
 
-	  os_printf("Starting Calibration\n");
-	  // Give MPU6050 time to initialize.
-	  vTaskDelay(200);
-	  // Discard the first set of values read from the IMU
-	  readIMU(&data);
+   	g_data->gyro_x = (raw->raw_gyro_x / 32767)*MPU6050_Gyro_Range;
+   	g_data->gyro_y = (raw->raw_gyro_y / 32767)*MPU6050_Gyro_Range;
+   	g_data->gyro_z = (raw->raw_gyro_z / 32767)*MPU6050_Gyro_Range;
+
+}
+void MPU6050_CalibrateSensor(init_data *init)
+{
+	int i;
+	int num_readings = 10;
+	raw_data raw;
+	//vTaskDelay(200);
+	MPU6050_GetRawAccelGyro(&raw);
 
 	  // Read and average the raw values from the IMU
-	  for (int i = 0; i < num_readings; i++) {
-		  readIMU(&data);
-	    x_accel += data.x_accel;
-	    y_accel += data.y_accel;
-	    z_accel += data.z_accel;
-	    x_gyro += data.x_gyro;
-	    y_gyro += data.y_gyro;
-	    z_gyro += data.z_gyro;
-	    vTaskDelay(100);
+	for (i = 0; i < num_readings; i++) {
+
+		MPU6050_GetRawAccelGyro(&raw);
+	    init->init_accel_x += raw.raw_accel_x;
+	    init->init_accel_y += raw.raw_accel_y;
+	    init->init_accel_z += raw.raw_accel_z;
+	    init->init_gyro_x += raw.raw_gyro_x;
+	    init->init_gyro_y += raw.raw_gyro_y;
+	    init->init_gyro_z += raw.raw_gyro_z;
+	   // vTaskDelay(100);
 	  }
-	  x_accel /= num_readings;
-	  y_accel /= num_readings;
-	  z_accel /= num_readings;
-	  x_gyro /= num_readings;
-	  y_gyro /= num_readings;
-	  z_gyro /= num_readings;
-
-	  // Store the raw calibration values globally
-	  base_x_accel = x_accel;
-	  base_y_accel = y_accel;
-	  base_z_accel = z_accel;
-	  base_x_gyro = x_gyro;
-	  base_y_gyro = y_gyro;
-	  base_z_gyro = z_gyro;
-
-	  os_printf("Finishing Calibration\n");
+	init->init_accel_x /= num_readings;
+	init->init_accel_y /= num_readings;
+	init->init_accel_z /= num_readings;
+	init->init_gyro_x /= num_readings;
+	init->init_gyro_y /= num_readings;
+	init->init_gyro_z /= num_readings;
 }
 
 
@@ -218,5 +211,7 @@ void MPU6050_Init(void)
 	MPU6050_SleepMode(DISABLE);
 	MPU6050_SetFullScaleAccelRange(1);
 	MPU6050_SetFullScaleGyroRange(1);
-	MPU6050_CalibrateSensor();
+	//MPU6050_CalibrateSensor();
 }
+
+

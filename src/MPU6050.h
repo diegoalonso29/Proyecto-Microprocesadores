@@ -6,6 +6,8 @@
 
 #define MPU6050_Address 			0x68
 #define MPU6050_I2C_Speed 			100000
+#define MPU6050_Accel_Range			4
+#define MPU6050_Gyro_Range          500
 
 #define MPU6050_RA_XG_OFFS_TC       0x00 //[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
 #define MPU6050_RA_YG_OFFS_TC       0x01 //[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
@@ -369,6 +371,36 @@ typedef struct
 
 }raw_data;
 
+typedef struct
+{
+  float accel_x;
+  float accel_y;
+  float accel_z;
+
+}accel_data;
+
+
+typedef struct
+{
+	float gyro_x;
+	float gyro_y;
+	float gyro_z;
+
+}gyro_data;
+
+typedef struct
+{
+	float init_accel_x;
+	float init_accel_y;
+	float init_accel_z;
+	float init_gyro_x;
+	float init_gyro_y;
+	float init_gyro_z;
+}init_data;
+
+void MPU6050_Init(void);
+void MPU6050_CalibrateSensor(init_data *init);
+
 uint8_t MPU6050_GetDeviceID(void);
 uint8_t MPU6050_TestConnection(void);
 
@@ -382,6 +414,9 @@ uint8_t MPU6050_GetSleepModeStatus(void);
 void MPU6050_SleepMode(FunctionalState NewState);
 
 void MPU6050_GetRawAccelGyro(raw_data* data);
+void MPU6050_ConvertToFloat(raw_data* raw, accel_data *a_data, gyro_data *g_data);
+
+
 
 
 
