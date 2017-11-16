@@ -13,7 +13,7 @@
 
 void SPI1_Init(void) {
 	// Enable GPIO clock for SPI pins
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
 
 	/*
 	 * Initialize pins as alternate function, push-pull.
@@ -26,7 +26,7 @@ void SPI1_Init(void) {
 	GPIO_InitStruct.GPIO_Pin    = GPIO_Pin_7 | GPIO_Pin_6 | GPIO_Pin_5;
 	GPIO_InitStruct.GPIO_Mode   = GPIO_Mode_AF;
 	GPIO_InitStruct.GPIO_OType  = GPIO_OType_PP;
-	GPIO_InitStruct.GPIO_Speed  = GPIO_Speed_100MHz;
+	GPIO_InitStruct.GPIO_Speed  = GPIO_Speed_40MHz;
 	GPIO_InitStruct.GPIO_PuPd   = GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -39,7 +39,7 @@ void SPI1_Init(void) {
 	GPIO_InitStruct.GPIO_Pin    = GPIO_Pin_6;
 	GPIO_InitStruct.GPIO_Mode   = GPIO_Mode_OUT;
 	GPIO_InitStruct.GPIO_OType  = GPIO_OType_PP;
-	GPIO_InitStruct.GPIO_Speed  = GPIO_Speed_100MHz;
+	GPIO_InitStruct.GPIO_Speed  = GPIO_Speed_40MHz;
 	GPIO_InitStruct.GPIO_PuPd   = GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOB, &GPIO_InitStruct);
 

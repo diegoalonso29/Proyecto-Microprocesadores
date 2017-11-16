@@ -104,7 +104,7 @@ void I2C_WriteBits(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t BitSta
 void I2C_WriteBit (uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t BitNum, uint8_t data)
 {
     uint8_t tmp;
-    I2C_WriteByte(SlaveAddress, WriteAddressReg, &tmp);
+    I2C_ReadByte(SlaveAddress, WriteAddressReg, &tmp);
     tmp = (data != 0) ? (tmp | (1 << BitNum)) : (tmp & ~(1 << BitNum));
     I2C_WriteByte(SlaveAddress, WriteAddressReg, &tmp);
 }

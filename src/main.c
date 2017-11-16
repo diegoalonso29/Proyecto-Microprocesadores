@@ -8,23 +8,29 @@ void Delay(uint32_t nTime);
 static volatile uint32_t TimingDelay;
 
 int main(void){
-		Systick_Configuration();
-	  raw_data raw;
-	  init_data init;
-	  gyro_data gyro;
-	  accel_data accel;
 
-      I2C_Config(100);
-      NVIC_Config();
+	Systick_Configuration();
+	raw_data raw;
+	init_data init;
+	gyro_data gyro;
+	accel_data accel;
+	uint8_t id;
+
+    I2C_Config(100000);
+    NVIC_Config();
      // Delay(100);
-
-      MPU6050_Init();
-      MPU6050_CalibrateSensor(&init);
-
-      while(1){
-      MPU6050_GetRawAccelGyro(&raw);
-      MPU6050_ConvertToFloat(&raw, &accel, &gyro);
+    MPU6050_SleepMode(DISABLE);
+    while(1)
+      {
+      id = MPU6050_GetDeviceID();
       }
+//		MPU6050_Init();
+//      MPU6050_CalibrateSensor(&init);
+//
+//      while(1){
+//      MPU6050_GetRawAccelGyro(&raw);
+//      MPU6050_ConvertToFloat(&raw, &accel, &gyro);
+//      }
 
 
 return 0;

@@ -141,7 +141,7 @@ uint8_t MPU6050_GetSleepModeStatus()
 
 void MPU6050_SleepMode(FunctionalState NewState)
 {
-    I2C_WriteBit(MPU6050_Address, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_SLEEP_BIT, !NewState);
+    I2C_WriteBit(MPU6050_Address, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_SLEEP_BIT, NewState);
 }
 
 void MPU6050_GetRawAccelGyro(raw_data* data)
