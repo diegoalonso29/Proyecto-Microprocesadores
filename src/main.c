@@ -17,7 +17,7 @@ int main(void){
 	uint8_t id;
 
     I2C_Config(100000);
-    NVIC_Config();
+    //NVIC_Config();
      // Delay(100);
     //MPU6050_SleepMode(DISABLE);
     while(1)

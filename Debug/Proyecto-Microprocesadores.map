@@ -1053,8 +1053,6 @@ Discarded input sections
                 0x00000000       0x40 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
  .text.I2C_ReadRegister
                 0x00000000       0x30 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
- .text.I2C_ITConfig
-                0x00000000       0x48 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
  .text.I2C_GetLastEvent
                 0x00000000       0x44 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
  .text.I2C_ClearFlag
@@ -1575,8 +1573,6 @@ Discarded input sections
  .text          0x00000000        0x0 Libraries\STM32L1xx_StdPeriph_Driver\src\misc.o
  .data          0x00000000        0x0 Libraries\STM32L1xx_StdPeriph_Driver\src\misc.o
  .bss           0x00000000        0x0 Libraries\STM32L1xx_StdPeriph_Driver\src\misc.o
- .text.NVIC_PriorityGroupConfig
-                0x00000000       0x24 Libraries\STM32L1xx_StdPeriph_Driver\src\misc.o
  .text.NVIC_SetVectorTable
                 0x00000000       0x2c Libraries\STM32L1xx_StdPeriph_Driver\src\misc.o
  .text.NVIC_SystemLPConfig
@@ -1763,7 +1759,7 @@ LOAD c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib
                 0x08000000                g_pfnVectors
                 0x0800013c                . = ALIGN (0x4)
 
-.text           0x0800013c      0xf84
+.text           0x0800013c     0x1024
                 0x0800013c                . = ALIGN (0x4)
  *(.text)
  .text          0x0800013c       0x40 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crtbegin.o
@@ -1848,152 +1844,158 @@ LOAD c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib
                 0x0800035c       0x54 src\main.o
  .text.SysTick_Config
                 0x080003b0       0x44 src\main.o
- .text.main     0x080003f4       0x24 src\main.o
+ .text.main     0x080003f4       0x20 src\main.o
                 0x080003f4                main
  .text.Systick_Configuration
-                0x08000418       0x30 src\main.o
-                0x08000418                Systick_Configuration
+                0x08000414       0x30 src\main.o
+                0x08000414                Systick_Configuration
  .text.I2C1_ER_IRQHandler
-                0x08000448       0xa8 src\RAI.o
-                0x08000448                I2C1_ER_IRQHandler
+                0x08000444       0xa8 src\RAI.o
+                0x08000444                I2C1_ER_IRQHandler
  .text.MPU6050_GetDeviceID
-                0x080004f0       0x20 src\MPU6050.o
-                0x080004f0                MPU6050_GetDeviceID
+                0x080004ec       0x20 src\MPU6050.o
+                0x080004ec                MPU6050_GetDeviceID
  .text.I2C_Config
-                0x08000510       0xb4 src\I2C_lib.o
-                0x08000510                I2C_Config
+                0x0800050c       0xc4 src\I2C_lib.o
+                0x0800050c                I2C_Config
  .text.NVIC_Config
-                0x080005c4       0x24 src\I2C_lib.o
-                0x080005c4                NVIC_Config
+                0x080005d0       0x38 src\I2C_lib.o
+                0x080005d0                NVIC_Config
  .text.I2C_ReadByte
-                0x080005e8       0xec src\I2C_lib.o
-                0x080005e8                I2C_ReadByte
+                0x08000608      0x100 src\I2C_lib.o
+                0x08000608                I2C_ReadByte
  .text.I2C_ReadBits
-                0x080006d4       0x64 src\I2C_lib.o
-                0x080006d4                I2C_ReadBits
+                0x08000708       0x64 src\I2C_lib.o
+                0x08000708                I2C_ReadBits
  .text.RCC_GetClocksFreq
-                0x08000738      0x1b4 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rcc.o
-                0x08000738                RCC_GetClocksFreq
+                0x0800076c      0x1b4 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rcc.o
+                0x0800076c                RCC_GetClocksFreq
  .text.RCC_AHBPeriphClockCmd
-                0x080008ec       0x3c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rcc.o
-                0x080008ec                RCC_AHBPeriphClockCmd
+                0x08000920       0x3c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rcc.o
+                0x08000920                RCC_AHBPeriphClockCmd
  .text.RCC_APB2PeriphClockCmd
-                0x08000928       0x3c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rcc.o
-                0x08000928                RCC_APB2PeriphClockCmd
+                0x0800095c       0x3c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rcc.o
+                0x0800095c                RCC_APB2PeriphClockCmd
  .text.RCC_APB1PeriphClockCmd
-                0x08000964       0x3c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rcc.o
-                0x08000964                RCC_APB1PeriphClockCmd
+                0x08000998       0x3c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rcc.o
+                0x08000998                RCC_APB1PeriphClockCmd
  .text.I2C_Init
-                0x080009a0      0x184 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
-                0x080009a0                I2C_Init
- .text.I2C_Cmd  0x08000b24       0x40 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
-                0x08000b24                I2C_Cmd
+                0x080009d4      0x184 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
+                0x080009d4                I2C_Init
+ .text.I2C_Cmd  0x08000b58       0x40 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
+                0x08000b58                I2C_Cmd
  .text.I2C_GenerateSTART
-                0x08000b64       0x40 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
-                0x08000b64                I2C_GenerateSTART
+                0x08000b98       0x40 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
+                0x08000b98                I2C_GenerateSTART
  .text.I2C_GenerateSTOP
-                0x08000ba4       0x40 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
-                0x08000ba4                I2C_GenerateSTOP
+                0x08000bd8       0x40 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
+                0x08000bd8                I2C_GenerateSTOP
  .text.I2C_AcknowledgeConfig
-                0x08000be4       0x40 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
-                0x08000be4                I2C_AcknowledgeConfig
+                0x08000c18       0x40 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
+                0x08000c18                I2C_AcknowledgeConfig
  .text.I2C_Send7bitAddress
-                0x08000c24       0x3c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
-                0x08000c24                I2C_Send7bitAddress
+                0x08000c58       0x3c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
+                0x08000c58                I2C_Send7bitAddress
  .text.I2C_SendData
-                0x08000c60       0x20 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
-                0x08000c60                I2C_SendData
+                0x08000c94       0x20 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
+                0x08000c94                I2C_SendData
  .text.I2C_ReceiveData
-                0x08000c80       0x1c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
-                0x08000c80                I2C_ReceiveData
+                0x08000cb4       0x1c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
+                0x08000cb4                I2C_ReceiveData
+ .text.I2C_ITConfig
+                0x08000cd0       0x48 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
+                0x08000cd0                I2C_ITConfig
  .text.I2C_CheckEvent
-                0x08000c9c       0x60 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
-                0x08000c9c                I2C_CheckEvent
+                0x08000d18       0x60 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
+                0x08000d18                I2C_CheckEvent
  .text.I2C_GetFlagStatus
-                0x08000cfc       0x68 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
-                0x08000cfc                I2C_GetFlagStatus
+                0x08000d78       0x68 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
+                0x08000d78                I2C_GetFlagStatus
  .text.I2C_GetITStatus
-                0x08000d64       0x5c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
-                0x08000d64                I2C_GetITStatus
+                0x08000de0       0x5c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
+                0x08000de0                I2C_GetITStatus
  .text.I2C_ClearITPendingBit
-                0x08000dc0       0x2c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
-                0x08000dc0                I2C_ClearITPendingBit
+                0x08000e3c       0x2c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
+                0x08000e3c                I2C_ClearITPendingBit
  .text.GPIO_Init
-                0x08000dec      0x128 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_gpio.o
-                0x08000dec                GPIO_Init
+                0x08000e68      0x128 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_gpio.o
+                0x08000e68                GPIO_Init
  .text.GPIO_PinAFConfig
-                0x08000f14       0x8c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_gpio.o
-                0x08000f14                GPIO_PinAFConfig
+                0x08000f90       0x8c Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_gpio.o
+                0x08000f90                GPIO_PinAFConfig
+ .text.NVIC_PriorityGroupConfig
+                0x0800101c       0x24 Libraries\STM32L1xx_StdPeriph_Driver\src\misc.o
+                0x0800101c                NVIC_PriorityGroupConfig
  .text.NVIC_Init
-                0x08000fa0       0xbc Libraries\STM32L1xx_StdPeriph_Driver\src\misc.o
-                0x08000fa0                NVIC_Init
+                0x08001040       0xbc Libraries\STM32L1xx_StdPeriph_Driver\src\misc.o
+                0x08001040                NVIC_Init
  .text.__libc_init_array
-                0x0800105c       0x4c c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/../../../../arm-atollic-eabi/lib/armv7-m\libc_s.a(lib_a-init.o)
-                0x0800105c                __libc_init_array
+                0x080010fc       0x4c c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/../../../../arm-atollic-eabi/lib/armv7-m\libc_s.a(lib_a-init.o)
+                0x080010fc                __libc_init_array
  *(.glue_7)
  .glue_7        0x00000000        0x0 linker stubs
  *(.glue_7t)
  .glue_7t       0x00000000        0x0 linker stubs
  *(.eh_frame)
- .eh_frame      0x080010a8        0x0 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crtbegin.o
+ .eh_frame      0x08001148        0x0 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crtbegin.o
  *(.init)
- .init          0x080010a8        0x4 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crti.o
-                0x080010a8                _init
- .init          0x080010ac        0x8 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crtn.o
+ .init          0x08001148        0x4 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crti.o
+                0x08001148                _init
+ .init          0x0800114c        0x8 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crtn.o
  *(.fini)
- .fini          0x080010b4        0x4 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crti.o
-                0x080010b4                _fini
- .fini          0x080010b8        0x8 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crtn.o
-                0x080010c0                . = ALIGN (0x4)
-                0x080010c0                _etext = .
+ .fini          0x08001154        0x4 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crti.o
+                0x08001154                _fini
+ .fini          0x08001158        0x8 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crtn.o
+                0x08001160                . = ALIGN (0x4)
+                0x08001160                _etext = .
 
-.vfp11_veneer   0x080010c0        0x0
+.vfp11_veneer   0x08001160        0x0
  .vfp11_veneer  0x00000000        0x0 linker stubs
 
-.v4_bx          0x080010c0        0x0
+.v4_bx          0x08001160        0x0
  .v4_bx         0x00000000        0x0 linker stubs
 
-.iplt           0x080010c0        0x0
+.iplt           0x08001160        0x0
  .iplt          0x00000000        0x0 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crtbegin.o
 
-.rel.dyn        0x080010c0        0x0
+.rel.dyn        0x08001160        0x0
  .rel.iplt      0x00000000        0x0 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crtbegin.o
 
-.rodata         0x080010c0        0x0
-                0x080010c0                . = ALIGN (0x4)
+.rodata         0x08001160        0x0
+                0x08001160                . = ALIGN (0x4)
  *(.rodata)
  *(.rodata*)
-                0x080010c0                . = ALIGN (0x4)
+                0x08001160                . = ALIGN (0x4)
 
 .ARM.extab
  *(.ARM.extab* .gnu.linkonce.armextab.*)
 
-.ARM            0x080010c0        0x0
-                0x080010c0                __exidx_start = .
+.ARM            0x08001160        0x0
+                0x08001160                __exidx_start = .
  *(.ARM.exidx*)
-                0x080010c0                __exidx_end = .
+                0x08001160                __exidx_end = .
 
-.preinit_array  0x080010c0        0x0
-                0x080010c0                PROVIDE (__preinit_array_start, .)
+.preinit_array  0x08001160        0x0
+                0x08001160                PROVIDE (__preinit_array_start, .)
  *(.preinit_array*)
-                0x080010c0                PROVIDE (__preinit_array_end, .)
+                0x08001160                PROVIDE (__preinit_array_end, .)
 
-.init_array     0x080010c0        0x4
-                0x080010c0                PROVIDE (__init_array_start, .)
+.init_array     0x08001160        0x4
+                0x08001160                PROVIDE (__init_array_start, .)
  *(SORT(.init_array.*))
  *(.init_array*)
- .init_array    0x080010c0        0x4 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crtbegin.o
-                0x080010c4                PROVIDE (__init_array_end, .)
+ .init_array    0x08001160        0x4 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crtbegin.o
+                0x08001164                PROVIDE (__init_array_end, .)
 
-.fini_array     0x080010c4        0x4
-                0x080010c4                PROVIDE (__fini_array_start, .)
+.fini_array     0x08001164        0x4
+                0x08001164                PROVIDE (__fini_array_start, .)
  *(SORT(.fini_array.*))
  *(.fini_array*)
- .fini_array    0x080010c4        0x4 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crtbegin.o
-                0x080010c8                PROVIDE (__fini_array_end, .)
-                0x080010c8                _sidata = LOADADDR (.data)
+ .fini_array    0x08001164        0x4 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crtbegin.o
+                0x08001168                PROVIDE (__fini_array_end, .)
+                0x08001168                _sidata = LOADADDR (.data)
 
-.data           0x20000000       0x1c load address 0x080010c8
+.data           0x20000000       0x1c load address 0x08001168
                 0x20000000                . = ALIGN (0x4)
                 0x20000000                _sdata = .
  *(.data)
@@ -2005,11 +2007,11 @@ LOAD c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib
                 0x2000001c                . = ALIGN (0x4)
                 0x2000001c                _edata = .
 
-.igot.plt       0x2000001c        0x0 load address 0x080010e4
+.igot.plt       0x2000001c        0x0 load address 0x08001184
  .igot.plt      0x00000000        0x0 c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/armv7-m/crtbegin.o
                 0x2000001c                . = ALIGN (0x4)
 
-.bss            0x2000001c       0x1c load address 0x080010e4
+.bss            0x2000001c       0x1c load address 0x08001184
                 0x2000001c                _sbss = .
                 0x2000001c                __bss_start__ = _sbss
  *(.bss)
@@ -2021,7 +2023,7 @@ LOAD c:/program files (x86)/atollic/truestudio for arm 5.4.0/armtools/bin/../lib
                 0x20000038                __bss_end__ = _ebss
 
 ._user_heap_stack
-                0x20000038      0x400 load address 0x080010e4
+                0x20000038      0x400 load address 0x08001184
                 0x20000038                . = ALIGN (0x4)
                 0x20000038                PROVIDE (end, .)
                 0x20000038                PROVIDE (_end, .)
@@ -2132,17 +2134,17 @@ OUTPUT(Proyecto-Microprocesadores.elf elf32-littlearm)
  .debug_ranges  0x00000398       0x78 Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_gpio.o
  .debug_ranges  0x00000410       0x30 Libraries\STM32L1xx_StdPeriph_Driver\src\misc.o
 
-.debug_line     0x00000000     0x1bd7
+.debug_line     0x00000000     0x1be4
  .debug_line    0x00000000      0x208 src\system_stm32l1xx.o
  .debug_line    0x00000208       0x7c src\startup_stm32l1xx_hd.o
- .debug_line    0x00000284      0x251 src\main.o
- .debug_line    0x000004d5      0x18a src\RAI.o
- .debug_line    0x0000065f      0x2b8 src\MPU6050.o
- .debug_line    0x00000917      0x384 src\I2C_lib.o
- .debug_line    0x00000c9b      0x50b Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rcc.o
- .debug_line    0x000011a6      0x4ca Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
- .debug_line    0x00001670      0x32f Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_gpio.o
- .debug_line    0x0000199f      0x238 Libraries\STM32L1xx_StdPeriph_Driver\src\misc.o
+ .debug_line    0x00000284      0x250 src\main.o
+ .debug_line    0x000004d4      0x18a src\RAI.o
+ .debug_line    0x0000065e      0x2b8 src\MPU6050.o
+ .debug_line    0x00000916      0x392 src\I2C_lib.o
+ .debug_line    0x00000ca8      0x50b Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rcc.o
+ .debug_line    0x000011b3      0x4ca Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
+ .debug_line    0x0000167d      0x32f Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_gpio.o
+ .debug_line    0x000019ac      0x238 Libraries\STM32L1xx_StdPeriph_Driver\src\misc.o
 
 .debug_str      0x00000000     0x1849
  .debug_str     0x00000000      0x31c src\system_stm32l1xx.o
@@ -2473,6 +2475,7 @@ I2C_GetITStatus                                   Libraries\STM32L1xx_StdPeriph_
 I2C_GetLastEvent                                  Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
 I2C_GetPEC                                        Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
 I2C_ITConfig                                      Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
+                                                  src\I2C_lib.o
 I2C_Init                                          Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
                                                   src\I2C_lib.o
 I2C_NACKPositionConfig                            Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.o
@@ -2549,11 +2552,11 @@ MPU6050_TestConnection                            src\MPU6050.o
 MemManage_Handler                                 src\startup_stm32l1xx_hd.o
 NMI_Handler                                       src\startup_stm32l1xx_hd.o
 NVIC_Config                                       src\I2C_lib.o
-                                                  src\main.o
 NVIC_Init                                         Libraries\STM32L1xx_StdPeriph_Driver\src\misc.o
                                                   Utilities\STM32L152_Nucleo\stm32l1xx_nucleo.o
                                                   src\I2C_lib.o
 NVIC_PriorityGroupConfig                          Libraries\STM32L1xx_StdPeriph_Driver\src\misc.o
+                                                  src\I2C_lib.o
 NVIC_SetVectorTable                               Libraries\STM32L1xx_StdPeriph_Driver\src\misc.o
 NVIC_SystemLPConfig                               Libraries\STM32L1xx_StdPeriph_Driver\src\misc.o
 OPAMP_Cmd                                         Libraries\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_opamp.o

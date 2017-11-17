@@ -28,6 +28,8 @@ void I2C_Config(uint32_t I2C_ClockSpeed){
 	gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
 	GPIO_Init(I2C_GPIO,&gpio_init_struct);
 
+	NVIC_Config();
+
     /*Configuracion de la comunicacion I2C */
 	i2c_init_struct.I2C_Ack = I2C_Ack_Enable;
 	i2c_init_struct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
@@ -37,19 +39,29 @@ void I2C_Config(uint32_t I2C_ClockSpeed){
 	i2c_init_struct.I2C_OwnAddress1 = 0xDA;
     I2C_Init(I2Cx, &i2c_init_struct);
 
+
+	//I2C_ITConfig(I2Cx, I2C_IT_ERR , ENABLE);
+	I2C_ITConfig(I2Cx, (I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR), ENABLE);
+	//I2C_ITConfig(I2Cx, I2C_IT_EVT, ENABLE);
     I2C_Cmd(I2Cx,ENABLE);
 
 }
 
 void NVIC_Config()
-{
-	/*Configuracion de NVIC para la interrupcion I2C */
+{	/*Configuracion de NVIC para la interrupcion I2C */
 	NVIC_InitTypeDef NVIC_InitStructure;
-	NVIC_InitStructure.NVIC_IRQChannel = I2Cx_ER_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+
+	NVIC_InitStructure.NVIC_IRQChannel = I2Cx_EV_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
+
+	NVIC_InitStructure.NVIC_IRQChannel = I2Cx_ER_IRQn;
+	NVIC_Init(&NVIC_InitStructure);
+
 }
 void I2C_WriteData(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t* Buffer_ptr,  uint16_t NumBytesToWrite)
 {
