@@ -5,8 +5,9 @@ void I2C_Config(uint32_t I2C_ClockSpeed){
 	GPIO_InitTypeDef gpio_init_struct;
     I2C_InitTypeDef i2c_init_struct;
 
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIO_I2C, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C, ENABLE);
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIO_I2C, ENABLE);
+
 
 	/*Asignamos la funcion alterna de GPIO_AF_I2C1 a ambos pines para realizar comunicacion*/
 	GPIO_PinAFConfig(I2C_GPIO,I2C_SCL_PinSource, GPIO_AF_I2Cx);
@@ -40,8 +41,8 @@ void I2C_Config(uint32_t I2C_ClockSpeed){
     I2C_Init(I2Cx, &i2c_init_struct);
 
 
-	//I2C_ITConfig(I2Cx, I2C_IT_ERR , ENABLE);
-	I2C_ITConfig(I2Cx, (I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR), ENABLE);
+	I2C_ITConfig(I2Cx, I2C_IT_ERR , ENABLE);
+	//I2C_ITConfig(I2Cx, (I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR), ENABLE);
 	//I2C_ITConfig(I2Cx, I2C_IT_EVT, ENABLE);
     I2C_Cmd(I2Cx,ENABLE);
 

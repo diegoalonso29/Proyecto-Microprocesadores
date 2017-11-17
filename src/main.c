@@ -19,7 +19,9 @@ int main(void){
     I2C_Config(100000);
     //NVIC_Config();
      // Delay(100);
-    //MPU6050_SleepMode(DISABLE);
+    MPU6050_SetClockSource(1);
+   // MPU6050_SetFullScaleAccelRange(uint8_t range)
+   // MPU6050_SleepMode(DISABLE);
     while(1)
       {
       id = MPU6050_GetDeviceID();

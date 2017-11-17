@@ -208,10 +208,11 @@ void MPU6050_CalibrateSensor(init_data *init)
 
 void MPU6050_Init(void)
 {
-	MPU6050_SleepMode(DISABLE);
+
 	MPU6050_SetFullScaleAccelRange(1);
 	MPU6050_SetFullScaleGyroRange(1);
 	//MPU6050_CalibrateSensor();
+MPU6050_SleepMode(DISABLE);
 }
 
 

@@ -16,6 +16,17 @@
 #define I2Cx_EV_IRQn			I2C1_EV_IRQn
 #define I2Cx_ER_IRQn			I2C1_ER_IRQn
 
+//uint8_t TRANSMISSION_MODE;
+//uint8_t SLAVE_ADDRESS;
+//uint8_t REG_ADDRESS;
+//uint8_t BUFFER;
+//uint8_t TX_BUFFER[];
+//uint8_t RX_BUFFER[];
+//uint8_t TX_BYTE_NUM;
+//uint8_t RX_BYTE_NUM;
+//uint8_t NUM_TO_SEND;
+//uint8_t NUM_TO_READ;
+
 
 void I2C_Config(uint32_t I2C_ClockSpeed);
 void NVIC_Config(void);
