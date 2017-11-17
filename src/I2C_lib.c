@@ -17,7 +17,7 @@ void I2C_Config(uint32_t I2C_ClockSpeed){
 	gpio_init_struct.GPIO_OType =GPIO_OType_OD;
 	gpio_init_struct.GPIO_Pin= I2C_SCL_Pin;
 	gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
-	gpio_init_struct.GPIO_Speed=GPIO_Speed_40MHz;
+	gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
 	GPIO_Init(I2C_GPIO,&gpio_init_struct);
 
 	/*Configuracion Pin9 (SDA)*/
@@ -25,7 +25,7 @@ void I2C_Config(uint32_t I2C_ClockSpeed){
 	gpio_init_struct.GPIO_OType =GPIO_OType_OD;
 	gpio_init_struct.GPIO_Pin= I2C_SDA_Pin;
 	gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
-	gpio_init_struct.GPIO_Speed=GPIO_Speed_40MHz;
+	gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
 	GPIO_Init(I2C_GPIO,&gpio_init_struct);
 
     /*Configuracion de la comunicacion I2C */
