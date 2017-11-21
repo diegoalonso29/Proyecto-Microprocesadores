@@ -10,8 +10,8 @@ void I2C_Config(){
 
 
 	/*Asignamos la funcion alterna de GPIO_AF_I2C1 a ambos pines para realizar comunicacion*/
-	GPIO_PinAFConfig(I2C_GPIO,I2C_SCL_PinSource, GPIO_AF_I2Cx);
-	GPIO_PinAFConfig(I2C_GPIO,I2C_SDA_PinSource, GPIO_AF_I2Cx);
+	GPIO_PinAFConfig(I2C_GPIO, I2C_SCL_PinSource, GPIO_AF_I2Cx);
+	GPIO_PinAFConfig(I2C_GPIO, I2C_SDA_PinSource, GPIO_AF_I2Cx);
 
 	/* Configuracion Pin8 (SCL) */
 	gpio_init_struct.GPIO_Mode = GPIO_Mode_AF;
@@ -42,8 +42,6 @@ void I2C_Config(){
 
 
     I2C_ITConfig(I2Cx, I2C_IT_ERR , ENABLE);
-    	//I2C_ITConfig(I2Cx, (I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR), ENABLE);
-    	//I2C_ITConfig(I2Cx, I2C_IT_EVT, ENABLE);
     I2C_Cmd(I2Cx,ENABLE);
 
 }
@@ -226,16 +224,15 @@ I2C_ITConfig(I2Cx, (I2C_IT_EVT | I2C_IT_BUF), ENABLE);
 I2C_GenerateSTART(I2Cx, ENABLE);
 
 TimeOut = USER_TIMEOUT;
-while ((TX_BYTE_NUM < NUM_TO_SEND)&&(TimeOut != 0x00))
-{}
+while ((TX_BYTE_NUM < NUM_TO_SEND)&&(TimeOut != 0x00));
 if(TimeOut == 0)
 {
   TimeOut_UserCallback();
 }
 
 TimeOut = USER_TIMEOUT;
-while ((I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY))&&(TimeOut != 0x00))
-{}
+while ((I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY))&&(TimeOut != 0x00));
+
 if(TimeOut == 0)
 {
   TimeOut_UserCallback();

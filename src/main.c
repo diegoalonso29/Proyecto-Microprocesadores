@@ -23,12 +23,11 @@ int main(void){
 
 
     Write_Byte(MPU6050_Address, 0x6B, 0x40);
-    //NVIC_Config();
-     // Delay(100);
-    //MPU6050_SetClockSource(1);
+   // Delay(100);
+   //MPU6050_SetClockSource(1);
    // MPU6050_SetFullScaleAccelRange(uint8_t range)
    // MPU6050_SleepMode(DISABLE);
-//    while(1)
+   //    while(1)
 //      {
 //      id = MPU6050_GetDeviceID();
 //      }

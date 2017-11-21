@@ -16,7 +16,7 @@
 #define I2Cx_EV_IRQn			I2C1_EV_IRQn
 #define I2Cx_ER_IRQn			I2C1_ER_IRQn
 
-#define USER_TIMEOUT                  ((uint32_t)0x64)
+#define USER_TIMEOUT            ((uint32_t)0x64)
 
 uint8_t TRANSMISSION_MODE;
 uint8_t SLAVE_ADDRESS;
@@ -45,6 +45,8 @@ void I2C_ReadBits(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t BitStart
 void I2C_ReadBit (uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t BitNum, uint8_t *data);
 
 void TimeOut_UserCallback(void);
+
+/* CON USO DE INTERRUPCIONES */
 void Write_Byte(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t data);
 
 #endif /* I2C_LIB_H_ */
