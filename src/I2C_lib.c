@@ -1,6 +1,6 @@
 #include "I2C_lib.h"
 
-void I2C_Config(uint32_t I2C_ClockSpeed){
+void I2C_Config(){
 
 	GPIO_InitTypeDef gpio_init_struct;
     I2C_InitTypeDef i2c_init_struct;
@@ -34,16 +34,16 @@ void I2C_Config(uint32_t I2C_ClockSpeed){
     /*Configuracion de la comunicacion I2C */
 	i2c_init_struct.I2C_Ack = I2C_Ack_Enable;
 	i2c_init_struct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-	i2c_init_struct.I2C_ClockSpeed = I2C_ClockSpeed;
+	i2c_init_struct.I2C_ClockSpeed = 100000;
 	i2c_init_struct.I2C_DutyCycle = I2C_DutyCycle_2;
 	i2c_init_struct.I2C_Mode = I2C_Mode_I2C;
 	i2c_init_struct.I2C_OwnAddress1 = 0xDA;
     I2C_Init(I2Cx, &i2c_init_struct);
 
 
-	I2C_ITConfig(I2Cx, I2C_IT_ERR , ENABLE);
-	//I2C_ITConfig(I2Cx, (I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR), ENABLE);
-	//I2C_ITConfig(I2Cx, I2C_IT_EVT, ENABLE);
+    I2C_ITConfig(I2Cx, I2C_IT_ERR , ENABLE);
+    	//I2C_ITConfig(I2Cx, (I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR), ENABLE);
+    	//I2C_ITConfig(I2Cx, I2C_IT_EVT, ENABLE);
     I2C_Cmd(I2Cx,ENABLE);
 
 }
@@ -210,4 +210,44 @@ void I2C_ReadBit(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t BitNum, u
     uint8_t tmp;
     I2C_ReadByte(SlaveAddress, ReadAddressReg, &tmp);
     *data = tmp & (1 << BitNum);
+}
+
+void Write_Byte(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t data)
+{
+TRANSMISSION_MODE = I2C_Direction_Transmitter;
+SLAVE_ADDRESS = SlaveAddress;
+//uint8_t REG_ADDRESS = ;
+TX_BUFFER[0] = WriteAddressReg;
+TX_BUFFER[1] = data;
+TX_BYTE_NUM = 0;
+NUM_TO_SEND = 2;
+
+I2C_ITConfig(I2Cx, (I2C_IT_EVT | I2C_IT_BUF), ENABLE);
+I2C_GenerateSTART(I2Cx, ENABLE);
+
+TimeOut = USER_TIMEOUT;
+while ((TX_BYTE_NUM < NUM_TO_SEND)&&(TimeOut != 0x00))
+{}
+if(TimeOut == 0)
+{
+  TimeOut_UserCallback();
+}
+
+TimeOut = USER_TIMEOUT;
+while ((I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY))&&(TimeOut != 0x00))
+{}
+if(TimeOut == 0)
+{
+  TimeOut_UserCallback();
+}
+
+}
+
+void TimeOut_UserCallback(void)
+{
+  /* User can add his own implementation to manage TimeOut Communication failure */
+  /* Block communication and all processes */
+  while (1)
+  {
+  }
 }

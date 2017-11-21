@@ -4,28 +4,34 @@
 void Systick_Configuration(void);
 void TimingDelay_Decrement(void);
 void Delay(uint32_t nTime);
+void SysTickConfig(void);
 
 static volatile uint32_t TimingDelay;
 
 int main(void){
 
-	Systick_Configuration();
+	I2C_Config();
+	SysTickConfig();
+
 	raw_data raw;
 	init_data init;
 	gyro_data gyro;
 	accel_data accel;
 	uint8_t id;
 
-    I2C_Config(100000);
+
+
+
+    Write_Byte(MPU6050_Address, 0x6B, 0x40);
     //NVIC_Config();
      // Delay(100);
-    MPU6050_SetClockSource(1);
+    //MPU6050_SetClockSource(1);
    // MPU6050_SetFullScaleAccelRange(uint8_t range)
    // MPU6050_SleepMode(DISABLE);
-    while(1)
-      {
-      id = MPU6050_GetDeviceID();
-      }
+//    while(1)
+//      {
+//      id = MPU6050_GetDeviceID();
+//      }
 //		MPU6050_Init();
 //      MPU6050_CalibrateSensor(&init);
 //
@@ -33,7 +39,7 @@ int main(void){
 //      MPU6050_GetRawAccelGyro(&raw);
 //      MPU6050_ConvertToFloat(&raw, &accel, &gyro);
 //      }
-
+while(1);
 
 return 0;
 }
@@ -55,10 +61,15 @@ void TimingDelay_Decrement(void)
   }
 }
 
-void Systick_Configuration()
+void SysTickConfig(void)
 {
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG , ENABLE);
-  RCC_ClocksTypeDef RCC_Clocks;
-  RCC_GetClocksFreq(&RCC_Clocks);
-  SysTick_Config(RCC_Clocks.HCLK_Frequency / 1000);
+  /* Setup SysTick Timer for 10ms interrupts  */
+  if (SysTick_Config(SystemCoreClock / 100))
+  {
+    /* Capture error */
+    while (1);
+  }
+
+  /* Configure the SysTick handler priority */
+  NVIC_SetPriority(SysTick_IRQn, 0x0);
 }

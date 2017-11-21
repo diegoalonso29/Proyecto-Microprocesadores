@@ -31,27 +31,26 @@
 //extern uint8_t NUM_TO_SEND;
 //extern uint8_t NUM_TO_READ;
 
-//void SysTick_Handler(void)
-//{
-//  /* Decrement the time out value */
-//  if (TimeOut != 0x0)
-//  {
-//    TimeOut--;
-//  }
-//
-//
-//  if (Counter < 10)
-//  {
-//    Counter++;
-//  }
-//  else
-//  {
-//    Counter = 0x00;
-//    STM_EVAL_LEDToggle(LED1);
-//  }
-//}
+void SysTick_Handler(void)
+{
+  /* Decrement the time out value */
+  if (TimeOut != 0x0)
+  {
+    TimeOut--;
+  }
 
-void I2Cx_ER_IRQHandler(void)
+
+  if (Counter < 10)
+  {
+    Counter++;
+  }
+  else
+  {
+    Counter = 0x00;
+  }
+}
+
+void I2C1_ER_IRQHandler(void)
 {
   if ((I2C_ReadRegister(I2Cx, I2C_Register_SR1) & 0xFF00) != 0x00)
   {
@@ -60,60 +59,60 @@ void I2Cx_ER_IRQHandler(void)
   }
 }
 
-//void I2Cx_EV_IRQHandler(void)
-//{
-//  /* Once the Start condition is sent the master can be master receiver
-//  or master transmitter */
-//
-//  if (TRANSMISSION_MODE == I2C_Direction_Transmitter)
-//  {
-//    /* Get Last I2C Event */
-//    uint32_t Event = I2C_GetLastEvent(I2Cx);
-//    switch (Event)
-//    {
-//  /* ************************************************************************/
-//  /*                        Master Transmitter Events                       */
-//  /*                                                                        */
-//  /* ************************************************************************/
-///* Sending the header sequence for Master Transmitter case----------------*/
-//
-//    /* Check on EV5 */
-//    case I2C_EVENT_MASTER_MODE_SELECT :
-//      /* Send slave Address for write */
-//      I2C_Send7bitAddress(I2Cx, SLAVE_ADDRESS , I2C_Direction_Transmitter);
-//      break;
-//
-//      /* Check on EV6 */
-//    case I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED:
-//      /* Transmit the First Data  */
-//      I2C_SendData(I2Cx, TX_BUFFER[TX_BYTE_NUM++]);
-//      break;
-//
-//      /* Check on EV8 */
-//    case I2C_EVENT_MASTER_BYTE_TRANSMITTING:
-//    case I2C_EVENT_MASTER_BYTE_TRANSMITTED:
-//      if (TX_BYTE_NUM == (uint8_t)NUM_TO_SEND)
-//      {
-//        /* Send STOP condition */
-//        I2C_GenerateSTOP(I2Cx, ENABLE);
-//        I2C_ITConfig(I2Cx, I2C_IT_EVT | I2C_IT_BUF, DISABLE);
-//      }
-//      else
-//      {
-//        /* Transmit Data TX_BUFFER */
-//        I2C_SendData(I2Cx, TX_BUFFER[TX_BYTE_NUM++]);
-//      }
-//      break;
-//
-//    default:
-//      break;
-//    }
-//
-//  }
-//  /*************************************************************************/
-//  /*                        Master Receiver Events                         */
-//  /*                                                                       */
-//  /*************************************************************************/
+void I2C1_EV_IRQHandler(void)
+{
+  /* Once the Start condition is sent the master can be master receiver
+  or master transmitter */
+
+  if (TRANSMISSION_MODE == I2C_Direction_Transmitter)
+  {
+    /* Get Last I2C Event */
+    uint32_t Event = I2C_GetLastEvent(I2Cx);
+    switch (Event)
+    {
+  /* ************************************************************************/
+  /*                        Master Transmitter Events                       */
+  /*                                                                        */
+  /* ************************************************************************/
+/* Sending the header sequence for Master Transmitter case----------------*/
+
+    /* Check on EV5 */
+    case I2C_EVENT_MASTER_MODE_SELECT :
+      /* Send slave Address for write */
+      I2C_Send7bitAddress(I2Cx, SLAVE_ADDRESS , I2C_Direction_Transmitter);
+      break;
+
+      /* Check on EV6 */
+    case I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED:
+      /* Transmit the First Data  */
+      I2C_SendData(I2Cx, TX_BUFFER[TX_BYTE_NUM++]);
+      break;
+
+      /* Check on EV8 */
+    case I2C_EVENT_MASTER_BYTE_TRANSMITTING:
+    case I2C_EVENT_MASTER_BYTE_TRANSMITTED:
+      if (TX_BYTE_NUM == (uint8_t)NUM_TO_SEND)
+      {
+        /* Send STOP condition */
+        I2C_GenerateSTOP(I2Cx, ENABLE);
+        I2C_ITConfig(I2Cx, I2C_IT_EVT | I2C_IT_BUF, DISABLE);
+      }
+      else
+      {
+        /* Transmit Data TX_BUFFER */
+        I2C_SendData(I2Cx, TX_BUFFER[TX_BYTE_NUM++]);
+      }
+      break;
+
+    default:
+      break;
+    }
+
+  }
+  /*************************************************************************/
+  /*                        Master Receiver Events                         */
+  /*                                                                       */
+  /*************************************************************************/
 //  else /* MASTER_MODE_RECEIVER */
 //  {
 //    /* Check on EV5 */
@@ -208,4 +207,4 @@ void I2Cx_ER_IRQHandler(void)
 //        NumberOfByteToReceive--;
 //      }
 //    }
-//  }
+  }

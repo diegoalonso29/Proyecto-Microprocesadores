@@ -16,19 +16,22 @@
 #define I2Cx_EV_IRQn			I2C1_EV_IRQn
 #define I2Cx_ER_IRQn			I2C1_ER_IRQn
 
-//uint8_t TRANSMISSION_MODE;
-//uint8_t SLAVE_ADDRESS;
-//uint8_t REG_ADDRESS;
-//uint8_t BUFFER;
-//uint8_t TX_BUFFER[];
-//uint8_t RX_BUFFER[];
-//uint8_t TX_BYTE_NUM;
-//uint8_t RX_BYTE_NUM;
-//uint8_t NUM_TO_SEND;
-//uint8_t NUM_TO_READ;
+#define USER_TIMEOUT                  ((uint32_t)0x64)
 
+uint8_t TRANSMISSION_MODE;
+uint8_t SLAVE_ADDRESS;
+uint8_t REG_ADDRESS;
+uint8_t BUFFER;
+uint8_t TX_BUFFER[];
+uint8_t RX_BUFFER[];
+uint8_t TX_BYTE_NUM;
+uint8_t RX_BYTE_NUM;
+uint8_t NUM_TO_SEND;
+uint8_t NUM_TO_READ;
+uint32_t TimeOut;
+uint8_t Counter;
 
-void I2C_Config(uint32_t I2C_ClockSpeed);
+void I2C_Config();
 void NVIC_Config(void);
 
 void I2C_WriteData(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t* Buffer_ptr,  uint16_t NumBytesToWrite);
@@ -41,5 +44,7 @@ void I2C_ReadByte(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t* Buffer_
 void I2C_ReadBits(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t BitStart, uint8_t length, uint8_t *data);
 void I2C_ReadBit (uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t BitNum, uint8_t *data);
 
+void TimeOut_UserCallback(void);
+void Write_Byte(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t data);
 
 #endif /* I2C_LIB_H_ */
