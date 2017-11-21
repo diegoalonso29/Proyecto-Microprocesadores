@@ -8,16 +8,11 @@ void I2C_Config(){
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIO_I2C, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C, ENABLE);
 
-
-	/*Asignamos la funcion alterna de GPIO_AF_I2C1 a ambos pines para realizar comunicacion*/
-	GPIO_PinAFConfig(I2C_GPIO, I2C_SCL_PinSource, GPIO_AF_I2Cx);
-	GPIO_PinAFConfig(I2C_GPIO, I2C_SDA_PinSource, GPIO_AF_I2Cx);
-
 	/* Configuracion Pin8 (SCL) */
 	gpio_init_struct.GPIO_Mode = GPIO_Mode_AF;
 	gpio_init_struct.GPIO_OType =GPIO_OType_OD;
 	gpio_init_struct.GPIO_Pin= I2C_SCL_Pin;
-	gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
+	gpio_init_struct.GPIO_PuPd= GPIO_PuPd_UP;
 	gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
 	GPIO_Init(I2C_GPIO,&gpio_init_struct);
 
@@ -25,14 +20,18 @@ void I2C_Config(){
 	gpio_init_struct.GPIO_Mode = GPIO_Mode_AF;
 	gpio_init_struct.GPIO_OType =GPIO_OType_OD;
 	gpio_init_struct.GPIO_Pin= I2C_SDA_Pin;
-	gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
+	gpio_init_struct.GPIO_PuPd= GPIO_PuPd_UP;
 	gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
 	GPIO_Init(I2C_GPIO,&gpio_init_struct);
+
+	/*Asignamos la funcion alterna de GPIO_AF_I2C1 a ambos pines para realizar comunicacion*/
+	GPIO_PinAFConfig(I2C_GPIO, I2C_SCL_PinSource, GPIO_AF_I2Cx);
+	GPIO_PinAFConfig(I2C_GPIO, I2C_SDA_PinSource, GPIO_AF_I2Cx);
 
 	NVIC_Config();
 
     /*Configuracion de la comunicacion I2C */
-	i2c_init_struct.I2C_Ack = I2C_Ack_Enable;
+	i2c_init_struct.I2C_Ack = I2C_Ack_Disable;
 	i2c_init_struct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
 	i2c_init_struct.I2C_ClockSpeed = 100000;
 	i2c_init_struct.I2C_DutyCycle = I2C_DutyCycle_2;
@@ -47,7 +46,9 @@ void I2C_Config(){
 }
 
 void NVIC_Config()
-{	/*Configuracion de NVIC para la interrupcion I2C */
+{
+	/*Configuracion de NVIC para la interrupcion I2C */
+
 	NVIC_InitTypeDef NVIC_InitStructure;
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
@@ -100,7 +101,7 @@ void I2C_WriteBits(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t BitSta
     // 76543210 bit numbers
     //    xxx   args: bitStart=4, length=3
     // 00011100 mask byte
-    // 10101111 original value (sample)
+	// 10101111 original value (sample)
     // 10100011 original & ~mask
     // 10101011 masked | value
     uint8_t tmp;

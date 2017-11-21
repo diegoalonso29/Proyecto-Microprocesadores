@@ -66,6 +66,7 @@ void I2C1_EV_IRQHandler(void)
 
   if (TRANSMISSION_MODE == I2C_Direction_Transmitter)
   {
+	 I2C_ClearITPendingBit(I2Cx, I2C_IT_EVT);
     /* Get Last I2C Event */
     uint32_t Event = I2C_GetLastEvent(I2Cx);
     switch (Event)

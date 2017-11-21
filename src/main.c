@@ -20,10 +20,12 @@ int main(void){
 	uint8_t id;
 
 
+  uint8_t g = 0x00;
 
-
-    Write_Byte(MPU6050_Address, 0x6B, 0x40);
+   Write_Byte(0xD0, 0x6B, 0x00);
    // Delay(100);
+
+   //I2C_WriteByte(0xD0, 0x6B, &g);
    //MPU6050_SetClockSource(1);
    // MPU6050_SetFullScaleAccelRange(uint8_t range)
    // MPU6050_SleepMode(DISABLE);
@@ -38,7 +40,7 @@ int main(void){
 //      MPU6050_GetRawAccelGyro(&raw);
 //      MPU6050_ConvertToFloat(&raw, &accel, &gyro);
 //      }
-while(1);
+//while(1);
 
 return 0;
 }
