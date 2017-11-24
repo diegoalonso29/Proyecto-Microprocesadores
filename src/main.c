@@ -10,6 +10,8 @@ static volatile uint32_t TimingDelay;
 
 int main(void){
 
+	//uint8_t ptr = 25;
+
 	I2C_Config();
 	SysTickConfig();
 
@@ -18,28 +20,29 @@ int main(void){
 	gyro_data gyro;
 	accel_data accel;
 	uint8_t id;
+//	uint8_t g [10];
+//	uint8_t *ptr;
+//	ptr = g;
+//	int i;
 
-
-  uint8_t g = 0x00;
-
-   Write_Byte(0xD0, 0x6B, 0x00);
-   // Delay(100);
-
-   //I2C_WriteByte(0xD0, 0x6B, &g);
-   //MPU6050_SetClockSource(1);
-   // MPU6050_SetFullScaleAccelRange(uint8_t range)
-   // MPU6050_SleepMode(DISABLE);
-   //    while(1)
-//      {
-//      id = MPU6050_GetDeviceID();
-//      }
-//		MPU6050_Init();
-//      MPU6050_CalibrateSensor(&init);
+//	for( i = 0; i<10 ; i++)
+//	{
+//		I2C_ReadByte(MPU6050_Address, 0x6B, ptr);
+//		ptr ++;
+//	}
 //
-//      while(1){
-//      MPU6050_GetRawAccelGyro(&raw);
-//      MPU6050_ConvertToFloat(&raw, &accel, &gyro);
-//      }
+// Write_Byte(0xD0, 0x6B, 0x00);
+//    Delay(100);
+//
+//	I2C_ReadByte(0xD0, 0x6B, ptr);
+//
+	MPU6050_Init();
+	MPU6050_CalibrateSensor(&init);
+	while(1){
+			MPU6050_GetRawAccelGyro(&raw);
+			MPU6050_ConvertToFloat(&raw, &accel, &gyro);
+			}
+
 //while(1);
 
 return 0;

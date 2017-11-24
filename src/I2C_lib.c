@@ -31,7 +31,7 @@ void I2C_Config(){
 	NVIC_Config();
 
     /*Configuracion de la comunicacion I2C */
-	i2c_init_struct.I2C_Ack = I2C_Ack_Disable;
+	i2c_init_struct.I2C_Ack = I2C_Ack_Enable;
 	i2c_init_struct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
 	i2c_init_struct.I2C_ClockSpeed = 100000;
 	i2c_init_struct.I2C_DutyCycle = I2C_DutyCycle_2;
@@ -162,7 +162,7 @@ void I2C_ReadData(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t* Buffer_
 void I2C_ReadByte(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t* Buffer_ptr)
 {
 
-    while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
+    //while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
 
     I2C_GenerateSTART(I2Cx, ENABLE);
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));
@@ -183,10 +183,10 @@ void I2C_ReadByte(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t* Buffer_
     I2C_AcknowledgeConfig(I2Cx, DISABLE);
     I2C_GenerateSTOP(I2Cx, ENABLE);
 
-    if (I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED))
-        {
+   if (I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED))
+      {
             *Buffer_ptr = I2C_ReceiveData(I2Cx);
-        }
+      }
 
     I2C_AcknowledgeConfig(I2Cx, ENABLE);
 }

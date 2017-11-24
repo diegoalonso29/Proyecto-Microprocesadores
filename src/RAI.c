@@ -116,21 +116,13 @@ void I2C1_EV_IRQHandler(void)
   /*************************************************************************/
 //  else /* MASTER_MODE_RECEIVER */
 //  {
-//    /* Check on EV5 */
+//  /* Check on EV5 */
 //    if(I2C_GetITStatus(I2Cx, I2C_IT_SB)== SET)
 //    {
 //      /* Send slave Address for read */
 //      I2C_Send7bitAddress(I2Cx, SLAVE_ADDRESS, I2C_Direction_Receiver);
-//      if (NumberOfByteToReceive == 0x03)
-//      {
-//        /* Disable buffer Interrupts */
-//        I2C_ITConfig(I2Cx, I2C_IT_BUF , DISABLE);
-//      }
-//      else
-//      {
 //        /* Enable buffer Interrupts */
 //        I2C_ITConfig(I2Cx, I2C_IT_BUF , ENABLE);
-//      }
 //    }
 //
 //    else if(I2C_GetITStatus(I2Cx, I2C_IT_ADDR)== SET)
