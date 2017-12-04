@@ -12,7 +12,7 @@ void I2C_Config(){
 	gpio_init_struct.GPIO_Mode = GPIO_Mode_AF;
 	gpio_init_struct.GPIO_OType =GPIO_OType_OD;
 	gpio_init_struct.GPIO_Pin= I2C_SCL_Pin;
-	gpio_init_struct.GPIO_PuPd= GPIO_PuPd_UP;
+	gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
 	gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
 	GPIO_Init(I2C_GPIO,&gpio_init_struct);
 
@@ -20,8 +20,8 @@ void I2C_Config(){
 	gpio_init_struct.GPIO_Mode = GPIO_Mode_AF;
 	gpio_init_struct.GPIO_OType =GPIO_OType_OD;
 	gpio_init_struct.GPIO_Pin= I2C_SDA_Pin;
-	gpio_init_struct.GPIO_PuPd= GPIO_PuPd_UP;
-	gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
+	gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
+	gpio_init_struct.GPIO_Speed=GPIO_Speed_40MHz;
 	GPIO_Init(I2C_GPIO,&gpio_init_struct);
 
 	/*Asignamos la funcion alterna de GPIO_AF_I2C1 a ambos pines para realizar comunicacion*/
@@ -94,6 +94,8 @@ void I2C_WriteByte(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t* Buffe
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
     I2C_GenerateSTOP(I2Cx, ENABLE);
+
+    while(I2C_GetFlagStatus(I2Cx,I2C_FLAG_BUSY));
 }
 void I2C_WriteBits(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t BitStart, uint8_t length, uint8_t data)
 {
@@ -162,7 +164,7 @@ void I2C_ReadData(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t* Buffer_
 void I2C_ReadByte(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t* Buffer_ptr)
 {
 
-    //while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
+    while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
 
     I2C_GenerateSTART(I2Cx, ENABLE);
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));

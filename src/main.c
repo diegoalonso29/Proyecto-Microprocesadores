@@ -13,35 +13,39 @@ int main(void){
 	//uint8_t ptr = 25;
 
 	I2C_Config();
-	SysTickConfig();
+	//SysTickConfig();
 
 	raw_data raw;
 	init_data init;
 	gyro_data gyro;
 	accel_data accel;
 	uint8_t id;
-//	uint8_t g [10];
-//	uint8_t *ptr;
-//	ptr = g;
-//	int i;
 
-//	for( i = 0; i<10 ; i++)
-//	{
-//		I2C_ReadByte(MPU6050_Address, 0x6B, ptr);
-//		ptr ++;
-//	}
+	uint8_t g [10];
+	uint8_t *ptr;
+	ptr = g;
+	int i;
+	MPU6050_Init();
+	for( i = 0; i<10 ; i++)
+	{
+		I2C_ReadByte(MPU6050_Address, MPU6050_RA_ACCEL_ZOUT_H, ptr++);
+		I2C_ReadByte(MPU6050_Address, MPU6050_RA_ACCEL_ZOUT_H, ptr++);
+		//ptr ++;
+	}
+
+//// Write_Byte(0xD0, 0x6B, 0x00);
+////    Delay(100);
 //
-// Write_Byte(0xD0, 0x6B, 0x00);
-//    Delay(100);
-//
-//	I2C_ReadByte(0xD0, 0x6B, ptr);
+	I2C_ReadByte(0xD0, 0x6B, ptr);
 //
 	MPU6050_Init();
-	MPU6050_CalibrateSensor(&init);
-	while(1){
-			MPU6050_GetRawAccelGyro(&raw);
-			MPU6050_ConvertToFloat(&raw, &accel, &gyro);
-			}
+//	MPU6050_CalibrateSensor(&init);
+//	int x = 0;
+//	while(x<10){
+//		MPU6050_GetRawAccelGyro(&raw);
+//		MPU6050_ConvertToFloat(&raw, &accel, &gyro);
+//		x++;
+//		}
 
 //while(1);
 
