@@ -13,7 +13,7 @@ void I2C_Config(){
 	gpio_init_struct.GPIO_OType =GPIO_OType_OD;
 	gpio_init_struct.GPIO_Pin= I2C_SCL_Pin;
 	gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
-	gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
+	gpio_init_struct.GPIO_Speed=GPIO_Speed_40MHz;
 	GPIO_Init(I2C_GPIO,&gpio_init_struct);
 
 	/*Configuracion Pin9 (SDA)*/
@@ -28,19 +28,19 @@ void I2C_Config(){
 	GPIO_PinAFConfig(I2C_GPIO, I2C_SCL_PinSource, GPIO_AF_I2Cx);
 	GPIO_PinAFConfig(I2C_GPIO, I2C_SDA_PinSource, GPIO_AF_I2Cx);
 
-	NVIC_Config();
+	//NVIC_Config();
 
     /*Configuracion de la comunicacion I2C */
-	i2c_init_struct.I2C_Ack = I2C_Ack_Enable;
+	i2c_init_struct.I2C_Ack = I2C_Ack_Disable;
 	i2c_init_struct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
 	i2c_init_struct.I2C_ClockSpeed = 100000;
 	i2c_init_struct.I2C_DutyCycle = I2C_DutyCycle_2;
 	i2c_init_struct.I2C_Mode = I2C_Mode_I2C;
 	i2c_init_struct.I2C_OwnAddress1 = 0xDA;
+
+	I2C_Cmd(I2Cx,DISABLE);
     I2C_Init(I2Cx, &i2c_init_struct);
 
-
-    I2C_ITConfig(I2Cx, I2C_IT_ERR , ENABLE);
     I2C_Cmd(I2Cx,ENABLE);
 
 }

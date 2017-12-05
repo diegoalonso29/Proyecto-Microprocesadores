@@ -1,6 +1,7 @@
 #include "I2C_lib.h"
 #include "MPU6050.h"
 #include "USART_Lib.h"
+
 #include <math.h>
 #include <stdio.h>
 
@@ -17,25 +18,34 @@ static volatile uint32_t TimingDelay;
 int main(void){
 
 //	uint8_t ptr;
+	uint8_t high;
+	uint8_t low;
+	uint8_t wakeup = 0x00;
 
 	I2C_Config();
 	USART2_Init(9600);
-	USART_Send(USART2, "Hola carallo\n");
+
+	USART_Send(USART2, "Correcto encendido\n");
 
 //	raw_data raw;
 //	init_data init;
 //	gyro_data gyro;
 //	accel_data accel;
 //	uint8_t id;
+	I2C_ReadByte(MPU6050_Address, MPU6050_RA_PWR_MGMT_1, &wakeup);
+	USART_Send(USART2,"El registro del PWR primero vale: ");
+	I2C_WriteByte(MPU6050_Address, MPU6050_RA_PWR_MGMT_1, &wakeup);
+	I2C_ReadByte(MPU6050_Address, MPU6050_RA_PWR_MGMT_1, &wakeup);
 
-	uint8_t high;
-	uint8_t low;
+	USART_Send(USART2,"El registro del PWR luego vale: ");
+	USART_Send(USART2,&wakeup);
 
 	I2C_ReadByte(MPU6050_Address, MPU6050_RA_ACCEL_ZOUT_H, &high);
 	I2C_ReadByte(MPU6050_Address, MPU6050_RA_ACCEL_ZOUT_L, &low);
 
 	USART_Send(USART2,&high);
 	USART_Send(USART2,&low);
+
 	//ftoa(float n, uint8_t *res, int afterpoint);
 return 0;
 }
