@@ -1,7 +1,7 @@
 #include "MPU6050.h"
 
 
-MPU6050_Result_t MPU6050_Init(MPU6050_t* DataStruct, MPU6050_Device_t DeviceNumber, MPU6050_Accelerometer_t AccelerometerSensitivity, MPU6050_Gyroscope_t GyroscopeSensitivity)
+MPU6050_Result_t MPU6050_InitConfig(MPU6050_t* DataStruct, MPU6050_Device_t DeviceNumber, MPU6050_Accelerometer_t AccelerometerSensitivity, MPU6050_Gyroscope_t GyroscopeSensitivity)
 {
 	uint8_t temp;
 
@@ -9,7 +9,7 @@ MPU6050_Result_t MPU6050_Init(MPU6050_t* DataStruct, MPU6050_Device_t DeviceNumb
 	DataStruct->Address = MPU6050_I2C_ADDR;
 
 	/* Initialize I2C */
-	TM_I2C_Init();
+	I2C_InitConfig();
 
 	/* Check if device is connected */
 	if (!I2C_IsConnected(MPU6050_I2C, DataStruct->Address)) {
@@ -24,17 +24,17 @@ MPU6050_Result_t MPU6050_Init(MPU6050_t* DataStruct, MPU6050_Device_t DeviceNumb
 	}
 
 	/* Wakeup MPU6050 */
-	I2C_Write(MPU6050_I2C, DataStruct->Address, MPU6050_RA_PWR_MGMT_1, 0x00);
+	I2C_WriteByte(MPU6050_I2C, DataStruct->Address, MPU6050_RA_PWR_MGMT_1, 0x00);
 
 	/* Config accelerometer */
 	temp = I2C_Read(MPU6050_I2C, DataStruct->Address, MPU6050_RA_ACCEL_CONFIG);
 	temp = (temp & 0xE7) | (uint8_t)AccelerometerSensitivity << 3;
-	I2C_Write(MPU6050_I2C, DataStruct->Address, MPU6050_RA_ACCEL_CONFIG, temp);
+	I2C_WriteByte(MPU6050_I2C, DataStruct->Address, MPU6050_RA_ACCEL_CONFIG, temp);
 
 	/* Config gyroscope */
 	temp = I2C_Read(MPU6050_I2C, DataStruct->Address, MPU6050_RA_GYRO_CONFIG);
 	temp = (temp & 0xE7) | (uint8_t)GyroscopeSensitivity << 3;
-	I2C_Write(MPU6050_I2C, DataStruct->Address, MPU6050_RA_GYRO_CONFIG, temp);
+	I2C_WriteByte(MPU6050_I2C, DataStruct->Address, MPU6050_RA_GYRO_CONFIG, temp);
 
 	/* Set sensitivities for multiplying gyro and accelerometer data */
 	switch (AccelerometerSensitivity) {

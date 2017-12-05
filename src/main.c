@@ -1,7 +1,7 @@
 #include "I2C_lib.h"
 #include "MPU6050.h"
 #include "USART_Lib.h"
-#include "stm32l1xx.h"
+//#include "stm32l1xx.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -18,8 +18,8 @@ static volatile uint32_t TimingDelay;
 
 int main(void)
 {
-	TM_MPU6050_t MPU6050_Data0;
-	    TM_MPU6050_t MPU6050_Data1;
+		MPU6050_t MPU6050_Data0;
+	    MPU6050_t MPU6050_Data1;
 	    uint8_t sensor1 = 0, sensor2 = 0;
 	    char str[120];
 
@@ -29,7 +29,7 @@ int main(void)
 	    USART2_Init(9600);
 	    USART_Send(USART2, "Arranque\n");
 	    /* Initialize MPU6050 sensor 0, address = 0xD0, AD0 pin on sensor is low */
-	    if (MPU6050_Init(&MPU6050_Data0, MPU6050_Device_0, MPU6050_Accelerometer_8G, MPU6050_Gyroscope_250s) == MPU6050_Result_Ok) {
+	    if (MPU6050_InitConfig(&MPU6050_Data0, MPU6050_Device_0, MPU6050_Accelerometer_8G, MPU6050_Gyroscope_250s) == MPU6050_Result_Ok) {
 	    		/* Display message to user */
 	    		USART_Send(USART2, "MPU6050 sensor 0 is ready to use!\n");
 

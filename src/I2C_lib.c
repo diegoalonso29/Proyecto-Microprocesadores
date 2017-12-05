@@ -1,5 +1,7 @@
 #include "I2C_lib.h"
 
+#include "stm32l1xx_gpio.h"
+#include "stm32l1xx_i2c.h"
 /* Private variables */
 static uint32_t I2C_Timeout;
 
@@ -9,7 +11,7 @@ static uint32_t I2C_Timeout;
 #define I2C_ACK_ENABLE         1
 #define I2C_ACK_DISABLE        0
 
-void I2C1_Init(){
+void I2C_InitConfig(){
 
 	GPIO_InitTypeDef gpio_init_struct;
     I2C_InitTypeDef i2c_init_struct;

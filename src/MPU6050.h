@@ -1,11 +1,11 @@
+#ifndef MPU6050_H_
+#define MPU6050_H_
+
 #include "stm32l1xx_nucleo.h"
 #include "I2C_lib.h"
 #include "stm32l1xx.h"
-#include "stm32l1xx_rcc.h"
 
 
-#ifndef MPU6050_H_
-#define MPU6050_H_
 
 //#ifndef MPU6050_H
 //#define MPU6050_H 100
@@ -385,37 +385,37 @@
  *         This feature allows you to use 2 different sensors with this library at the same time
  */
 typedef enum {
-	TM_MPU6050_Device_0 = 0,   /*!< AD0 pin is set to low */
-	TM_MPU6050_Device_1 = 0x02 /*!< AD0 pin is set to high */
+	MPU6050_Device_0 = 0,   /*!< AD0 pin is set to low */
+	MPU6050_Device_1 = 2 /*!< AD0 pin is set to high */
 } MPU6050_Device_t;
 
 /**
  * @brief  MPU6050 result enumeration
  */
 typedef enum {
-	TM_MPU6050_Result_Ok = 0x00,          /*!< Everything OK */
-	TM_MPU6050_Result_DeviceNotConnected, /*!< There is no device with valid slave address */
-	TM_MPU6050_Result_DeviceInvalid       /*!< Connected device with address is not MPU6050 */
+	MPU6050_Result_Ok = 0,          /*!< Everything OK */
+	MPU6050_Result_DeviceNotConnected = 1, /*!< There is no device with valid slave address */
+	MPU6050_Result_DeviceInvalid = 2       /*!< Connected device with address is not MPU6050 */
 } MPU6050_Result_t;
 
 /**
  * @brief  Parameters for accelerometer range
  */
 typedef enum {
-	TM_MPU6050_Accelerometer_2G = 0x00, /*!< Range is +- 2G */
-	TM_MPU6050_Accelerometer_4G = 0x01, /*!< Range is +- 4G */
-	TM_MPU6050_Accelerometer_8G = 0x02, /*!< Range is +- 8G */
-	TM_MPU6050_Accelerometer_16G = 0x03 /*!< Range is +- 16G */
+	MPU6050_Accelerometer_2G = 0, /*!< Range is +- 2G */
+	MPU6050_Accelerometer_4G = 1, /*!< Range is +- 4G */
+	MPU6050_Accelerometer_8G = 2, /*!< Range is +- 8G */
+	MPU6050_Accelerometer_16G = 3 /*!< Range is +- 16G */
 } MPU6050_Accelerometer_t;
 
 /**
  * @brief  Parameters for gyroscope range
  */
 typedef enum {
-	TM_MPU6050_Gyroscope_250s = 0x00,  /*!< Range is +- 250 degrees/s */
-	TM_MPU6050_Gyroscope_500s = 0x01,  /*!< Range is +- 500 degrees/s */
-	TM_MPU6050_Gyroscope_1000s = 0x02, /*!< Range is +- 1000 degrees/s */
-	TM_MPU6050_Gyroscope_2000s = 0x03  /*!< Range is +- 2000 degrees/s */
+	MPU6050_Gyroscope_250s = 0,  /*!< Range is +- 250 degrees/s */
+	MPU6050_Gyroscope_500s = 1,  /*!< Range is +- 500 degrees/s */
+	MPU6050_Gyroscope_1000s = 2, /*!< Range is +- 1000 degrees/s */
+	MPU6050_Gyroscope_2000s = 3  /*!< Range is +- 2000 degrees/s */
 } MPU6050_Gyroscope_t;
 
 /**
@@ -437,7 +437,7 @@ typedef struct {
 } MPU6050_t;
 
 
-MPU6050_Result_t MPU6050_Init(MPU6050_t* DataStruct, MPU6050_Device_t DeviceNumber, MPU6050_Accelerometer_t AccelerometerSensitivity, MPU6050_Gyroscope_t GyroscopeSensitivity);
+MPU6050_Result_t MPU6050_InitConfig(MPU6050_t* DataStruct, MPU6050_Device_t DeviceNumber, MPU6050_Accelerometer_t AccelerometerSensitivity, MPU6050_Gyroscope_t GyroscopeSensitivity);
 MPU6050_Result_t MPU6050_ReadAccelerometer(MPU6050_t* DataStruct);
 MPU6050_Result_t MPU6050_ReadGyroscope(MPU6050_t* DataStruct);
 MPU6050_Result_t MPU6050_ReadTemperature(MPU6050_t* DataStruct);

@@ -3,8 +3,6 @@
 
 #include "stm32l1xx_nucleo.h"
 #include "stm32l1xx.h"
-#include "stm32l1xx_gpio.h"
-#include "stm32l1xx_i2c.h"
 
 #define I2C_GPIO				GPIOB
 #define I2C_SCL_PinSource		GPIO_PinSource8
@@ -22,20 +20,8 @@
 #define I2C_TIMEOUT					20000
 #endif
 
-uint8_t TRANSMISSION_MODE;
-uint8_t SLAVE_ADDRESS;
-uint8_t REG_ADDRESS;
-uint8_t BUFFER;
-uint8_t TX_BUFFER[];
-uint8_t RX_BUFFER[];
-uint8_t TX_BYTE_NUM;
-uint8_t RX_BYTE_NUM;
-uint8_t NUM_TO_SEND;
-uint8_t NUM_TO_READ;
-uint32_t TimeOut;
-uint8_t Counter;
 
-void I2C_Init();
+void I2C_InitConfig();
 
 int16_t I2C_Start(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t direction, uint8_t ack);
 uint8_t I2C_Stop(I2C_TypeDef* I2Cx);
