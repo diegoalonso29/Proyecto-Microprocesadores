@@ -1,13 +1,23 @@
 #include "stm32l1xx_nucleo.h"
+#include "I2C_lib.h"
+#include "stm32l1xx.h"
+#include "stm32l1xx_rcc.h"
 
 
 #ifndef MPU6050_H_
 #define MPU6050_H_
 
-#define MPU6050_Address 			0x68
-#define MPU6050_I2C_Speed 			100000
-#define MPU6050_Accel_Range			4
-#define MPU6050_Gyro_Range          500
+//#ifndef MPU6050_H
+//#define MPU6050_H 100
+
+//#define MPU6050_Address 			0x68
+//#define MPU6050_I2C_Speed 			100000
+//#define MPU6050_Accel_Range			4
+//#define MPU6050_Gyro_Range          500
+
+#define	MPU6050_I2C					I2C1
+#define MPU6050_I_AM				0x68
+#define MPU6050_I2C_ADDR			0xD0
 
 #define MPU6050_RA_XG_OFFS_TC       0x00 //[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
 #define MPU6050_RA_YG_OFFS_TC       0x01 //[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
@@ -358,63 +368,136 @@
 #define MPU6050_DMP_MEMORY_BANK_SIZE    256
 #define MPU6050_DMP_MEMORY_CHUNK_SIZE   16
 
+/* Gyro sensitivities in °/s */
+#define MPU6050_GYRO_SENS_250		((float) 131)
+#define MPU6050_GYRO_SENS_500		((float) 65.5)
+#define MPU6050_GYRO_SENS_1000		((float) 32.8)
+#define MPU6050_GYRO_SENS_2000		((float) 16.4)
 
-typedef struct
-{
-  int16_t raw_accel_x;
-  int16_t raw_accel_y;
-  int16_t raw_accel_z;
-  int16_t raw_gyro_x;
-  int16_t raw_gyro_y;
-  int16_t raw_gyro_z;
-  int16_t raw_temp;
+/* Acce sensitivities in g */
+#define MPU6050_ACCE_SENS_2			((float) 16384)
+#define MPU6050_ACCE_SENS_4			((float) 8192)
+#define MPU6050_ACCE_SENS_8			((float) 4096)
+#define MPU6050_ACCE_SENS_16		((float) 2048)
 
-}raw_data;
+/**
+ * @brief  MPU6050 can have 2 different slave addresses, depends on it's input AD0 pin
+ *         This feature allows you to use 2 different sensors with this library at the same time
+ */
+typedef enum {
+	TM_MPU6050_Device_0 = 0,   /*!< AD0 pin is set to low */
+	TM_MPU6050_Device_1 = 0x02 /*!< AD0 pin is set to high */
+} MPU6050_Device_t;
 
-typedef struct
-{
-  float accel_x;
-  float accel_y;
-  float accel_z;
+/**
+ * @brief  MPU6050 result enumeration
+ */
+typedef enum {
+	TM_MPU6050_Result_Ok = 0x00,          /*!< Everything OK */
+	TM_MPU6050_Result_DeviceNotConnected, /*!< There is no device with valid slave address */
+	TM_MPU6050_Result_DeviceInvalid       /*!< Connected device with address is not MPU6050 */
+} MPU6050_Result_t;
 
-}accel_data;
+/**
+ * @brief  Parameters for accelerometer range
+ */
+typedef enum {
+	TM_MPU6050_Accelerometer_2G = 0x00, /*!< Range is +- 2G */
+	TM_MPU6050_Accelerometer_4G = 0x01, /*!< Range is +- 4G */
+	TM_MPU6050_Accelerometer_8G = 0x02, /*!< Range is +- 8G */
+	TM_MPU6050_Accelerometer_16G = 0x03 /*!< Range is +- 16G */
+} MPU6050_Accelerometer_t;
+
+/**
+ * @brief  Parameters for gyroscope range
+ */
+typedef enum {
+	TM_MPU6050_Gyroscope_250s = 0x00,  /*!< Range is +- 250 degrees/s */
+	TM_MPU6050_Gyroscope_500s = 0x01,  /*!< Range is +- 500 degrees/s */
+	TM_MPU6050_Gyroscope_1000s = 0x02, /*!< Range is +- 1000 degrees/s */
+	TM_MPU6050_Gyroscope_2000s = 0x03  /*!< Range is +- 2000 degrees/s */
+} MPU6050_Gyroscope_t;
+
+/**
+ * @brief  Main MPU6050 structure
+ */
+typedef struct {
+	/* Private */
+	uint8_t Address;         /*!< I2C address of device. Only for private use */
+	float Gyro_Mult;         /*!< Gyroscope corrector from raw data to "degrees/s". Only for private use */
+	float Acce_Mult;         /*!< Accelerometer corrector from raw data to "g". Only for private use */
+	/* Public */
+	int16_t Accelerometer_X; /*!< Accelerometer value X axis */
+	int16_t Accelerometer_Y; /*!< Accelerometer value Y axis */
+	int16_t Accelerometer_Z; /*!< Accelerometer value Z axis */
+	int16_t Gyroscope_X;     /*!< Gyroscope value X axis */
+	int16_t Gyroscope_Y;     /*!< Gyroscope value Y axis */
+	int16_t Gyroscope_Z;     /*!< Gyroscope value Z axis */
+	float Temperature;       /*!< Temperature in degrees */
+} MPU6050_t;
 
 
-typedef struct
-{
-	float gyro_x;
-	float gyro_y;
-	float gyro_z;
+MPU6050_Result_t MPU6050_Init(MPU6050_t* DataStruct, MPU6050_Device_t DeviceNumber, MPU6050_Accelerometer_t AccelerometerSensitivity, MPU6050_Gyroscope_t GyroscopeSensitivity);
+MPU6050_Result_t MPU6050_ReadAccelerometer(MPU6050_t* DataStruct);
+MPU6050_Result_t MPU6050_ReadGyroscope(MPU6050_t* DataStruct);
+MPU6050_Result_t MPU6050_ReadTemperature(MPU6050_t* DataStruct);
+MPU6050_Result_t MPU6050_ReadAll(MPU6050_t* DataStruct);
 
-}gyro_data;
-
-typedef struct
-{
-	float init_accel_x;
-	float init_accel_y;
-	float init_accel_z;
-	float init_gyro_x;
-	float init_gyro_y;
-	float init_gyro_z;
-}init_data;
-
-void MPU6050_Init(void);
-void MPU6050_CalibrateSensor(init_data *init);
-
-uint8_t MPU6050_GetDeviceID(void);
-uint8_t MPU6050_TestConnection(void);
-
-void MPU6050_SetClockSource(uint8_t source);
-void MPU6050_SetFullScaleGyroRange(uint8_t range);
-uint8_t MPU6050_GetFullScaleGyroRange(void);
-uint8_t MPU6050_GetFullScaleAccelRange(void);
-void MPU6050_SetFullScaleAccelRange(uint8_t range);
-
-uint8_t MPU6050_GetSleepModeStatus(void);
-void MPU6050_SleepMode(FunctionalState NewState);
-
-void MPU6050_GetRawAccelGyro(raw_data* data);
-void MPU6050_ConvertToFloat(raw_data* raw, accel_data *a_data, gyro_data *g_data);
+//typedef struct
+//{
+//  int16_t raw_accel_x;
+//  int16_t raw_accel_y;
+//  int16_t raw_accel_z;
+//  int16_t raw_gyro_x;
+//  int16_t raw_gyro_y;
+//  int16_t raw_gyro_z;
+//  int16_t raw_temp;
+//
+//}raw_data;
+//
+//typedef struct
+//{
+//  float accel_x;
+//  float accel_y;
+//  float accel_z;
+//
+//}accel_data;
+//
+//
+//typedef struct
+//{
+//	float gyro_x;
+//	float gyro_y;
+//	float gyro_z;
+//
+//}gyro_data;
+//
+//typedef struct
+//{
+//	float init_accel_x;
+//	float init_accel_y;
+//	float init_accel_z;
+//	float init_gyro_x;
+//	float init_gyro_y;
+//	float init_gyro_z;
+//}init_data;
+//void MPU6050_Init(void);
+//void MPU6050_CalibrateSensor(init_data *init);
+//
+//uint8_t MPU6050_GetDeviceID(void);
+//uint8_t MPU6050_TestConnection(void);
+//
+//void MPU6050_SetClockSource(uint8_t source);
+//void MPU6050_SetFullScaleGyroRange(uint8_t range);
+//uint8_t MPU6050_GetFullScaleGyroRange(void);
+//uint8_t MPU6050_GetFullScaleAccelRange(void);
+//void MPU6050_SetFullScaleAccelRange(uint8_t range);
+//
+//uint8_t MPU6050_GetSleepModeStatus(void);
+//void MPU6050_SleepMode(FunctionalState NewState);
+//
+//void MPU6050_GetRawAccelGyro(raw_data* data);
+//void MPU6050_ConvertToFloat(raw_data* raw, accel_data *a_data, gyro_data *g_data);
 
 
 

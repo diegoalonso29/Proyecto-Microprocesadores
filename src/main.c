@@ -1,6 +1,7 @@
 #include "I2C_lib.h"
 #include "MPU6050.h"
 #include "USART_Lib.h"
+#include "stm32l1xx.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -8,45 +9,81 @@
 void Systick_Configuration(void);
 void TimingDelay_Decrement(void);
 void Delay(uint32_t nTime);
-void SysTickConfig(void);
+
 void ftoa(float n, uint8_t *res, int afterpoint);
 int intToStr(int x, uint8_t str[], int d);
 void reverse(uint8_t *str, int len);
 
 static volatile uint32_t TimingDelay;
 
-int main(void){
+int main(void)
+{
+	TM_MPU6050_t MPU6050_Data0;
+	    TM_MPU6050_t MPU6050_Data1;
+	    uint8_t sensor1 = 0, sensor2 = 0;
+	    char str[120];
 
-//	uint8_t ptr;
-	uint8_t high;
-	uint8_t low;
-	uint8_t wakeup = 0x00;
+	    /* Initialize system */
+	    SystemInit();
+	    Systick_Configuration();
+	    USART2_Init(9600);
+	    USART_Send(USART2, "Arranque\n");
+	    /* Initialize MPU6050 sensor 0, address = 0xD0, AD0 pin on sensor is low */
+	    if (MPU6050_Init(&MPU6050_Data0, MPU6050_Device_0, MPU6050_Accelerometer_8G, MPU6050_Gyroscope_250s) == MPU6050_Result_Ok) {
+	    		/* Display message to user */
+	    		USART_Send(USART2, "MPU6050 sensor 0 is ready to use!\n");
 
-	I2C_Config();
-	USART2_Init(9600);
+	    		/* Sensor 1 OK */
+	    		sensor1 = 1;
+	    	}
 
-	USART_Send(USART2, "Correcto encendido\n");
 
-//	raw_data raw;
-//	init_data init;
-//	gyro_data gyro;
-//	accel_data accel;
-//	uint8_t id;
-	I2C_ReadByte(MPU6050_Address, MPU6050_RA_PWR_MGMT_1, &wakeup);
-	USART_Send(USART2,"El registro del PWR primero vale: ");
-	I2C_WriteByte(MPU6050_Address, MPU6050_RA_PWR_MGMT_1, &wakeup);
-	I2C_ReadByte(MPU6050_Address, MPU6050_RA_PWR_MGMT_1, &wakeup);
+	    while (1) {
+	    		Delay(50);
 
-	USART_Send(USART2,"El registro del PWR luego vale: ");
-	USART_Send(USART2,&wakeup);
+	            /* If sensor 1 is connected */
+	            if (sensor1) {
+	                /* Read all data from sensor 1 */
+	                MPU6050_ReadAll(&MPU6050_Data0);
 
-	I2C_ReadByte(MPU6050_Address, MPU6050_RA_ACCEL_ZOUT_H, &high);
-	I2C_ReadByte(MPU6050_Address, MPU6050_RA_ACCEL_ZOUT_L, &low);
+	                /* Format data */
+	                sprintf(str, "1. Accelerometer\n- X:%d\n- Y:%d\n- Z:%d\nGyroscope\n- X:%d\n- Y:%d\n- Z:%d\nTemperature\n- %3.4f\n\n\n",
+	                    MPU6050_Data0.Accelerometer_X,
+	                    MPU6050_Data0.Accelerometer_Y,
+	                    MPU6050_Data0.Accelerometer_Z,
+	                    MPU6050_Data0.Gyroscope_X,
+	                    MPU6050_Data0.Gyroscope_Y,
+	                    MPU6050_Data0.Gyroscope_Z,
+	                    MPU6050_Data0.Temperature
+	                );
 
-	USART_Send(USART2,&high);
-	USART_Send(USART2,&low);
+	                /* Show to usart */
+	                USART_Send(USART2, str);
+	            }
 
-	//ftoa(float n, uint8_t *res, int afterpoint);
+	            /* If sensor 2 is connected */
+	            if (sensor2) {
+	                /* Read all data from sensor 1 */
+	                MPU6050_ReadAll(&MPU6050_Data1);
+
+	                /* Format data */
+	                sprintf(str, "2. Accelerometer\n- X:%d\n- Y:%d\n- Z:%d\nGyroscope\n- X:%d\n- Y:%d\n- Z:%d\nTemperature\n- %3.4f\n\n\n",
+	                    MPU6050_Data1.Accelerometer_X,
+	                    MPU6050_Data1.Accelerometer_Y,
+	                    MPU6050_Data1.Accelerometer_Z,
+	                    MPU6050_Data1.Gyroscope_X,
+	                    MPU6050_Data1.Gyroscope_Y,
+	                    MPU6050_Data1.Gyroscope_Z,
+	                    MPU6050_Data1.Temperature
+	                );
+
+	                /* Show to usart */
+	                USART_Send(USART2, str);
+	            }
+	        }
+	       return 0;
+
+
 return 0;
 }
 
@@ -67,18 +104,13 @@ void TimingDelay_Decrement(void)
   }
 }
 
-void SysTickConfig(void)
+void Systick_Configuration(void)
 {
-  /* Setup SysTick Timer for 10ms interrupts  */
-  if (SysTick_Config(SystemCoreClock / 100))
-  {
-    /* Capture error */
-    while (1);
-  }
-
-  /* Configure the SysTick handler priority */
-  NVIC_SetPriority(SysTick_IRQn, 0x0);
+  RCC_ClocksTypeDef RCC_Clocks;
+  RCC_GetClocksFreq(&RCC_Clocks);
+  SysTick_Config(RCC_Clocks.HCLK_Frequency / 1000);
 }
+
 
 void reverse(uint8_t *str, int len)
 {
