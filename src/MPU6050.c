@@ -6,7 +6,7 @@ MPU6050_Result_t MPU6050_InitConfig(MPU6050_t* DataStruct, uint8_t AccelRange, u
 	uint8_t temp;
 
 	/* Carga en la estructura de la imu la dirección del dispositivo */
-	DataStruct->SlaveAddress = (MPU6050_I2C_ADDR<<1);
+	DataStruct->SlaveAddress = MPU6050_I2C_ADDR;
 
 	/* Inicialización y configuración de la comunicación I2C */
 	I2C_InitConfig();
@@ -72,9 +72,9 @@ MPU6050_Result_t MPU6050_ReadAccelerometer(MPU6050_t* DataStruct)
 	I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_XOUT_H, data, 6);
 
 	/* Format */
-	DataStruct->Accelerometer_X = (int16_t)(data[0] << 8 | data[1]);
-	DataStruct->Accelerometer_Y = (int16_t)(data[2] << 8 | data[3]);
-	DataStruct->Accelerometer_Z = (int16_t)(data[4] << 8 | data[5]);
+	DataStruct->raw_accel_x = (int16_t)(data[0] << 8 | data[1]);
+	DataStruct->raw_accel_y = (int16_t)(data[2] << 8 | data[3]);
+	DataStruct->raw_accel_z = (int16_t)(data[4] << 8 | data[5]);
 
 	/* Return OK */
 	return MPU6050_Result_Ok;
@@ -88,9 +88,9 @@ MPU6050_Result_t MPU6050_ReadGyroscope(MPU6050_t* DataStruct)
 	I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_GYRO_XOUT_H, data, 6);
 
 	/* Format */
-	DataStruct->Gyroscope_X = (int16_t)(data[0] << 8 | data[1]);
-	DataStruct->Gyroscope_Y = (int16_t)(data[2] << 8 | data[3]);
-	DataStruct->Gyroscope_Z = (int16_t)(data[4] << 8 | data[5]);
+	DataStruct->raw_gyro_x = (int16_t)(data[0] << 8 | data[1]);
+	DataStruct->raw_gyro_y = (int16_t)(data[2] << 8 | data[3]);
+	DataStruct->raw_gyro_z = (int16_t)(data[4] << 8 | data[5]);
 
 	/* Return OK */
 	return MPU6050_Result_Ok;
@@ -106,7 +106,7 @@ MPU6050_Result_t MPU6050_ReadTemperature(MPU6050_t* DataStruct)
 
 	/* Format temperature */
 	temp = (data[0] << 8 | data[1]);
-	DataStruct->Temperature = (float)((int16_t)temp / (float)340.0 + (float)36.53);
+	DataStruct->raw_temp = (float)((int16_t)temp / (float)340.0 + (float)36.53);
 
 	/* Return OK */
 	return MPU6050_Result_Ok;
@@ -121,18 +121,18 @@ MPU6050_Result_t MPU6050_ReadAll(MPU6050_t* DataStruct)
 	I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_XOUT_H, data, 14);
 
 	/* Format accelerometer data */
-	DataStruct->Accelerometer_X = (int16_t)(data[0] << 8 | data[1]);
-	DataStruct->Accelerometer_Y = (int16_t)(data[2] << 8 | data[3]);
-	DataStruct->Accelerometer_Z = (int16_t)(data[4] << 8 | data[5]);
+	DataStruct->raw_accel_x = (int16_t)(data[0] << 8 | data[1]);
+	DataStruct->raw_accel_y = (int16_t)(data[2] << 8 | data[3]);
+	DataStruct->raw_accel_z = (int16_t)(data[4] << 8 | data[5]);
 
 	/* Format temperature */
 	temp = (data[6] << 8 | data[7]);
-	DataStruct->Temperature = (float)((float)((int16_t)temp) / (float)340.0 + (float)36.53);
+	DataStruct->raw_temp = (float)((float)((int16_t)temp) / (float)340.0 + (float)36.53);
 
 	/* Format gyroscope data */
-	DataStruct->Gyroscope_X = (int16_t)(data[8] << 8 | data[9]);
-	DataStruct->Gyroscope_Y = (int16_t)(data[10] << 8 | data[11]);
-	DataStruct->Gyroscope_Z = (int16_t)(data[12] << 8 | data[13]);
+	DataStruct->raw_gyro_x = (int16_t)(data[8] << 8 | data[9]);
+	DataStruct->raw_gyro_y = (int16_t)(data[10] << 8 | data[11]);
+	DataStruct->raw_gyro_z = (int16_t)(data[12] << 8 | data[13]);
 
 	/* Return OK */
 	return MPU6050_Result_Ok;

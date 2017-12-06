@@ -1,7 +1,7 @@
 #include "I2C_lib.h"
 
 #include "stm32l1xx_gpio.h"
-#include "stm32l1xx_i2c.h"
+
 /* Private variables */
 static uint32_t I2C_Timeout;
 
@@ -140,49 +140,55 @@ void I2C_WriteMultiNoRegister(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* 
 	I2C_Stop(I2Cx);
 }
 
-int16_t I2C_Start(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t direction, uint8_t ack)
+/*
+*  Genera la seña de Start
+* Parametros :
+* 				I2Cx 			-> periférico I2C elegido
+*				SlaveAddress 	-> Dirección I2C (7bits) del dispositivo
+*				direction		-> Sentido de la comunicacion (Transmitter (0) o Receiver (1)
+*				ack				-> Señal para habilitar o no el ACK del maestro
+* Retorno :
+				I2C_Error_Code  -> Devuelve el codigo del error ( definidos en I2C_Lib.h )
+*/
+
+I2C_Error_Code I2C_Start(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t direction, uint8_t ack)
 {
 	/* Generate I2C start pulse */
 	I2Cx->CR1 |= I2C_CR1_START;
 
 	/* Wait till I2C is busy */
 	I2C_Timeout = I2C_TIMEOUT;
-	while (!(I2Cx->SR1 & I2C_SR1_SB))
+	while (!I2C_TestEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT))
 	{
-		if (--I2C_Timeout == 0x00)
-		{
-			return I2C_StartBitTimeOut;
-		}
+		if (--I2C_Timeout == 0x00){return I2C_StartBit_TimeOut;}
 	}
 
 	/* Enable ack if we select it */
-	if (ack) {
-		I2Cx->CR1 |= I2C_CR1_ACK;
-	}
+	if (ack) {I2Cx->CR1 |= I2C_CR1_ACK;}
 
 	/* Send write/read bit */
-	if (direction == I2C_TRANSMITTER_MODE) {
+	if (direction == I2C_TRANSMITTER_MODE)
+	{
 		/* Send SlaveAddress with zero last bit */
-		I2Cx->DR = SlaveAddress & ~I2C_OAR1_ADD0;
+		I2Cx->DR = (uint8_t)(SlaveAddress << 1 );
 
 		/* Wait till finished */
 		I2C_Timeout = I2C_TIMEOUT;
-		while (!(I2Cx->SR1 & I2C_SR1_ADDR)) {
-			if (--I2C_Timeout == 0x00) {
-				return 1;
-			}
+		while (!I2C_TestEvent(I2Cx, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
+		{
+			if (--I2C_Timeout == 0x00) {return I2C_AddressTransfer_Timeout;}
 		}
 	}
-	if (direction == I2C_RECEIVER_MODE) {
+	if (direction == I2C_RECEIVER_MODE)
+	{
 		/* Send SlaveAddress with 1 last bit */
-		I2Cx->DR = SlaveAddress | I2C_OAR1_ADD0;
+		I2Cx->DR = ((uint8_t)(SlaveAddress<<1)) | I2C_OAR1_ADD0;
 
 		/* Wait till finished */
 		I2C_Timeout = I2C_TIMEOUT;
-		while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED)) {
-			if (--I2C_Timeout == 0x00) {
-				return 1;
-			}
+		while (!I2C_TestEvent(I2Cx, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))
+		{
+			if (--I2C_Timeout == 0x00) {return I2C_AddressTransfer_Timeout;}
 		}
 	}
 
@@ -190,21 +196,23 @@ int16_t I2C_Start(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t direction, ui
 	I2Cx->SR2;
 
 	/* Return 0, everything ok */
-	return 0;
+	return I2C_NoError;
 }
 
-void I2C_Write(I2C_TypeDef* I2Cx, uint8_t data) {
+I2C_Error_Code I2C_Write(I2C_TypeDef* I2Cx, uint8_t data) {
 	/* Wait till I2C is not busy anymore */
 	I2C_Timeout = I2C_TIMEOUT;
-	while (!(I2Cx->SR1 & I2C_SR1_TXE) && I2C_Timeout) {
-		I2C_Timeout--;
+	while (!(I2Cx->SR1 & I2C_SR1_TXE))
+	{
+		if (--I2C_Timeout == 0x00) {return I2C_TXE_Timeout;}
 	}
 
 	/* Send I2C data */
 	I2Cx->DR = data;
+	return I2C_NoError;
 }
 
-uint8_t I2C_ReadAck(I2C_TypeDef* I2Cx, uint8_t* data)
+I2C_Error_Code I2C_ReadAck(I2C_TypeDef* I2Cx, uint8_t* data)
 {
 	//uint8_t data;
 
@@ -215,20 +223,15 @@ uint8_t I2C_ReadAck(I2C_TypeDef* I2Cx, uint8_t* data)
 	I2C_Timeout = I2C_TIMEOUT;
 	while (!I2C_TestEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED))
 	{
-		if (--I2C_Timeout == 0x00) {return 1;}
+		if (--I2C_Timeout == 0x00) {return I2C_ReceiveEvent_Timeout;}
 	}
 
-	/* Read data */
 	*data = I2Cx->DR;
-
-	/* Return data */
-	return 0;
+	return I2C_NoError;
 }
 
-uint8_t I2C_ReadNack(I2C_TypeDef* I2Cx, uint8_t* data)
+I2C_Error_Code I2C_ReadNack(I2C_TypeDef* I2Cx, uint8_t* data)
 {
-	uint8_t data;
-
 	/* Disable ACK */
 	I2Cx->CR1 &= ~I2C_CR1_ACK;
 
@@ -239,14 +242,11 @@ uint8_t I2C_ReadNack(I2C_TypeDef* I2Cx, uint8_t* data)
 	I2C_Timeout = I2C_TIMEOUT;
 	while (!I2C_TestEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED))
 	{
-		if (--I2C_Timeout == 0x00) {return 1;}
+		if (--I2C_Timeout == 0x00) {return I2C_ReceiveEvent_Timeout;}
 	}
 
-	/* Read data */
 	*data = I2Cx->DR;
-
-	/* Return data */
-	return 0;
+	return I2C_NoError;
 }
 
 uint8_t I2C_Stop(I2C_TypeDef* I2Cx)
@@ -254,16 +254,14 @@ uint8_t I2C_Stop(I2C_TypeDef* I2Cx)
 	/* Wait till transmitter not empty */
 	I2C_Timeout = I2C_TIMEOUT;
 	while (((!(I2Cx->SR1 & I2C_SR1_TXE)) || (!(I2Cx->SR1 & I2C_SR1_BTF)))) {
-		if (--I2C_Timeout == 0x00) {
-			return 1;
-		}
+		if (--I2C_Timeout == 0x00) {return I2C_End_Timeout;}
 	}
 
 	/* Generate stop */
 	I2Cx->CR1 |= I2C_CR1_STOP;
 
 	/* Return 0, everything ok */
-	return 0;
+	return I2C_NoError;
 }
 
 void I2C_WriteBits(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t BitStart, uint8_t length, uint8_t data)
