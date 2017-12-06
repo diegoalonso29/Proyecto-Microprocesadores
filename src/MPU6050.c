@@ -1,9 +1,10 @@
 #include "MPU6050.h"
 
 
-MPU6050_Result_t MPU6050_InitConfig(MPU6050_t* DataStruct, uint8_t AccelRange, uint8_t GyroRange)
+I2C_Error_Code MPU6050_InitConfig(MPU6050_t* DataStruct, uint8_t AccelRange, uint8_t GyroRange)
 {
-	uint8_t temp;
+	uint8_t data_temp = 0;
+	I2C_Error_Code status;
 
 	/* Carga en la estructura de la imu la dirección del dispositivo */
 	DataStruct->SlaveAddress = MPU6050_I2C_ADDR;
@@ -12,64 +13,70 @@ MPU6050_Result_t MPU6050_InitConfig(MPU6050_t* DataStruct, uint8_t AccelRange, u
 	I2C_InitConfig();
 
 	/* Comprobación de la conexión del dispositivo*/
-	if (!I2C_IsConnected(MPU6050_I2C, DataStruct->SlaveAddress)) {return MPU6050_Result_DeviceNotConnected;}
+	status = I2C_IsConnected(MPU6050_I2C, DataStruct->SlaveAddress);
+	if(status) {return status;}
 
 	/* Comprueba que el sistema se comunica con el dispositivo adecuado */
-	if (I2C_Read(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_WHO_AM_I) != MPU6050_I_AM) {return MPU6050_Result_DeviceInvalid;}
+	status = I2C_ReadByte(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_WHO_AM_I, &data_temp);
+	if(status) {return status;}
+	if (data_temp != MPU6050_I_AM) { return I2C_WhoIam_Error; }
 
 	/* Arranque del MPU6050 */
-	I2C_WriteByte(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_PWR_MGMT_1, 0x00);
+	status = I2C_WriteByte(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_PWR_MGMT_1, 0x00);
+	if(status) {return status;}
 
 	/* Configuración de la escala para el acelerómetro */
-	I2C_WriteBits(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_AFS_SEL_BIT, MPU6050_ACONFIG_AFS_SEL_LENGTH, AccelRange);
+	status = I2C_WriteBits(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_AFS_SEL_BIT, MPU6050_ACONFIG_AFS_SEL_LENGTH, AccelRange);
+	if(status) {return status;}
 
 	/* Configuración de la escala para el giróscopo */
-	I2C_WriteBits(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_GYRO_CONFIG,  MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, GyroRange);
-
+	status = I2C_WriteBits(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_GYRO_CONFIG,  MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, GyroRange);
+	if(status) {return status;}
 
 	/* Set sensitivities for multiplying gyro and accelerometer data */
 	switch (AccelRange) {
-		case MPU6050_Accelerometer_2G:
+		case MPU6050_ACCEL_FS_2:
 			DataStruct->Acce_Mult = (float)1 / MPU6050_ACCE_SENS_2;
 			break;
-		case MPU6050_Accelerometer_4G:
+		case MPU6050_ACCEL_FS_4:
 			DataStruct->Acce_Mult = (float)1 / MPU6050_ACCE_SENS_4;
 			break;
-		case MPU6050_Accelerometer_8G:
+		case MPU6050_ACCEL_FS_8:
 			DataStruct->Acce_Mult = (float)1 / MPU6050_ACCE_SENS_8;
 			break;
-		case MPU6050_Accelerometer_16G:
+		case MPU6050_ACCEL_FS_16:
 			DataStruct->Acce_Mult = (float)1 / MPU6050_ACCE_SENS_16;
 		default:
 			break;
 	}
 
 	switch (GyroRange) {
-		case MPU6050_Gyroscope_250s:
+		case MPU6050_GYRO_FS_250:
 			DataStruct->Gyro_Mult = (float)1 / MPU6050_GYRO_SENS_250;
 			break;
-		case MPU6050_Gyroscope_500s:
+		case MPU6050_GYRO_FS_500:
 			DataStruct->Gyro_Mult = (float)1 / MPU6050_GYRO_SENS_500;
 			break;
-		case MPU6050_Gyroscope_1000s:
+		case MPU6050_GYRO_FS_1000:
 			DataStruct->Gyro_Mult = (float)1 / MPU6050_GYRO_SENS_1000;
 			break;
-		case MPU6050_Gyroscope_2000s:
+		case MPU6050_GYRO_FS_2000:
 			DataStruct->Gyro_Mult = (float)1 / MPU6050_GYRO_SENS_2000;
 		default:
 			break;
 	}
 
-	/* Return OK */
-	return MPU6050_Result_Ok;
+	return I2C_NoError;
 }
 
-MPU6050_Result_t MPU6050_ReadAccelerometer(MPU6050_t* DataStruct)
+I2C_Error_Code MPU6050_ReadAccelerometer(MPU6050_t* DataStruct)
 {
 	uint8_t data[6];
+	I2C_Error_Code status;
 
 	/* Read accelerometer data */
-	I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_XOUT_H, data, 6);
+	status = I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_XOUT_H, data, 6);
+	if(status) {return status;}
 
 	/* Format */
 	DataStruct->raw_accel_x = (int16_t)(data[0] << 8 | data[1]);
@@ -77,15 +84,17 @@ MPU6050_Result_t MPU6050_ReadAccelerometer(MPU6050_t* DataStruct)
 	DataStruct->raw_accel_z = (int16_t)(data[4] << 8 | data[5]);
 
 	/* Return OK */
-	return MPU6050_Result_Ok;
+	return I2C_NoError;
 }
 
-MPU6050_Result_t MPU6050_ReadGyroscope(MPU6050_t* DataStruct)
+I2C_Error_Code MPU6050_ReadGyroscope(MPU6050_t* DataStruct)
 {
 	uint8_t data[6];
+	I2C_Error_Code status;
 
 	/* Read gyroscope data */
-	I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_GYRO_XOUT_H, data, 6);
+	status = I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_GYRO_XOUT_H, data, 6);
+	if(status) {return status;}
 
 	/* Format */
 	DataStruct->raw_gyro_x = (int16_t)(data[0] << 8 | data[1]);
@@ -93,32 +102,36 @@ MPU6050_Result_t MPU6050_ReadGyroscope(MPU6050_t* DataStruct)
 	DataStruct->raw_gyro_z = (int16_t)(data[4] << 8 | data[5]);
 
 	/* Return OK */
-	return MPU6050_Result_Ok;
+	return I2C_NoError;
 }
 
-MPU6050_Result_t MPU6050_ReadTemperature(MPU6050_t* DataStruct)
+I2C_Error_Code MPU6050_ReadTemperature(MPU6050_t* DataStruct)
 {
 	uint8_t data[2];
 	int16_t temp;
+	I2C_Error_Code status;
 
 	/* Read temperature */
-	I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_TEMP_OUT_H, data, 2);
+	status = I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_TEMP_OUT_H, data, 2);
+	if(status) {return status;}
 
 	/* Format temperature */
 	temp = (data[0] << 8 | data[1]);
 	DataStruct->raw_temp = (float)((int16_t)temp / (float)340.0 + (float)36.53);
 
 	/* Return OK */
-	return MPU6050_Result_Ok;
+	return I2C_NoError;
 }
 
-MPU6050_Result_t MPU6050_ReadAll(MPU6050_t* DataStruct)
+I2C_Error_Code MPU6050_ReadAll(MPU6050_t* DataStruct)
 {
 	uint8_t data[14];
 	int16_t temp;
+	I2C_Error_Code  status;
 
 	/* Read full raw data, 14bytes */
-	I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_XOUT_H, data, 14);
+	status = I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_XOUT_H, data, 14);
+	if(status) {return status;}
 
 	/* Format accelerometer data */
 	DataStruct->raw_accel_x = (int16_t)(data[0] << 8 | data[1]);
@@ -135,7 +148,7 @@ MPU6050_Result_t MPU6050_ReadAll(MPU6050_t* DataStruct)
 	DataStruct->raw_gyro_z = (int16_t)(data[12] << 8 | data[13]);
 
 	/* Return OK */
-	return MPU6050_Result_Ok;
+	return I2C_NoError;
 }
 
 
