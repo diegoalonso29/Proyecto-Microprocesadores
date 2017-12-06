@@ -1,7 +1,6 @@
 #include "RAI.h"
-#include "I2C_lib.h"
 #include "USART_Lib.h"
-
+#include "main.h"
 //extern uint8_t TX_BUFFER[];
 //__IO uint8_t Counter = 0x00;
 //extern __IO uint32_t TimeOut;

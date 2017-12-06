@@ -133,7 +133,7 @@ I2C_Error_Code I2C_ReadReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* dat
 	return I2C_NoError;
 }
 
-I2C_Error_Code I2C_ReadMultiRegister(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* data, uint16_t count)
+I2C_Error_Code I2C_ReadMultiReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* data, uint16_t count)
 {
 	I2C_Error_Code status;
 
@@ -198,7 +198,7 @@ I2C_Error_Code I2C_WriteData(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t re
 	return I2C_NoError;
 }
 
-I2C_Error_Code I2C_WriteNoRegister(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t data)
+I2C_Error_Code I2C_WriteReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t data)
 {
 	I2C_Error_Code status;
 
@@ -214,7 +214,7 @@ I2C_Error_Code I2C_WriteNoRegister(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint
 	return I2C_NoError;
 }
 
-I2C_Error_Code I2C_WriteMultiRegister(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* data, uint16_t count)
+I2C_Error_Code I2C_WriteMultiReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* data, uint16_t count)
 {
 	I2C_Error_Code status;
 

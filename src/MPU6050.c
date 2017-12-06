@@ -130,7 +130,7 @@ I2C_Error_Code MPU6050_ReadAll(MPU6050_t* DataStruct)
 	I2C_Error_Code  status;
 
 	/* Read full raw data, 14bytes */
-	status = I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_XOUT_H, data, 14);
+//	status = I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_XOUT_H, data, 14);
 	if(status) {return status;}
 
 	/* Format accelerometer data */
