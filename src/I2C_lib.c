@@ -56,39 +56,38 @@ void I2C_InitConfig(){
 
 uint8_t I2C_IsConnected(I2C_TypeDef* I2Cx, uint8_t SlaveAddress) {
 
-	uint8_t connected = 0;
 	/* Try to start, function will return 0 in case device will send ACK */
-	if (!I2C_Start(I2Cx, SlaveAddress, I2C_TRANSMITTER_MODE, I2C_ACK_ENABLE)) {connected = 1;}
+	if (!I2C_Start(I2Cx, SlaveAddress, I2C_TRANSMITTER_MODE, I2C_ACK_ENABLE)) {return I2C_DeviceNotConnected;}
 
 	I2C_Stop(I2Cx);
-	return connected;
+	return I2C_NoError;
 }
 
-uint8_t I2C_Read(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg) {
+uint8_t I2C_ReadByte(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg) {
 
 	uint8_t received_data;
 	I2C_Start(I2Cx, SlaveAddress, I2C_TRANSMITTER_MODE, I2C_ACK_DISABLE);
-	I2C_WriteData(I2Cx, reg);
+	I2C_Write(I2Cx, reg);
 	I2C_Stop(I2Cx);
 	I2C_Start(I2Cx, SlaveAddress, I2C_RECEIVER_MODE, I2C_ACK_DISABLE);
 	received_data = I2C_ReadNack(I2Cx);
 	return received_data;
 }
 
-void I2C_ReadMulti(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t* data, uint16_t count)
+void I2C_ReadBytes(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t* data, uint16_t count)
 {
 	I2C_Start(I2Cx, SlaveAddress, I2C_TRANSMITTER_MODE, I2C_ACK_ENABLE);
-	I2C_WriteData(I2Cx, reg);
+	I2C_Write(I2Cx, reg);
 	//I2C_Stop(I2Cx);
 	I2C_Start(I2Cx, SlaveAddress, I2C_RECEIVER_MODE, I2C_ACK_ENABLE);
 	while (count--)
 	{
-		if (!count) {*data++ = I2C_ReadNack(I2Cx);}
-		else {*data++ = I2C_ReadAck(I2Cx);}
+		if (!count) {*(data++) = I2C_ReadNack(I2Cx);}
+		else {*(data++) = I2C_ReadAck(I2Cx);}
 	}
 }
 
-uint8_t I2C_ReadNoRegister(I2C_TypeDef* I2Cx, uint8_t SlaveAddress)
+uint8_t I2C_ReadRegister(I2C_TypeDef* I2Cx, uint8_t SlaveAddress)
 {
 	uint8_t data;
 	I2C_Start(I2Cx, SlaveAddress, I2C_RECEIVER_MODE, I2C_ACK_ENABLE);
@@ -97,7 +96,7 @@ uint8_t I2C_ReadNoRegister(I2C_TypeDef* I2Cx, uint8_t SlaveAddress)
 	return data;
 }
 
-void I2C_ReadMultiNoRegister(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* data, uint16_t count)
+void I2C_ReadMultiRegister(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* data, uint16_t count)
 {
 	I2C_Start(I2Cx, SlaveAddress, I2C_RECEIVER_MODE, I2C_ACK_ENABLE);
 	while (count--)
@@ -110,24 +109,24 @@ void I2C_ReadMultiNoRegister(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* d
 void I2C_WriteByte(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t data)
 {
 	I2C_Start(I2Cx, SlaveAddress, I2C_TRANSMITTER_MODE, I2C_ACK_DISABLE);
-	I2C_WriteData(I2Cx, reg);
-	I2C_WriteData(I2Cx, data);
+	I2C_Write(I2Cx, reg);
+	I2C_Write(I2Cx, data);
 	I2C_Stop(I2Cx);
 }
 
-void I2C_WriteMulti(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t* data, uint16_t count)
+void I2C_WriteData(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t* data, uint16_t count)
 {
 	I2C_Start(I2Cx, SlaveAddress, I2C_TRANSMITTER_MODE, I2C_ACK_DISABLE);
-	I2C_WriteData(I2Cx, reg);
+	I2C_Write(I2Cx, reg);
 	while (count--) {
-		I2C_WriteData(I2Cx, *data++);
+		I2C_Write(I2Cx, *data++);
 	}
 	I2C_Stop(I2Cx);
 }
 
 void I2C_WriteNoRegister(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t data) {
 	I2C_Start(I2Cx, SlaveAddress, I2C_TRANSMITTER_MODE, I2C_ACK_DISABLE);
-	I2C_WriteData(I2Cx, data);
+	I2C_Write(I2Cx, data);
 	I2C_Stop(I2Cx);
 }
 
@@ -136,7 +135,7 @@ void I2C_WriteMultiNoRegister(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* 
 	I2C_Start(I2Cx, SlaveAddress, I2C_TRANSMITTER_MODE, I2C_ACK_DISABLE);
 	while (count--)
 	{
-		I2C_WriteData(I2Cx, *data++);
+		I2C_Write(I2Cx, *data++);
 	}
 	I2C_Stop(I2Cx);
 }
@@ -152,7 +151,7 @@ int16_t I2C_Start(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t direction, ui
 	{
 		if (--I2C_Timeout == 0x00)
 		{
-			return 1;
+			return I2C_StartBitTimeOut;
 		}
 	}
 
@@ -194,7 +193,7 @@ int16_t I2C_Start(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t direction, ui
 	return 0;
 }
 
-void I2C_WriteData(I2C_TypeDef* I2Cx, uint8_t data) {
+void I2C_Write(I2C_TypeDef* I2Cx, uint8_t data) {
 	/* Wait till I2C is not busy anymore */
 	I2C_Timeout = I2C_TIMEOUT;
 	while (!(I2Cx->SR1 & I2C_SR1_TXE) && I2C_Timeout) {
@@ -205,29 +204,29 @@ void I2C_WriteData(I2C_TypeDef* I2Cx, uint8_t data) {
 	I2Cx->DR = data;
 }
 
-uint8_t I2C_ReadAck(I2C_TypeDef* I2Cx)
+uint8_t I2C_ReadAck(I2C_TypeDef* I2Cx, uint8_t* data)
 {
-	uint8_t data;
+	//uint8_t data;
 
 	/* Enable ACK */
 	I2Cx->CR1 |= I2C_CR1_ACK;
 
 	/* Wait till not received */
 	I2C_Timeout = I2C_TIMEOUT;
-	while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED)) {
-		if (--I2C_Timeout == 0x00) {
-			return 1;
-		}
+	while (!I2C_TestEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED))
+	{
+		if (--I2C_Timeout == 0x00) {return 1;}
 	}
 
 	/* Read data */
-	data = I2Cx->DR;
+	*data = I2Cx->DR;
 
 	/* Return data */
-	return data;
+	return 0;
 }
 
-uint8_t I2C_ReadNack(I2C_TypeDef* I2Cx) {
+uint8_t I2C_ReadNack(I2C_TypeDef* I2Cx, uint8_t* data)
+{
 	uint8_t data;
 
 	/* Disable ACK */
@@ -238,17 +237,16 @@ uint8_t I2C_ReadNack(I2C_TypeDef* I2Cx) {
 
 	/* Wait till received */
 	I2C_Timeout = I2C_TIMEOUT;
-	while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED)) {
-		if (--I2C_Timeout == 0x00) {
-			return 1;
-		}
+	while (!I2C_TestEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED))
+	{
+		if (--I2C_Timeout == 0x00) {return 1;}
 	}
 
 	/* Read data */
-	data = I2Cx->DR;
+	*data = I2Cx->DR;
 
 	/* Return data */
-	return data;
+	return 0;
 }
 
 uint8_t I2C_Stop(I2C_TypeDef* I2Cx)
@@ -268,12 +266,62 @@ uint8_t I2C_Stop(I2C_TypeDef* I2Cx)
 	return 0;
 }
 
+void I2C_WriteBits(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t BitStart, uint8_t length, uint8_t data)
+{
+    //      010 value to write
+    // 76543210 bit numbers
+    //    xxx   args: bitStart=4, length=3
+    // 00011100 mask byte
+	// 10101111 original value (sample)
+    // 10100011 original & ~mask
+    // 10101011 masked | value
+    uint8_t tmp;
+    tmp = I2C_Read(I2Cx, SlaveAddress, reg);
+    uint8_t mask = ((uint8_t)(1 << length) - 1) << (BitStart - length + 1);
+    data <<= (BitStart - length + 1); // desplaza el dato a la posicion
+    data &= mask; // pone a cero los bits que no son van a ser cambiados
+    tmp &= ~(mask); // zero all important bits in existing byte
+    tmp |= data; // combine data with existing byte
+    I2C_WriteByte(I2Cx, SlaveAddress, reg, tmp);
+}
 
+ErrorStatus I2C_TestEvent(I2C_TypeDef* I2Cx, uint32_t I2C_EVENT)
+{
+  uint32_t lastevent = 0;
+  uint32_t flag1 = 0, flag2 = 0;
+  ErrorStatus status = ERROR;
+
+  /* Check the parameters */
+  assert_param(IS_I2C_ALL_PERIPH(I2Cx));
+  assert_param(IS_I2C_EVENT(I2C_EVENT));
+
+  /* Read the I2Cx status register */
+  flag1 = I2Cx->SR1;
+  flag2 = I2Cx->SR2;
+  flag2 = flag2 << 16;
+
+  /* Get the last event value from I2C status register */
+  lastevent = (flag1 | flag2) & FLAG_MASK;
+
+  /* Check whether the last event contains the I2C_EVENT */
+  if ((lastevent & I2C_EVENT) == I2C_EVENT)
+  {
+    /* SUCCESS: last event is equal to I2C_EVENT */
+    status = SUCCESS;
+  }
+  else
+  {
+    /* ERROR: last event is different from I2C_EVENT */
+    status = ERROR;
+  }
+  /* Return status */
+  return status;
+}
 
 /********************************************************************************/
 
 
-//void I2C_WriteData(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t* Buffer_ptr,  uint16_t NumBytesToWrite)
+//void I2C_WriteData(uint8_t SlaveAddress, uint8_t reg, uint8_t* Buffer_ptr,  uint16_t NumBytesToWrite)
 //{
 //    I2C_GenerateSTART(I2Cx, ENABLE);
 //    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));
@@ -281,7 +329,7 @@ uint8_t I2C_Stop(I2C_TypeDef* I2Cx)
 //    I2C_Send7bitAddress(I2Cx, SlaveAddress, I2C_Direction_Transmitter);
 //    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
 //
-//    I2C_SendData(I2Cx, WriteAddressReg);
+//    I2C_SendData(I2Cx, reg);
 //    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 //
 //    I2C_SendData(I2Cx, *Buffer_ptr);
@@ -289,7 +337,7 @@ uint8_t I2C_Stop(I2C_TypeDef* I2Cx)
 //
 //    I2C_GenerateSTOP(I2Cx, ENABLE);
 //}
-//void I2C_WriteByte(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t* Buffer_ptr)
+//void I2C_WriteByte(uint8_t SlaveAddress, uint8_t reg, uint8_t* Buffer_ptr)
 //{
 //    I2C_GenerateSTART(I2Cx, ENABLE);
 //    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));
@@ -297,7 +345,7 @@ uint8_t I2C_Stop(I2C_TypeDef* I2Cx)
 //    I2C_Send7bitAddress(I2Cx, SlaveAddress, I2C_Direction_Transmitter);
 //    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
 //
-//    I2C_SendData(I2Cx, WriteAddressReg);
+//    I2C_SendData(I2Cx, reg);
 //    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 //
 //    I2C_SendData(I2Cx, *Buffer_ptr);
@@ -307,7 +355,7 @@ uint8_t I2C_Stop(I2C_TypeDef* I2Cx)
 //
 //    while(I2C_GetFlagStatus(I2Cx,I2C_FLAG_BUSY));
 //}
-//void I2C_WriteBits(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t BitStart, uint8_t length, uint8_t data)
+//void I2C_WriteBits(uint8_t SlaveAddress, uint8_t reg, uint8_t BitStart, uint8_t length, uint8_t data)
 //{
 //    //      010 value to write
 //    // 76543210 bit numbers
@@ -317,20 +365,20 @@ uint8_t I2C_Stop(I2C_TypeDef* I2Cx)
 //    // 10100011 original & ~mask
 //    // 10101011 masked | value
 //    uint8_t tmp;
-//    I2C_ReadByte(SlaveAddress, WriteAddressReg, &tmp);
+//    I2C_ReadByte(SlaveAddress, reg, &tmp);
 //    uint8_t mask = ((1 << length) - 1) << (BitStart - length + 1);
 //    data <<= (BitStart - length + 1); // shift data into correct position
 //    data &= mask; // zero all non-important bits in data
 //    tmp &= ~(mask); // zero all important bits in existing byte
 //    tmp |= data; // combine data with existing byte
-//    I2C_WriteByte(SlaveAddress, WriteAddressReg, &tmp);
+//    I2C_WriteByte(SlaveAddress, reg, &tmp);
 //}
-//void I2C_WriteBit (uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t BitNum, uint8_t data)
+//void I2C_WriteBit (uint8_t SlaveAddress, uint8_t reg, uint8_t BitNum, uint8_t data)
 //{
 //    uint8_t tmp;
-//    I2C_ReadByte(SlaveAddress, WriteAddressReg, &tmp);
+//    I2C_ReadByte(SlaveAddress, reg, &tmp);
 //    tmp = (data != 0) ? (tmp | (1 << BitNum)) : (tmp & ~(1 << BitNum));
-//    I2C_WriteByte(SlaveAddress, WriteAddressReg, &tmp);
+//    I2C_WriteByte(SlaveAddress, reg, &tmp);
 //}
 //void I2C_ReadData(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t* Buffer_ptr,  uint16_t NumByteToRead)
 //{
@@ -423,12 +471,12 @@ uint8_t I2C_Stop(I2C_TypeDef* I2Cx)
 //    *data = tmp & (1 << BitNum);
 //}
 //
-//void Write_Byte(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t data)
+//void Write_Byte(uint8_t SlaveAddress, uint8_t reg, uint8_t data)
 //{
 //TRANSMISSION_MODE = I2C_Direction_Transmitter;
 //SLAVE_ADDRESS = SlaveAddress;
 ////uint8_t REG_ADDRESS = ;
-//TX_BUFFER[0] = WriteAddressReg;
+//TX_BUFFER[0] = reg;
 //TX_BUFFER[1] = data;
 //TX_BYTE_NUM = 0;
 //NUM_TO_SEND = 2;

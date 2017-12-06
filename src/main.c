@@ -18,9 +18,8 @@ static volatile uint32_t TimingDelay;
 
 int main(void)
 {
-		MPU6050_t MPU6050_Data0;
-	    MPU6050_t MPU6050_Data1;
-	    uint8_t sensor1 = 0, sensor2 = 0;
+		MPU6050_t MPU6050_Data;
+	    uint8_t sensor1 = 0;
 	    char str[120];
 
 	    /* Initialize system */
@@ -29,13 +28,12 @@ int main(void)
 	    USART2_Init(9600);
 	    USART_Send(USART2, "Arranque\n");
 	    /* Initialize MPU6050 sensor 0, address = 0xD0, AD0 pin on sensor is low */
-	    if (MPU6050_InitConfig(&MPU6050_Data0, MPU6050_Device_0, MPU6050_Accelerometer_8G, MPU6050_Gyroscope_250s) == MPU6050_Result_Ok) {
-	    		/* Display message to user */
-	    		USART_Send(USART2, "MPU6050 sensor 0 is ready to use!\n");
 
-	    		/* Sensor 1 OK */
-	    		sensor1 = 1;
-	    	}
+	    if (MPU6050_InitConfig(&MPU6050_Data, MPU6050_Accelerometer_8G, MPU6050_Gyroscope_250s) == MPU6050_Result_Ok)
+	    {
+	    	USART_Send(USART2, "MPU6050 sensor 0 is ready to use!\n");
+	    	sensor1 = 1;
+	    }
 
 
 	    while (1) {
@@ -44,46 +42,23 @@ int main(void)
 	            /* If sensor 1 is connected */
 	            if (sensor1) {
 	                /* Read all data from sensor 1 */
-	                MPU6050_ReadAll(&MPU6050_Data0);
+	                MPU6050_ReadAll(&MPU6050_Data);
 
 	                /* Format data */
 	                sprintf(str, "1. Accelerometer\n- X:%d\n- Y:%d\n- Z:%d\nGyroscope\n- X:%d\n- Y:%d\n- Z:%d\nTemperature\n- %3.4f\n\n\n",
-	                    MPU6050_Data0.Accelerometer_X,
-	                    MPU6050_Data0.Accelerometer_Y,
-	                    MPU6050_Data0.Accelerometer_Z,
-	                    MPU6050_Data0.Gyroscope_X,
-	                    MPU6050_Data0.Gyroscope_Y,
-	                    MPU6050_Data0.Gyroscope_Z,
-	                    MPU6050_Data0.Temperature
-	                );
-
-	                /* Show to usart */
-	                USART_Send(USART2, str);
-	            }
-
-	            /* If sensor 2 is connected */
-	            if (sensor2) {
-	                /* Read all data from sensor 1 */
-	                MPU6050_ReadAll(&MPU6050_Data1);
-
-	                /* Format data */
-	                sprintf(str, "2. Accelerometer\n- X:%d\n- Y:%d\n- Z:%d\nGyroscope\n- X:%d\n- Y:%d\n- Z:%d\nTemperature\n- %3.4f\n\n\n",
-	                    MPU6050_Data1.Accelerometer_X,
-	                    MPU6050_Data1.Accelerometer_Y,
-	                    MPU6050_Data1.Accelerometer_Z,
-	                    MPU6050_Data1.Gyroscope_X,
-	                    MPU6050_Data1.Gyroscope_Y,
-	                    MPU6050_Data1.Gyroscope_Z,
-	                    MPU6050_Data1.Temperature
+	                    MPU6050_Data.Accelerometer_X,
+	                    MPU6050_Data.Accelerometer_Y,
+	                    MPU6050_Data.Accelerometer_Z,
+	                    MPU6050_Data.Gyroscope_X,
+	                    MPU6050_Data.Gyroscope_Y,
+	                    MPU6050_Data.Gyroscope_Z,
+	                    MPU6050_Data.Temperature
 	                );
 
 	                /* Show to usart */
 	                USART_Send(USART2, str);
 	            }
 	        }
-	       return 0;
-
-
 return 0;
 }
 

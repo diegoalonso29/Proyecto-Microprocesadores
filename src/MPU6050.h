@@ -17,7 +17,7 @@
 
 #define	MPU6050_I2C					I2C1
 #define MPU6050_I_AM				0x68
-#define MPU6050_I2C_ADDR			0xD0
+#define MPU6050_I2C_ADDR			0x68
 
 #define MPU6050_RA_XG_OFFS_TC       0x00 //[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
 #define MPU6050_RA_YG_OFFS_TC       0x01 //[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
@@ -423,21 +423,21 @@ typedef enum {
  */
 typedef struct {
 	/* Private */
-	uint8_t Address;         /*!< I2C address of device. Only for private use */
+	uint8_t SlaveAddress;         /*!< I2C address of device. Only for private use */
 	float Gyro_Mult;         /*!< Gyroscope corrector from raw data to "degrees/s". Only for private use */
 	float Acce_Mult;         /*!< Accelerometer corrector from raw data to "g". Only for private use */
 	/* Public */
-	int16_t Accelerometer_X; /*!< Accelerometer value X axis */
-	int16_t Accelerometer_Y; /*!< Accelerometer value Y axis */
-	int16_t Accelerometer_Z; /*!< Accelerometer value Z axis */
-	int16_t Gyroscope_X;     /*!< Gyroscope value X axis */
-	int16_t Gyroscope_Y;     /*!< Gyroscope value Y axis */
-	int16_t Gyroscope_Z;     /*!< Gyroscope value Z axis */
-	float Temperature;       /*!< Temperature in degrees */
+	int16_t raw_accel_x; /*!< Accelerometer value X axis */
+	int16_t raw_accel_y; /*!< Accelerometer value Y axis */
+	int16_t raw_accel_z; /*!< Accelerometer value Z axis */
+	int16_t raw_gyro_x;     /*!< Gyroscope value X axis */
+	int16_t raw_gyro_y;     /*!< Gyroscope value Y axis */
+	int16_t raw_gyro_z;     /*!< Gyroscope value Z axis */
+	float raw_temp;       /*!< Temperature in degrees */
 } MPU6050_t;
 
 
-MPU6050_Result_t MPU6050_InitConfig(MPU6050_t* DataStruct, MPU6050_Device_t DeviceNumber, MPU6050_Accelerometer_t AccelerometerSensitivity, MPU6050_Gyroscope_t GyroscopeSensitivity);
+MPU6050_Result_t MPU6050_InitConfig(MPU6050_t* DataStruct, MPU6050_Accelerometer_t AccelRange, MPU6050_Gyroscope_t GyroRange);
 MPU6050_Result_t MPU6050_ReadAccelerometer(MPU6050_t* DataStruct);
 MPU6050_Result_t MPU6050_ReadGyroscope(MPU6050_t* DataStruct);
 MPU6050_Result_t MPU6050_ReadTemperature(MPU6050_t* DataStruct);
