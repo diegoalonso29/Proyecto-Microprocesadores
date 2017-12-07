@@ -141,8 +141,7 @@ I2C_Error_Code MPU6050_ReadAll(MPU6050_t* DataStruct)
 	DataStruct->raw_accel_z = (int16_t)(data[4] << 8 | data[5]);
 
 	/* Format temperature */
-	temp = (data[6] << 8 | data[7]);
-	DataStruct->raw_temp = (float)((float)((int16_t)temp) / (float)340.0 + (float)36.53);
+	DataStruct->raw_temp = (int16_t)(data[6] << 8 | data[7]);
 
 	/* Format gyroscope data */
 	DataStruct->raw_gyro_x = (int16_t)(data[8] << 8 | data[9]);
@@ -151,6 +150,11 @@ I2C_Error_Code MPU6050_ReadAll(MPU6050_t* DataStruct)
 
 	/* Return OK */
 	return I2C_NoError;
+}
+
+I2C_Error_Code MPU6050_GetAll(MPU6050_t* DataStruct)
+{
+
 }
 
 void DisplayErrorCode(I2C_Error_Code error)
