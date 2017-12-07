@@ -5,11 +5,6 @@
 #include "I2C_lib.h"
 #include "stm32l1xx.h"
 
-
-
-//#ifndef MPU6050_H
-//#define MPU6050_H 100
-
 //#define MPU6050_Address 			0x68
 //#define MPU6050_I2C_Speed 			100000
 //#define MPU6050_Accel_Range			4
