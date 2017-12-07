@@ -1,55 +1,86 @@
 #include "I2C_lib.h"
 
-/* Private variables */
-static uint32_t I2C_Timeout;
-
-/* Private defines */
-#define I2C_TRANSMITTER_MODE   0
-#define I2C_RECEIVER_MODE      1
-#define I2C_ACK_ENABLE         1
-#define I2C_ACK_DISABLE        0
-
-void I2C_InitConfig(){
+void I2C_InitConfig(I2C_TypeDef* I2Cx){
 
 	GPIO_InitTypeDef gpio_init_struct;
     I2C_InitTypeDef i2c_init_struct;
 
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIO_I2C, ENABLE);
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C, ENABLE);
+    if(I2Cx != I2C2)
+    {
+		RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+		RCC_APB1PeriphClockCmd(RCC_APB1ENR_I2C2EN, ENABLE);
 
-	/* Configuracion Pin8 (SCL) */
-	gpio_init_struct.GPIO_Mode = GPIO_Mode_AF;
-	gpio_init_struct.GPIO_OType =GPIO_OType_OD;
-	gpio_init_struct.GPIO_Pin= I2C_SCL_Pin;
-	gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
-	gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
-	GPIO_Init(I2C_GPIO,&gpio_init_struct);
+		/* Configuracion Pin8 (SCL) */
+		gpio_init_struct.GPIO_Mode = GPIO_Mode_AF;
+		gpio_init_struct.GPIO_OType =GPIO_OType_OD;
+		gpio_init_struct.GPIO_Pin= GPIO_Pin_8;
+		gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
+		gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
+		GPIO_Init(GPIOB,&gpio_init_struct);
 
-	/*Configuracion Pin9 (SDA)*/
-	gpio_init_struct.GPIO_Mode = GPIO_Mode_AF;
-	gpio_init_struct.GPIO_OType =GPIO_OType_OD;
-	gpio_init_struct.GPIO_Pin= I2C_SDA_Pin;
-	gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
-	gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
-	GPIO_Init(I2C_GPIO,&gpio_init_struct);
+		/*Configuracion Pin9 (SDA)*/
+		gpio_init_struct.GPIO_Mode = GPIO_Mode_AF;
+		gpio_init_struct.GPIO_OType =GPIO_OType_OD;
+		gpio_init_struct.GPIO_Pin= GPIO_Pin_9;
+		gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
+		gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
+		GPIO_Init(GPIOB,&gpio_init_struct);
 
-	/*Asignamos la funcion alterna de GPIO_AF_I2C1 a ambos pines para realizar comunicacion*/
-	GPIO_PinAFConfig(I2C_GPIO, I2C_SCL_PinSource, GPIO_AF_I2Cx);
-	GPIO_PinAFConfig(I2C_GPIO, I2C_SDA_PinSource, GPIO_AF_I2Cx);
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C1);
 
-    /*Configuracion de la comunicacion I2C */
-	i2c_init_struct.I2C_Ack = I2C_Ack_Disable;
-	i2c_init_struct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-	i2c_init_struct.I2C_ClockSpeed = 100000;
-	i2c_init_struct.I2C_DutyCycle = I2C_DutyCycle_2;
-	i2c_init_struct.I2C_Mode = I2C_Mode_I2C;
-	i2c_init_struct.I2C_OwnAddress1 = 0xDA;
+		/*Configuracion de la comunicacion I2C */
+		i2c_init_struct.I2C_Ack = I2C_Ack_Disable;
+		i2c_init_struct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+		i2c_init_struct.I2C_ClockSpeed = 100000;
+		i2c_init_struct.I2C_DutyCycle = I2C_DutyCycle_2;
+		i2c_init_struct.I2C_Mode = I2C_Mode_I2C;
+		i2c_init_struct.I2C_OwnAddress1 = 0xDA;
 
-	I2C_Cmd(I2C1,DISABLE);
-    I2C_Init(I2C1, &i2c_init_struct);
+		I2C_Cmd(I2C1,DISABLE);
+		I2C_Init(I2C1, &i2c_init_struct);
 
-    I2C_Cmd(I2C1,ENABLE);
+		I2C_Cmd(I2C1,ENABLE);
+    }
 
+
+    else
+    {
+		RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+		RCC_APB1PeriphClockCmd(RCC_APB1ENR_I2C2EN, ENABLE);
+
+		/* Configuracion Pin8 (SCL) */
+		gpio_init_struct.GPIO_Mode = GPIO_Mode_AF;
+		gpio_init_struct.GPIO_OType =GPIO_OType_OD;
+		gpio_init_struct.GPIO_Pin= GPIO_Pin_8;
+		gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
+		gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
+		GPIO_Init(GPIOB,&gpio_init_struct);
+
+		/*Configuracion Pin9 (SDA)*/
+		gpio_init_struct.GPIO_Mode = GPIO_Mode_AF;
+		gpio_init_struct.GPIO_OType =GPIO_OType_OD;
+		gpio_init_struct.GPIO_Pin= GPIO_Pin_9;
+		gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
+		gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
+		GPIO_Init(GPIOB,&gpio_init_struct);
+
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C1);
+
+		/*Configuracion de la comunicacion I2C */
+		i2c_init_struct.I2C_Ack = I2C_Ack_Disable;
+		i2c_init_struct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+		i2c_init_struct.I2C_ClockSpeed = 100000;
+		i2c_init_struct.I2C_DutyCycle = I2C_DutyCycle_2;
+		i2c_init_struct.I2C_Mode = I2C_Mode_I2C;
+		i2c_init_struct.I2C_OwnAddress1 = 0xDA;
+
+		I2C_Cmd(I2C1,DISABLE);
+		I2C_Init(I2C1, &i2c_init_struct);
+
+		I2C_Cmd(I2C1,ENABLE);
+    }
 }
 
 I2C_Error_Code I2C_IsConnected(I2C_TypeDef* I2Cx, uint8_t SlaveAddress) {
@@ -232,7 +263,7 @@ I2C_Error_Code I2C_WriteMultiReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_
 }
 
 /*
-*  Genera la seña de Start
+* Genera la seña de Start
 * Parametros :
 * 				I2Cx 			-> periférico I2C elegido
 *				SlaveAddress 	-> Dirección I2C (7bits) del dispositivo
@@ -364,6 +395,7 @@ I2C_Error_Code I2C_WriteBits(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t re
 	// 10101111 original value (sample)
     // 10100011 original & ~mask
     // 10101011 masked | value
+
     uint8_t tmp;
     I2C_Error_Code status;
 
@@ -371,10 +403,11 @@ I2C_Error_Code I2C_WriteBits(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t re
     if (status) {return status;}
 
     uint8_t mask = ((uint8_t)(1 << length) - 1) << (BitStart - length + 1);
-    data <<= (BitStart - length + 1); // desplaza el dato a la posicion
-    data &= mask; // pone a cero los bits que no son van a ser cambiados
-    tmp &= ~(mask); // zero all important bits in existing byte
-    tmp |= data; // combine data with existing byte
+    data <<= (BitStart - length + 1);
+    data &= mask;
+    tmp &= ~(mask);
+    tmp |= data;
+
     status = I2C_WriteByte(I2Cx, SlaveAddress, reg, tmp);
     if (status) {return status;}
 
@@ -386,10 +419,6 @@ ErrorStatus I2C_TestEvent(I2C_TypeDef* I2Cx, uint32_t I2C_EVENT)
   uint32_t lastevent = 0;
   uint32_t flag1 = 0, flag2 = 0;
   ErrorStatus status = ERROR;
-
-  /* Check the parameters */
-  assert_param(IS_I2C_ALL_PERIPH(I2Cx));
-  assert_param(IS_I2C_EVENT(I2C_EVENT));
 
   /* Read the I2Cx status register */
   flag1 = I2Cx->SR1;
@@ -413,6 +442,8 @@ ErrorStatus I2C_TestEvent(I2C_TypeDef* I2Cx, uint32_t I2C_EVENT)
   /* Return status */
   return status;
 }
+
+
 
 /********************************************************************************/
 

@@ -10,7 +10,7 @@ I2C_Error_Code MPU6050_InitConfig(MPU6050_t* DataStruct, uint8_t AccelRange, uin
 	DataStruct->SlaveAddress = MPU6050_I2C_ADDR;
 
 	/* Inicialización y configuración de la comunicación I2C */
-	I2C_InitConfig();
+	I2C_InitConfig(MPU6050_I2C);
 
 	/* Comprobación de la conexión del dispositivo*/
 	status = I2C_IsConnected(MPU6050_I2C, DataStruct->SlaveAddress);
@@ -153,11 +153,61 @@ I2C_Error_Code MPU6050_ReadAll(MPU6050_t* DataStruct)
 	return I2C_NoError;
 }
 
+void DisplayErrorCode(I2C_Error_Code error)
+{
 
+	switch(error)
+	{
+		case I2C_NoError:
+		{
+			 USART_Send(USART2, "No Error\n");
+			 break;
+		}
+		case I2C_DeviceNotConnected:
+		{
+			 USART_Send(USART2, "Error: Device not connected\n");
+			 break;
+		}
+		case I2C_AddressDeviceInvalid:
+		{
+			 USART_Send(USART2, "Error: Invalid Device Address\n");
+			 break;
+		}
+		case I2C_StartBit_TimeOut:
+		{
+			 USART_Send(USART2, "Error: StartBit no response\n");
+			 break;
+		}
+		case I2C_AddressTransfer_Timeout:
+		{
+			 USART_Send(USART2, "Error: Address transfer no response\n");
+			 break;
+		}
+		case I2C_TXE_Timeout:
+		{
+			 USART_Send(USART2, "Error: TXE always is not empty\n");
+			 break;
+		}
+		case I2C_ReceiveEvent_Timeout:
+		{
+			 USART_Send(USART2, "Error: RXNE always is not empty\n");
+			 break;
+		}
+		case I2C_End_Timeout:
+		{
+			 USART_Send(USART2, "Error: The system can't close the I2C comunication\n");
+			 break;
+		}
+		case I2C_WhoIam_Error:
+		{
+			 USART_Send(USART2, "Error: The device isn't the chosen one");
+			 break;
+		}
+		default:
+			break;
 
-
-
-
+	}
+}
 //uint8_t MPU6050_GetDeviceID()
 //{
 //    uint8_t tmp;

@@ -3,7 +3,6 @@
 int main(void)
 {
 		MPU6050_t MPU6050_Data;
-	    uint8_t sensor1 = 0;
 	    char str[120];
 	    I2C_Error_Code status;
 
@@ -14,34 +13,40 @@ int main(void)
 	    USART_Send(USART2, "Arranque\n");
 	    /* Initialize MPU6050 sensor 0, address = 0xD0, AD0 pin on sensor is low */
 
-	    if (MPU6050_InitConfig(&MPU6050_Data, MPU6050_ACCEL_FS_2, MPU6050_GYRO_FS_250) == I2C_NoError)
-	    {
-	    	USART_Send(USART2, "MPU6050 sensor 0 is ready to use!\n");
-	    	sensor1 = 1;
-	    }
+	    status = MPU6050_InitConfig(&MPU6050_Data, MPU6050_ACCEL_FS_2, MPU6050_GYRO_FS_250);
+		if(status)
+		{
+	    	DisplayErrorCode(status);
+	    	return 0;
+		}
+
 
 	    Delay(1000);
 
 	    while (1){
-	    	Delay(50);
-            /* If sensor 1 is connected */
-            if (sensor1){
-            	if(MPU6050_ReadAll(&MPU6050_Data)) {USART_Send(USART2, "Error\n");}
-                else{
-                	/* Format data */
-	                sprintf(str, "1. Accelerometer\n- X:%d\n- Y:%d\n- Z:%d\nGyroscope\n- X:%d\n- Y:%d\n- Z:%d\nTemperature\n- %3.4f\n\n\n",
-	                    MPU6050_Data.raw_accel_x,
-	                    MPU6050_Data.raw_accel_y,
-	                    MPU6050_Data.raw_accel_z,
-	                    MPU6050_Data.raw_gyro_x,
-	                    MPU6050_Data.raw_gyro_y,
-	                    MPU6050_Data.raw_gyro_z,
-	                    MPU6050_Data.raw_temp
-	                    );
-	                USART_Send(USART2, str);
-	            }
+
+	    	Delay(200);
+
+	    	status = MPU6050_ReadAll(&MPU6050_Data);
+			if(status)
+			{
+		    	DisplayErrorCode(status);
+		    	return 0;
+			}
+			/* Format data */
+			sprintf(str, "1. Accelerometer\n- X:%d\n- Y:%d\n- Z:%d\nGyroscope\n- X:%d\n- Y:%d\n- Z:%d\nTemperature\n- %3.4f\n\n\n",
+				MPU6050_Data.raw_accel_x,
+				MPU6050_Data.raw_accel_y,
+				MPU6050_Data.raw_accel_z,
+				MPU6050_Data.raw_gyro_x,
+				MPU6050_Data.raw_gyro_y,
+				MPU6050_Data.raw_gyro_z,
+				MPU6050_Data.raw_temp
+				);
+			USART_Send(USART2, str);
+
 	        }
-	    }
+
 
 	    return 0;
 }

@@ -403,6 +403,7 @@ I2C_Error_Code MPU6050_ReadGyroscope(MPU6050_t* DataStruct);
 I2C_Error_Code MPU6050_ReadTemperature(MPU6050_t* DataStruct);
 I2C_Error_Code MPU6050_ReadAll(MPU6050_t* DataStruct);
 
+void DisplayErrorCode(I2C_Error_Code error);
 //typedef struct
 //{
 //  int16_t raw_accel_x;

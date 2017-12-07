@@ -5,20 +5,25 @@
 #include "stm32l1xx.h"
 #include "stm32l1xx_gpio.h"
 
-#define I2C_GPIO				GPIOB
-#define I2C_SCL_PinSource		GPIO_PinSource8
-#define I2C_SDA_PinSource		GPIO_PinSource9
-#define I2C_SCL_Pin				GPIO_Pin_8
-#define I2C_SDA_Pin				GPIO_Pin_9
+//#define I2C_GPIO				GPIOB
+//#define I2C_SCL_PinSource		GPIO_PinSource8
+//#define I2C_SDA_PinSource		GPIO_PinSource9
+//#define I2C_SCL_Pin				GPIO_Pin_8
+//#define I2C_SDA_Pin				GPIO_Pin_9
+//
+//#define RCC_APB1Periph_I2C		RCC_APB1Periph_I2C1
+//#define RCC_AHBPeriph_GPIO_I2C	RCC_AHBPeriph_GPIOB
+//#define GPIO_AF_I2Cx			GPIO_AF_I2C1
 
-//#define I2Cx					I2C1
-#define RCC_APB1Periph_I2C		RCC_APB1Periph_I2C1
-#define RCC_AHBPeriph_GPIO_I2C	RCC_AHBPeriph_GPIOB
-#define GPIO_AF_I2Cx			GPIO_AF_I2C1
-
-#define I2C_TIMEOUT					20000
+#define I2C_TIMEOUT				20000
 
 
+#define I2C_TRANSMITTER_MODE   0
+#define I2C_RECEIVER_MODE      1
+#define I2C_ACK_ENABLE         1
+#define I2C_ACK_DISABLE        0
+
+/***************************************** I2C EVENTS ****************************************************************/
 /* --EV5 */
 #define  I2C_EVENT_MASTER_MODE_SELECT                      ((uint32_t)0x00030001)  /* BUSY, MSL and SB flag */
 /* --EV6 */
@@ -65,6 +70,9 @@
 
 #define FLAG_MASK               ((uint32_t)0x00FFFFFF)  /*<! I2C FLAG mask */
 
+/*********************************************** ERROR FLOW CONTROL ******************************************/
+
+static uint32_t I2C_Timeout;
 
 typedef enum {
 
@@ -78,9 +86,9 @@ typedef enum {
 	I2C_End_Timeout = 7,
 	I2C_WhoIam_Error = 8
 
-	/*!< Connected device with address is not MPU6050 */
 } I2C_Error_Code;
 
+/************************************** PUBLIC FUNCTIIONS ************************************************************/
 
 void I2C_InitConfig();
 I2C_Error_Code I2C_IsConnected(I2C_TypeDef* I2Cx, uint8_t SlaveAddress);
@@ -90,19 +98,23 @@ I2C_Error_Code I2C_ReadMulti(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t re
 
 I2C_Error_Code I2C_WriteByte(I2C_TypeDef* I2Cx, uint8_t SlavAddress, uint8_t reg, uint8_t data);
 I2C_Error_Code I2C_WriteMulti(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t* data, uint16_t count);
+I2C_Error_Code I2C_WriteBits(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t BitStart, uint8_t length, uint8_t data);
 
 I2C_Error_Code I2C_ReadReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* data);
 I2C_Error_Code I2C_ReadMultiReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* data, uint16_t count);
 I2C_Error_Code I2C_WriteReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t data);
 I2C_Error_Code I2C_WriteMultiReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* data, uint16_t count);
 
-/* Funciones privadas */
+
+/********************************************* PRIVATE FUNCTIONS *****************************************************/
+
 I2C_Error_Code I2C_Start(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t direction, uint8_t ack);
 I2C_Error_Code I2C_Stop(I2C_TypeDef* I2Cx);
 I2C_Error_Code I2C_ReadAck(I2C_TypeDef* I2Cx, uint8_t* data);
 I2C_Error_Code I2C_ReadNack(I2C_TypeDef* I2Cx, uint8_t* data);
 I2C_Error_Code I2C_Write(I2C_TypeDef* I2Cx, uint8_t data);
-I2C_Error_Code I2C_WriteBits(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t BitStart, uint8_t length, uint8_t data);
+
+
 ErrorStatus I2C_TestEvent(I2C_TypeDef* I2Cx, uint32_t I2C_EVENT);
 
 #endif /* I2C_LIB_H_ */
