@@ -17,20 +17,20 @@ I2C_Error_Code MPU6050_InitConfig(MPU6050_t* DataStruct, uint8_t AccelRange, uin
 	if(status) {return status;}
 
 	/* Comprueba que el sistema se comunica con el dispositivo adecuado */
-	status = I2C_ReadByte(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_WHO_AM_I, &data_temp);
+	status = I2C_ReadByte_Reg(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_WHO_AM_I, &data_temp);
 	if(status) {return status;}
 	if (data_temp != MPU6050_I_AM) { return I2C_WhoIam_Error; }
 
 	/* Arranque del MPU6050 */
-	status = I2C_WriteByte(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_PWR_MGMT_1, 0x00);
+	status = I2C_WriteByte_Reg(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_PWR_MGMT_1, 0x00);
 	if(status) {return status;}
 
 	/* Configuración de la escala para el acelerómetro */
-	status = I2C_WriteBits(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_AFS_SEL_BIT, MPU6050_ACONFIG_AFS_SEL_LENGTH, AccelRange);
+	status = I2C_WriteBits_Reg(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_AFS_SEL_BIT, MPU6050_ACONFIG_AFS_SEL_LENGTH, AccelRange);
 	if(status) {return status;}
 
 	/* Configuración de la escala para el giróscopo */
-	status = I2C_WriteBits(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_GYRO_CONFIG,  MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, GyroRange);
+	status = I2C_WriteBits_Reg(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_GYRO_CONFIG,  MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, GyroRange);
 	if(status) {return status;}
 
 	/* Set sensitivities for multiplying gyro and accelerometer data */
@@ -77,7 +77,7 @@ I2C_Error_Code MPU6050_ReadAccelerometer(MPU6050_t* DataStruct)
 	I2C_Error_Code status;
 
 	/* Read accelerometer data */
-	status = I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_XOUT_H, data, 6);
+	status = I2C_ReadByte_MultiReg(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_XOUT_H, data, 6);
 	if(status) {return status;}
 
 	/* Format */
@@ -95,7 +95,7 @@ I2C_Error_Code MPU6050_ReadGyroscope(MPU6050_t* DataStruct)
 	I2C_Error_Code status;
 
 	/* Read gyroscope data */
-	status = I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_GYRO_XOUT_H, data, 6);
+	status = I2C_ReadByte_MultiReg(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_GYRO_XOUT_H, data, 6);
 	if(status) {return status;}
 
 	/* Format */
@@ -114,7 +114,7 @@ I2C_Error_Code MPU6050_ReadTemperature(MPU6050_t* DataStruct)
 	I2C_Error_Code status;
 
 	/* Read temperature */
-	status = I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_TEMP_OUT_H, data, 2);
+	status = I2C_ReadByte_MultiReg(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_TEMP_OUT_H, data, 2);
 	if(status) {return status;}
 
 	/* Format temperature */
@@ -132,7 +132,7 @@ I2C_Error_Code MPU6050_ReadAll(MPU6050_t* DataStruct)
 	I2C_Error_Code  status;
 
 	/* Read full raw data, 14bytes */
-	status = I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_XOUT_H, data, 14);
+	status = I2C_ReadByte_MultiReg(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_XOUT_H, data, 14);
 	if(status) {return status;}
 
 	/* Format accelerometer data */
