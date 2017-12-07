@@ -5,6 +5,7 @@ int main(void)
 		MPU6050_t MPU6050_Data;
 	    uint8_t sensor1 = 0;
 	    char str[120];
+	    I2C_Error_Code status;
 
 	    /* Initialize system */
 	    SystemInit();
@@ -13,7 +14,7 @@ int main(void)
 	    USART_Send(USART2, "Arranque\n");
 	    /* Initialize MPU6050 sensor 0, address = 0xD0, AD0 pin on sensor is low */
 
-	    if (MPU6050_InitConfig(&MPU6050_Data, MPU6050_ACCEL_FS_8, MPU6050_GYRO_FS_250) == I2C_NoError)
+	    if (MPU6050_InitConfig(&MPU6050_Data, MPU6050_ACCEL_FS_2, MPU6050_GYRO_FS_250) == I2C_NoError)
 	    {
 	    	USART_Send(USART2, "MPU6050 sensor 0 is ready to use!\n");
 	    	sensor1 = 1;
@@ -21,15 +22,13 @@ int main(void)
 
 	    Delay(1000);
 
-	    while (1) {
-	    		Delay(50);
-
-	            /* If sensor 1 is connected */
-	            if (sensor1) {
-	                /* Read all data from sensor 1 */
-	                MPU6050_ReadAll(&MPU6050_Data);
-
-	                /* Format data */
+	    while (1){
+	    	Delay(50);
+            /* If sensor 1 is connected */
+            if (sensor1){
+            	if(MPU6050_ReadAll(&MPU6050_Data)) {USART_Send(USART2, "Error\n");}
+                else{
+                	/* Format data */
 	                sprintf(str, "1. Accelerometer\n- X:%d\n- Y:%d\n- Z:%d\nGyroscope\n- X:%d\n- Y:%d\n- Z:%d\nTemperature\n- %3.4f\n\n\n",
 	                    MPU6050_Data.raw_accel_x,
 	                    MPU6050_Data.raw_accel_y,
@@ -39,12 +38,12 @@ int main(void)
 	                    MPU6050_Data.raw_gyro_z,
 	                    MPU6050_Data.raw_temp
 	                    );
-
-	                /* Show to usart */
 	                USART_Send(USART2, str);
 	            }
 	        }
-return 0;
+	    }
+
+	    return 0;
 }
 
 

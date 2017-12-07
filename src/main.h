@@ -1,10 +1,8 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
-//#include "I2C_lib.h"
 #include "MPU6050.h"
 #include "USART_Lib.h"
-//#include "stm32l1xx.h"
 
 #include <math.h>
 #include <stdio.h>

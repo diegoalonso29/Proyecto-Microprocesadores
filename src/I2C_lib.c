@@ -1,7 +1,5 @@
 #include "I2C_lib.h"
 
-#include "stm32l1xx_gpio.h"
-
 /* Private variables */
 static uint32_t I2C_Timeout;
 
@@ -87,7 +85,7 @@ I2C_Error_Code I2C_ReadByte(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg
 	return I2C_NoError;
 }
 
-I2C_Error_Code I2C_ReadBytes(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t* data, uint16_t count)
+I2C_Error_Code I2C_ReadMulti(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t* data, uint16_t count)
 {
 	I2C_Error_Code status;
 
@@ -176,7 +174,7 @@ I2C_Error_Code I2C_WriteByte(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t re
 	return I2C_NoError;
 }
 
-I2C_Error_Code I2C_WriteData(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t* data, uint16_t count)
+I2C_Error_Code I2C_WriteMulti(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t* data, uint16_t count)
 {
 	I2C_Error_Code status;
 

@@ -34,7 +34,8 @@ I2C_Error_Code MPU6050_InitConfig(MPU6050_t* DataStruct, uint8_t AccelRange, uin
 	if(status) {return status;}
 
 	/* Set sensitivities for multiplying gyro and accelerometer data */
-	switch (AccelRange) {
+	switch (AccelRange)
+	{
 		case MPU6050_ACCEL_FS_2:
 			DataStruct->Acce_Mult = (float)1 / MPU6050_ACCE_SENS_2;
 			break;
@@ -50,7 +51,8 @@ I2C_Error_Code MPU6050_InitConfig(MPU6050_t* DataStruct, uint8_t AccelRange, uin
 			break;
 	}
 
-	switch (GyroRange) {
+	switch (GyroRange)
+	{
 		case MPU6050_GYRO_FS_250:
 			DataStruct->Gyro_Mult = (float)1 / MPU6050_GYRO_SENS_250;
 			break;
@@ -130,7 +132,7 @@ I2C_Error_Code MPU6050_ReadAll(MPU6050_t* DataStruct)
 	I2C_Error_Code  status;
 
 	/* Read full raw data, 14bytes */
-//	status = I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_XOUT_H, data, 14);
+	status = I2C_ReadMulti(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_ACCEL_XOUT_H, data, 14);
 	if(status) {return status;}
 
 	/* Format accelerometer data */

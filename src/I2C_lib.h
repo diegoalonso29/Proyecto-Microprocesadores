@@ -3,6 +3,7 @@
 
 #include "stm32l1xx_nucleo.h"
 #include "stm32l1xx.h"
+#include "stm32l1xx_gpio.h"
 
 #define I2C_GPIO				GPIOB
 #define I2C_SCL_PinSource		GPIO_PinSource8
@@ -15,9 +16,8 @@
 #define RCC_AHBPeriph_GPIO_I2C	RCC_AHBPeriph_GPIOB
 #define GPIO_AF_I2Cx			GPIO_AF_I2C1
 
-#ifndef I2C_TIMEOUT
 #define I2C_TIMEOUT					20000
-#endif
+
 
 /* --EV5 */
 #define  I2C_EVENT_MASTER_MODE_SELECT                      ((uint32_t)0x00030001)  /* BUSY, MSL and SB flag */
@@ -87,12 +87,12 @@ I2C_Error_Code I2C_IsConnected(I2C_TypeDef* I2Cx, uint8_t SlaveAddress);
 
 I2C_Error_Code I2C_ReadByte(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t* data);
 I2C_Error_Code I2C_ReadMulti(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t* data, uint16_t count);
-I2C_Error_Code I2C_ReadReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* data);
-I2C_Error_Code I2C_ReadMultiReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* data, uint16_t count);
-
 
 I2C_Error_Code I2C_WriteByte(I2C_TypeDef* I2Cx, uint8_t SlavAddress, uint8_t reg, uint8_t data);
-I2C_Error_Code I2C_WriteData(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t* data, uint16_t count);
+I2C_Error_Code I2C_WriteMulti(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t* data, uint16_t count);
+
+I2C_Error_Code I2C_ReadReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* data);
+I2C_Error_Code I2C_ReadMultiReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* data, uint16_t count);
 I2C_Error_Code I2C_WriteReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t data);
 I2C_Error_Code I2C_WriteMultiReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t* data, uint16_t count);
 
@@ -104,14 +104,5 @@ I2C_Error_Code I2C_ReadNack(I2C_TypeDef* I2Cx, uint8_t* data);
 I2C_Error_Code I2C_Write(I2C_TypeDef* I2Cx, uint8_t data);
 I2C_Error_Code I2C_WriteBits(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t BitStart, uint8_t length, uint8_t data);
 ErrorStatus I2C_TestEvent(I2C_TypeDef* I2Cx, uint32_t I2C_EVENT);
-
-//void I2C_WriteData(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t* Buffer_ptr,  uint16_t NumBytesToWrite);
-//void I2C_WriteByte(uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t* Buffer_ptr);
-//void I2C_WriteBit (uint8_t SlaveAddress, uint8_t WriteAddressReg, uint8_t BitNum, uint8_t data);
-//void I2C_ReadData(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t* Buffer_ptr,  uint16_t NumBytesToRead);
-//void I2C_ReadByte(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t* Buffer_ptr);
-//void I2C_ReadBits(uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t BitStart, uint8_t length, uint8_t *data);
-//void I2C_ReadBit (uint8_t SlaveAddress, uint8_t ReadAddressReg, uint8_t BitNum, uint8_t *data);
-
 
 #endif /* I2C_LIB_H_ */

@@ -380,47 +380,7 @@
 #define MPU6050_ACCE_SENS_8			((float) 4096)
 #define MPU6050_ACCE_SENS_16		((float) 2048)
 
-///**
-// * @brief  MPU6050 can have 2 different slave addresses, depends on it's input AD0 pin
-// *         This feature allows you to use 2 different sensors with this library at the same time
-// */
-//typedef enum {
-//	MPU6050_Device_0 = 0,   /*!< AD0 pin is set to low */
-//	MPU6050_Device_1 = 2 /*!< AD0 pin is set to high */
-//} MPU6050_Device_t;
-//
-///**
-// * @brief  MPU6050 result enumeration
-// */
-//typedef enum {
-//	MPU6050_Result_Ok = 0,          /*!< Everything OK */
-//	MPU6050_Result_DeviceNotConnected = 1, /*!< There is no device with valid slave address */
-//	MPU6050_Result_DeviceInvalid = 2       /*!< Connected device with address is not MPU6050 */
-//} MPU6050_Result_t;
-//
-///**
-// * @brief  Parameters for accelerometer range
-// */
-//typedef enum {
-//	MPU6050_Accelerometer_2G = 0, /*!< Range is +- 2G */
-//	MPU6050_Accelerometer_4G = 1, /*!< Range is +- 4G */
-//	MPU6050_Accelerometer_8G = 2, /*!< Range is +- 8G */
-//	MPU6050_Accelerometer_16G = 3 /*!< Range is +- 16G */
-//} MPU6050_Accelerometer_t;
-//
-///**
-// * @brief  Parameters for gyroscope range
-// */
-//typedef enum {
-//	MPU6050_Gyroscope_250s = 0,  /*!< Range is +- 250 degrees/s */
-//	MPU6050_Gyroscope_500s = 1,  /*!< Range is +- 500 degrees/s */
-//	MPU6050_Gyroscope_1000s = 2, /*!< Range is +- 1000 degrees/s */
-//	MPU6050_Gyroscope_2000s = 3  /*!< Range is +- 2000 degrees/s */
-//} MPU6050_Gyroscope_t;
 
-/**
- * @brief  Main MPU6050 structure
- */
 typedef struct {
 	/* Private */
 	uint8_t SlaveAddress;         /*!< I2C address of device. Only for private use */
