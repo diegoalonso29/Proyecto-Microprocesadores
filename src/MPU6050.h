@@ -388,7 +388,16 @@ typedef struct {
 	int16_t raw_gyro_x;     /*!< Gyroscope value X axis */
 	int16_t raw_gyro_y;     /*!< Gyroscope value Y axis */
 	int16_t raw_gyro_z;     /*!< Gyroscope value Z axis */
-	float raw_temp;       /*!< Temperature in degrees */
+	int16_t raw_temp;       /*!< Temperature in degrees */
+
+	float accel_x;
+	float accel_y;
+	float accel_z;
+	float gyro_x;
+	float gyro_y;
+	float gyro_z;
+	float temp;
+
 } MPU6050_t;
 
 
@@ -398,6 +407,7 @@ I2C_Error_Code MPU6050_ReadGyroscope(MPU6050_t* DataStruct);
 I2C_Error_Code MPU6050_ReadTemperature(MPU6050_t* DataStruct);
 I2C_Error_Code MPU6050_ReadAll(MPU6050_t* DataStruct);
 
+float MPU6050_Mapf(float x, float in_min, float in_max, float out_min, float out_max);
 void DisplayErrorCode(I2C_Error_Code error);
 //typedef struct
 //{

@@ -1,4 +1,6 @@
 #include "USART_Lib.h"
+#include<stdio.h>
+#include<math.h>
 
 void USART2_Init(uint32_t baudrate)
 {
@@ -76,3 +78,38 @@ void USART_ReadByte(USART_TypeDef* USARTx, uint8_t* data)
 //
 //}
 
+// C program for implementation of ftoa()
+void USART_SendFloat(USART_TypeDef* USARTx, float f, int decimals)
+{
+	char str[40];
+	//ftoa(f,str,2);
+
+	int entera;
+	int decimal;
+	if(f>0)
+	{
+	entera = (int)f;
+	decimal = (int)((f - (float)entera)*pow(10,decimals));
+	}
+	else
+	{
+	entera = (int)f;
+	decimal = -(int)((f - (float)entera)*pow(10,decimals));
+	}
+	sprintf(str,"%d.%d",entera,decimal);
+	USART_Send(USARTx, str);
+	USART_Send(USARTx, "\n");
+}
+
+// reverses a string 'str' of length 'len'
+void reverse(char *str, int len)
+{
+    int i=0, j=len-1, temp;
+    while (i<j)
+    {
+        temp = str[i];
+        str[i] = str[j];
+        str[j] = temp;
+        i++; j--;
+    }
+}

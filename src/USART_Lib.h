@@ -21,6 +21,7 @@ uint8_t OVERRUN;
 void USART2_Init(uint32_t baudrate);
 void USART_Send(USART_TypeDef* USARTx, uint8_t *s);
 void USART_ReadByte(USART_TypeDef* USARTx, uint8_t* data);
+void USART_SendFloat(USART_TypeDef* USARTx, float f, int decimals);
 
 
 #endif /* USART_LIB_H_ */

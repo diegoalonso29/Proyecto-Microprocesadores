@@ -3,6 +3,7 @@
 
 I2C_Error_Code MPU6050_InitConfig(MPU6050_t* DataStruct, uint8_t AccelRange, uint8_t GyroRange)
 {
+
 	uint8_t data_temp = 0;
 	I2C_Error_Code status;
 
@@ -37,16 +38,16 @@ I2C_Error_Code MPU6050_InitConfig(MPU6050_t* DataStruct, uint8_t AccelRange, uin
 	switch (AccelRange)
 	{
 		case MPU6050_ACCEL_FS_2:
-			DataStruct->Acce_Mult = (float)1 / MPU6050_ACCE_SENS_2;
+			DataStruct->Acce_Mult = (float)2;
 			break;
 		case MPU6050_ACCEL_FS_4:
-			DataStruct->Acce_Mult = (float)1 / MPU6050_ACCE_SENS_4;
+			DataStruct->Acce_Mult = (float)4;
 			break;
 		case MPU6050_ACCEL_FS_8:
-			DataStruct->Acce_Mult = (float)1 / MPU6050_ACCE_SENS_8;
+			DataStruct->Acce_Mult = (float)8;
 			break;
 		case MPU6050_ACCEL_FS_16:
-			DataStruct->Acce_Mult = (float)1 / MPU6050_ACCE_SENS_16;
+			DataStruct->Acce_Mult = (float)16;
 		default:
 			break;
 	}
@@ -54,16 +55,16 @@ I2C_Error_Code MPU6050_InitConfig(MPU6050_t* DataStruct, uint8_t AccelRange, uin
 	switch (GyroRange)
 	{
 		case MPU6050_GYRO_FS_250:
-			DataStruct->Gyro_Mult = (float)1 / MPU6050_GYRO_SENS_250;
+			DataStruct->Gyro_Mult = (float)250;
 			break;
 		case MPU6050_GYRO_FS_500:
-			DataStruct->Gyro_Mult = (float)1 / MPU6050_GYRO_SENS_500;
+			DataStruct->Gyro_Mult = (float)500;
 			break;
 		case MPU6050_GYRO_FS_1000:
-			DataStruct->Gyro_Mult = (float)1 / MPU6050_GYRO_SENS_1000;
+			DataStruct->Gyro_Mult = (float)1000;
 			break;
 		case MPU6050_GYRO_FS_2000:
-			DataStruct->Gyro_Mult = (float)1 / MPU6050_GYRO_SENS_2000;
+			DataStruct->Gyro_Mult = (float)2000;
 		default:
 			break;
 	}
@@ -128,7 +129,6 @@ I2C_Error_Code MPU6050_ReadTemperature(MPU6050_t* DataStruct)
 I2C_Error_Code MPU6050_ReadAll(MPU6050_t* DataStruct)
 {
 	uint8_t data[14];
-	int16_t temp;
 	I2C_Error_Code  status;
 
 	/* Read full raw data, 14bytes */
@@ -148,13 +148,21 @@ I2C_Error_Code MPU6050_ReadAll(MPU6050_t* DataStruct)
 	DataStruct->raw_gyro_y = (int16_t)(data[10] << 8 | data[11]);
 	DataStruct->raw_gyro_z = (int16_t)(data[12] << 8 | data[13]);
 
+	DataStruct->accel_x = MPU6050_Mapf((float)DataStruct->raw_accel_x,(float)-32768,(float)32767,-9.81*DataStruct->Acce_Mult,9.81*DataStruct->Acce_Mult);
+	DataStruct->accel_y = MPU6050_Mapf((float)DataStruct->raw_accel_y,(float)-32768,(float)32767,-9.81*DataStruct->Acce_Mult,9.81*DataStruct->Acce_Mult);
+	DataStruct->accel_z = MPU6050_Mapf((float)DataStruct->raw_accel_z,(float)-32768,(float)32767,-9.81*DataStruct->Acce_Mult,9.81*DataStruct->Acce_Mult);
+
+	DataStruct->gyro_x = MPU6050_Mapf((float)DataStruct->raw_gyro_x,(float)-32768,(float)32767,-9.81*DataStruct->Gyro_Mult,9.81*DataStruct->Gyro_Mult);
+	DataStruct->gyro_y = MPU6050_Mapf((float)DataStruct->raw_gyro_y,(float)-32768,(float)32767,-9.81*DataStruct->Gyro_Mult,9.81*DataStruct->Gyro_Mult);
+	DataStruct->gyro_z = MPU6050_Mapf((float)DataStruct->raw_gyro_z,(float)-32768,(float)32767,-9.81*DataStruct->Gyro_Mult,9.81*DataStruct->Gyro_Mult);
+
 	/* Return OK */
 	return I2C_NoError;
 }
 
-I2C_Error_Code MPU6050_GetAll(MPU6050_t* DataStruct)
+float MPU6050_Mapf(float x, float in_min, float in_max, float out_min, float out_max)
 {
-
+	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 void DisplayErrorCode(I2C_Error_Code error)
