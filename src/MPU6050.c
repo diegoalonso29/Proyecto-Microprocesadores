@@ -34,6 +34,9 @@ I2C_Error_Code MPU6050_InitConfig(MPU6050_t* DataStruct, uint8_t AccelRange, uin
 	status = I2C_WriteBits_Reg(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_GYRO_CONFIG,  MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, GyroRange);
 	if(status) {return status;}
 
+	status = setLPF(DataStruct, MPU6050_DLPF_BW_5);
+	if(status) {return status;}
+
 	/* Set sensitivities for multiplying gyro and accelerometer data */
 	switch (AccelRange)
 	{
@@ -72,7 +75,7 @@ I2C_Error_Code MPU6050_InitConfig(MPU6050_t* DataStruct, uint8_t AccelRange, uin
 	return I2C_NoError;
 }
 
-I2C_Error_Code MPU6050_ReadAccelerometer(MPU6050_t* DataStruct)
+I2C_Error_Code MPU6050_Read_Raw_Accelerometer(MPU6050_t* DataStruct)
 {
 	uint8_t data[6];
 	I2C_Error_Code status;
@@ -90,7 +93,7 @@ I2C_Error_Code MPU6050_ReadAccelerometer(MPU6050_t* DataStruct)
 	return I2C_NoError;
 }
 
-I2C_Error_Code MPU6050_ReadGyroscope(MPU6050_t* DataStruct)
+I2C_Error_Code MPU6050_Read_Raw_Gyroscope(MPU6050_t* DataStruct)
 {
 	uint8_t data[6];
 	I2C_Error_Code status;
@@ -108,7 +111,7 @@ I2C_Error_Code MPU6050_ReadGyroscope(MPU6050_t* DataStruct)
 	return I2C_NoError;
 }
 
-I2C_Error_Code MPU6050_ReadTemperature(MPU6050_t* DataStruct)
+I2C_Error_Code MPU6050_Read_Raw_Temperature(MPU6050_t* DataStruct)
 {
 	uint8_t data[2];
 	int16_t temp;
@@ -126,7 +129,7 @@ I2C_Error_Code MPU6050_ReadTemperature(MPU6050_t* DataStruct)
 	return I2C_NoError;
 }
 
-I2C_Error_Code MPU6050_ReadAll(MPU6050_t* DataStruct)
+I2C_Error_Code MPU6050_Read_Raw_Values(MPU6050_t* DataStruct)
 {
 	uint8_t data[14];
 	I2C_Error_Code  status;
@@ -212,13 +215,23 @@ void DisplayErrorCode(I2C_Error_Code error)
 		}
 		case I2C_WhoIam_Error:
 		{
-			 USART_Send(USART2, "Error: The device isn't the chosen one");
+			 USART_Send(USART2, "Error: The selected device is not the MPU6050");
 			 break;
 		}
 		default:
 			break;
 
 	}
+}
+
+
+I2C_Error_Code setLPF(MPU6050_t* DataStruct, uint8_t bandwith)
+{
+	I2C_Error_Code status;
+	status = I2C_WriteBits_Reg(MPU6050_I2C, DataStruct->SlaveAddress, MPU6050_RA_CONFIG, MPU6050_CFG_DLPF_CFG_BIT, MPU6050_CFG_DLPF_CFG_LENGTH, bandwith);
+	if(status) {return status;}
+
+	return I2C_NoError;
 }
 //uint8_t MPU6050_GetDeviceID()
 //{

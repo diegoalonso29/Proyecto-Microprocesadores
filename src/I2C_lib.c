@@ -406,7 +406,6 @@ I2C_Error_Code I2C_WriteByte_MultiReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, u
 *				BitStart		-> Initial bit to write (76543210)
 *				lenght			-> Portion size of the register
 *				data			-> Data (0-8bits)
-*				count			-> Number of bytes to write
 * Return :
 				I2C_Error_Code  -> Returns the error code ( defined on I2C_Lib.h )
 */
@@ -441,7 +440,7 @@ I2C_Error_Code I2C_WriteBits_Reg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_
 /********************************************* PRIVATE FUNCTIONS *****************************************************/
 
 /*
-* Generate START signal
+* Generates START signal
 * Params :
 * 				I2Cx 			-> I2C peripheral selected
 *				SlaveAddress 	-> I2C Device Address (7bits)
@@ -512,7 +511,8 @@ I2C_Error_Code I2C_Write(I2C_TypeDef* I2Cx, uint8_t data)
 {
 	/* Wait till I2C is not busy anymore */
 	I2C_Timeout = I2C_TIMEOUT;
-	while (!(I2Cx->SR1 & I2C_SR1_TXE))
+
+	while (!I2C_TestEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTING))
 	{
 		if (--I2C_Timeout == 0x00) {return I2C_TXE_Timeout;}
 	}

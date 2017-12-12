@@ -21,19 +21,21 @@ int main(void)
 
 
 	    Delay(1000);
-
 	    while (1){
 
 	    	Delay(20);
 
-	    	status = MPU6050_ReadAll(&MPU6050_Data);
-			if(status)
-			{
-		    	DisplayErrorCode(status);
-		    	return 0;
-			}
 
-			USART_SendFloat(USART2, MPU6050_Data.accel_z,4);
+	    	MPU6050_Read_Raw_Values(&MPU6050_Data);
+
+//	    	status = MPU6050_Read_Raw_Values(&MPU6050_Data);
+//			if(status)
+//			{
+//		    	DisplayErrorCode(status);
+//		    	return 0;
+//			}
+
+			USART_SendFloat(USART2, MPU6050_Data.accel_z,2);
 
 	        }
 
@@ -62,5 +64,5 @@ void Systick_Configuration(void)
 {
   RCC_ClocksTypeDef RCC_Clocks;
   RCC_GetClocksFreq(&RCC_Clocks);
-  SysTick_Config(RCC_Clocks.HCLK_Frequency / 1000);
+  SysTick_Config(RCC_Clocks.HCLK_Frequency/1000);
 }

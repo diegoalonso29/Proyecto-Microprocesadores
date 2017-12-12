@@ -402,10 +402,12 @@ typedef struct {
 
 
 I2C_Error_Code MPU6050_InitConfig(MPU6050_t* DataStruct, uint8_t AccelRange, uint8_t GyroRange);
-I2C_Error_Code MPU6050_ReadAccelerometer(MPU6050_t* DataStruct);
-I2C_Error_Code MPU6050_ReadGyroscope(MPU6050_t* DataStruct);
-I2C_Error_Code MPU6050_ReadTemperature(MPU6050_t* DataStruct);
-I2C_Error_Code MPU6050_ReadAll(MPU6050_t* DataStruct);
+I2C_Error_Code MPU6050_Read_Raw_Accelerometer(MPU6050_t* DataStruct);
+I2C_Error_Code MPU6050_Read_Raw_Gyroscope(MPU6050_t* DataStruct);
+I2C_Error_Code MPU6050_Read_Raw_Temperature(MPU6050_t* DataStruct);
+I2C_Error_Code MPU6050_Read_Raw_Values(MPU6050_t* DataStruct);
+I2C_Error_Code setLPF(MPU6050_t* DataStruct, uint8_t bandwith);
+
 
 float MPU6050_Mapf(float x, float in_min, float in_max, float out_min, float out_max);
 void DisplayErrorCode(I2C_Error_Code error);
