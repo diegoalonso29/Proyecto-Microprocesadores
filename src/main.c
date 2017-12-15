@@ -2,7 +2,7 @@
 
 int main(void)
 {
-		MPU6050_t MPU6050_Data;
+		MPU6050_Data_Raw MPU6050_Data;
 	    //char str[120];
 	    I2C_Error_Code status;
 

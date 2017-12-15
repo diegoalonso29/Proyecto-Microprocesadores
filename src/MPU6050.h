@@ -377,11 +377,7 @@
 
 
 typedef struct {
-	/* Private */
-	uint8_t SlaveAddress;         /*!< I2C address of device. Only for private use */
-	float Gyro_Mult;         /*!< Gyroscope corrector from raw data to "degrees/s". Only for private use */
-	float Acce_Mult;         /*!< Accelerometer corrector from raw data to "g". Only for private use */
-	/* Public */
+
 	int16_t raw_accel_x; /*!< Accelerometer value X axis */
 	int16_t raw_accel_y; /*!< Accelerometer value Y axis */
 	int16_t raw_accel_z; /*!< Accelerometer value Z axis */
@@ -398,15 +394,15 @@ typedef struct {
 	float gyro_z;
 	float temp;
 
-} MPU6050_t;
+} MPU6050_Data_Raw;
 
 
-I2C_Error_Code MPU6050_InitConfig(MPU6050_t* DataStruct, uint8_t AccelRange, uint8_t GyroRange);
-I2C_Error_Code MPU6050_Read_Raw_Accelerometer(MPU6050_t* DataStruct);
-I2C_Error_Code MPU6050_Read_Raw_Gyroscope(MPU6050_t* DataStruct);
-I2C_Error_Code MPU6050_Read_Raw_Temperature(MPU6050_t* DataStruct);
-I2C_Error_Code MPU6050_Read_Raw_Values(MPU6050_t* DataStruct);
-I2C_Error_Code setLPF(MPU6050_t* DataStruct, uint8_t bandwith);
+I2C_Error_Code MPU6050_InitConfig(MPU6050_Data_Raw* DataStruct, uint8_t AccelRange, uint8_t GyroRange);
+I2C_Error_Code MPU6050_Read_Raw_Accelerometer(MPU6050_Data_Raw* DataStruct);
+I2C_Error_Code MPU6050_Read_Raw_Gyroscope(MPU6050_Data_Raw* DataStruct);
+I2C_Error_Code MPU6050_Read_Raw_Temperature(MPU6050_Data_Raw* DataStruct);
+I2C_Error_Code MPU6050_Read_Raw_Values(MPU6050_Data_Raw* DataStruct);
+I2C_Error_Code setLPF(MPU6050_Data_Raw* DataStruct, uint8_t bandwith);
 
 
 float MPU6050_Mapf(float x, float in_min, float in_max, float out_min, float out_max);
