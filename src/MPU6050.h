@@ -196,58 +196,6 @@
 #define MPU6050_I2C_MST_INT_EN		0X80
 #define MPU6050_DATA_RDY_INT_EN		0x01
 
-#define MPU6050_MULT_MST_EN_BIT     7
-#define MPU6050_WAIT_FOR_ES_BIT     6
-#define MPU6050_SLV_3_FIFO_EN_BIT   5
-#define MPU6050_I2C_MST_P_NSR_BIT   4
-#define MPU6050_I2C_MST_CLK_BIT     3
-#define MPU6050_I2C_MST_CLK_LENGTH  4
-
-#define MPU6050_CLOCK_DIV_348       0x0
-#define MPU6050_CLOCK_DIV_333       0x1
-#define MPU6050_CLOCK_DIV_320       0x2
-#define MPU6050_CLOCK_DIV_308       0x3
-#define MPU6050_CLOCK_DIV_296       0x4
-#define MPU6050_CLOCK_DIV_286       0x5
-#define MPU6050_CLOCK_DIV_276       0x6
-#define MPU6050_CLOCK_DIV_267       0x7
-#define MPU6050_CLOCK_DIV_258       0x8
-#define MPU6050_CLOCK_DIV_500       0x9
-#define MPU6050_CLOCK_DIV_471       0xA
-#define MPU6050_CLOCK_DIV_444       0xB
-#define MPU6050_CLOCK_DIV_421       0xC
-#define MPU6050_CLOCK_DIV_400       0xD
-#define MPU6050_CLOCK_DIV_381       0xE
-#define MPU6050_CLOCK_DIV_364       0xF
-
-#define MPU6050_I2C_SLV_RW_BIT      7
-#define MPU6050_I2C_SLV_ADDR_BIT    6
-#define MPU6050_I2C_SLV_ADDR_LENGTH 7
-#define MPU6050_I2C_SLV_EN_BIT      7
-#define MPU6050_I2C_SLV_BYTE_SW_BIT 6
-#define MPU6050_I2C_SLV_REG_DIS_BIT 5
-#define MPU6050_I2C_SLV_GRP_BIT     4
-#define MPU6050_I2C_SLV_LEN_BIT     3
-#define MPU6050_I2C_SLV_LEN_LENGTH  4
-
-#define MPU6050_I2C_SLV4_RW_BIT         7
-#define MPU6050_I2C_SLV4_ADDR_BIT       6
-#define MPU6050_I2C_SLV4_ADDR_LENGTH    7
-#define MPU6050_I2C_SLV4_EN_BIT         7
-#define MPU6050_I2C_SLV4_INT_EN_BIT     6
-#define MPU6050_I2C_SLV4_REG_DIS_BIT    5
-#define MPU6050_I2C_SLV4_MST_DLY_BIT    4
-#define MPU6050_I2C_SLV4_MST_DLY_LENGTH 5
-
-#define MPU6050_MST_PASS_THROUGH_BIT    7
-#define MPU6050_MST_I2C_SLV4_DONE_BIT   6
-#define MPU6050_MST_I2C_LOST_ARB_BIT    5
-#define MPU6050_MST_I2C_SLV4_NACK_BIT   4
-#define MPU6050_MST_I2C_SLV3_NACK_BIT   3
-#define MPU6050_MST_I2C_SLV2_NACK_BIT   2
-#define MPU6050_MST_I2C_SLV1_NACK_BIT   1
-#define MPU6050_MST_I2C_SLV0_NACK_BIT   0
-
 #define MPU6050_INTCFG_INT_LEVEL_BIT        7
 #define MPU6050_INTCFG_INT_OPEN_BIT         6
 #define MPU6050_INTCFG_LATCH_INT_EN_BIT     5
@@ -256,18 +204,6 @@
 #define MPU6050_INTCFG_FSYNC_INT_EN_BIT     2
 #define MPU6050_INTCFG_I2C_BYPASS_EN_BIT    1
 #define MPU6050_INTCFG_CLKOUT_EN_BIT        0
-
-#define MPU6050_INTMODE_ACTIVEHIGH  0x00
-#define MPU6050_INTMODE_ACTIVELOW   0x01
-
-#define MPU6050_INTDRV_PUSHPULL     0x00
-#define MPU6050_INTDRV_OPENDRAIN    0x01
-
-#define MPU6050_INTLATCH_50USPULSE  0x00
-#define MPU6050_INTLATCH_WAITCLEAR  0x01
-
-#define MPU6050_INTCLEAR_STATUSREAD 0x00
-#define MPU6050_INTCLEAR_ANYREAD    0x01
 
 #define MPU6050_INTERRUPT_FF_BIT            7
 #define MPU6050_INTERRUPT_MOT_BIT           6
@@ -278,44 +214,9 @@
 #define MPU6050_INTERRUPT_DMP_INT_BIT       1
 #define MPU6050_INTERRUPT_DATA_RDY_BIT      0
 
-// TODO: Need to work on DMP related things
-#define MPU6050_DMPINT_5_BIT            5
-#define MPU6050_DMPINT_4_BIT            4
-#define MPU6050_DMPINT_3_BIT            3
-#define MPU6050_DMPINT_2_BIT            2
-#define MPU6050_DMPINT_1_BIT            1
-#define MPU6050_DMPINT_0_BIT            0
-
-#define MPU6050_MOTION_MOT_XNEG_BIT     7
-#define MPU6050_MOTION_MOT_XPOS_BIT     6
-#define MPU6050_MOTION_MOT_YNEG_BIT     5
-#define MPU6050_MOTION_MOT_YPOS_BIT     4
-#define MPU6050_MOTION_MOT_ZNEG_BIT     3
-#define MPU6050_MOTION_MOT_ZPOS_BIT     2
-#define MPU6050_MOTION_MOT_ZRMOT_BIT    0
-
-#define MPU6050_DELAYCTRL_DELAY_ES_SHADOW_BIT   7
-#define MPU6050_DELAYCTRL_I2C_SLV4_DLY_EN_BIT   4
-#define MPU6050_DELAYCTRL_I2C_SLV3_DLY_EN_BIT   3
-#define MPU6050_DELAYCTRL_I2C_SLV2_DLY_EN_BIT   2
-#define MPU6050_DELAYCTRL_I2C_SLV1_DLY_EN_BIT   1
-#define MPU6050_DELAYCTRL_I2C_SLV0_DLY_EN_BIT   0
-
 #define MPU6050_PATHRESET_GYRO_RESET    		0x04
 #define MPU6050_PATHRESET_ACCEL_RESET			0x02           /* Lo utilizo */
 #define MPU6050_PATHRESET_TEMP_RESET		    0x01
-
-#define MPU6050_DETECT_ACCEL_ON_DELAY_BIT       5
-#define MPU6050_DETECT_ACCEL_ON_DELAY_LENGTH    2
-#define MPU6050_DETECT_FF_COUNT_BIT             3
-#define MPU6050_DETECT_FF_COUNT_LENGTH          2
-#define MPU6050_DETECT_MOT_COUNT_BIT            1
-#define MPU6050_DETECT_MOT_COUNT_LENGTH         2
-
-#define MPU6050_DETECT_DECREMENT_RESET  0x0
-#define MPU6050_DETECT_DECREMENT_1      0x1
-#define MPU6050_DETECT_DECREMENT_2      0x2
-#define MPU6050_DETECT_DECREMENT_4      0x3
 
 #define MPU6050_USERCTRL_DMP_EN_BIT             7
 #define MPU6050_USERCTRL_FIFO_EN_BIT            6
@@ -327,7 +228,7 @@
 #define MPU6050_USERCTRL_SIG_COND_RESET_BIT     0
 
 #define MPU6050_PWR1_DEVICE_RESET_BIT   7
-#define MPU6050_PWR1_SLEEP_BIT          6
+#define MPU6050_PWR1_SLEEP_BIT          6                       /* Lo utilizo */
 #define MPU6050_PWR1_CYCLE_BIT          5
 #define MPU6050_PWR1_TEMP_DIS_BIT       3
 #define MPU6050_PWR1_CLKSEL_BIT         2
@@ -417,6 +318,14 @@ I2C_Error_Code MPU6050_Get_INT_Enable(uint8_t* int_enable);
 I2C_Error_Code MPU6050_Get_INT_Status(uint8_t INT, uint8_t* int_status);
 I2C_Error_Code MPU6050_SignalPath_Reset(uint8_t sensor_reset);
 
+I2C_Error_Code MPU6050_Set_FIFO_Enable();
+I2C_Error_Code MPU6050_Get_FIFO_Enable(uint8_t* fifo_en);
+I2C_Error_Code MPU6050_ResetDevice();
+I2C_Error_Code MPU6050_SleepMode(uint8_t mode);
+I2C_Error_Code MPU6050_Set_ClockSel(uint8_t sel);
+I2C_Error_Code MPU6050_Get_ClockSel(uint8_t* sel);
+I2C_Error_Code MPU6050_Get_FIFO_Count(uint16_t* sel);
+I2C_Error_Code MPU6050_Read_FIFO(MPU6050_Data_Raw* DataStruct);
 
 float MPU6050_Mapf(float x, float in_min, float in_max, float out_min, float out_max);
 void DisplayErrorCode(I2C_Error_Code error);

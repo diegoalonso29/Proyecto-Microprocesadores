@@ -19,10 +19,6 @@ I2C_Error_Code MPU6050_InitConfig(uint8_t AccelRange, uint8_t GyroRange)
 	if(status) {return status;}
 	if (data_temp != MPU6050_I_AM) { return I2C_WhoIam_Error; }
 
-	/* Arranque del MPU6050 */
-	status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_PWR_MGMT_1, 0x00);
-	if(status) {return status;}
-
 	/* Configuración de la escala para el acelerómetro */
 	status = I2C_WriteBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_AFS_SEL_BIT, MPU6050_ACONFIG_AFS_SEL_LENGTH, AccelRange);
 	if(status) {return status;}
@@ -31,7 +27,11 @@ I2C_Error_Code MPU6050_InitConfig(uint8_t AccelRange, uint8_t GyroRange)
 	status = I2C_WriteBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_GYRO_CONFIG,  MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, GyroRange);
 	if(status) {return status;}
 
-	status = MPU6050_SetLPF(DataStruct, MPU6050_DLPF_BW_5);
+	status = MPU6050_SetLPF(MPU6050_DLPF_BW_5);
+	if(status) {return status;}
+
+	/* Arranque del MPU6050 */
+	status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_PWR_MGMT_1, 0x00);
 	if(status) {return status;}
 
 	return I2C_NoError;
@@ -155,7 +155,7 @@ void DisplayErrorCode(I2C_Error_Code error)
 		}
 		case I2C_StartBit_TimeOut:
 		{
-			 USART_Send(USART2, "Error: StartBit no response\n");
+			 USART_Send(USART2, "Error: StartBit no responds\n");
 			 break;
 		}
 		case I2C_AddressTransfer_Timeout:
@@ -297,6 +297,113 @@ I2C_Error_Code MPU6050_SignalPath_Reset(uint8_t sensor_reset)
 
 	return I2C_NoError;
 }
+
+I2C_Error_Code MPU6050_Set_FIFO_Enable()
+{
+	I2C_Error_Code status;
+	status = I2C_WriteBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_FIFO_EN_BIT, 1, 1);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+I2C_Error_Code MPU6050_Get_FIFO_Enable(uint8_t* fifo_en)
+{
+	I2C_Error_Code status;
+	status = I2C_ReadBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_FIFO_EN_BIT, 1, fifo_en);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+I2C_Error_Code MPU6050_ResetDevice()
+{
+	I2C_Error_Code status;
+	status = I2C_WriteBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_DEVICE_RESET_BIT, 1, 1);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+I2C_Error_Code MPU6050_SleepMode(uint8_t mode)
+{
+	I2C_Error_Code status;
+	if(mode)
+	{
+	status = I2C_WriteBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_SLEEP_BIT, 1, 1);
+	if(status) {return status;}
+	}
+
+	else
+	{
+	status = I2C_WriteBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_SLEEP_BIT, 1, 0);
+	if(status) {return status;}
+	}
+
+	return I2C_NoError;
+}
+
+I2C_Error_Code MPU6050_Set_ClockSel(uint8_t sel)
+{
+	I2C_Error_Code status;
+	status = I2C_WriteBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_CLKSEL_BIT, MPU6050_PWR1_CLKSEL_LENGTH, sel);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+
+I2C_Error_Code MPU6050_Get_ClockSel(uint8_t* sel)
+{
+	I2C_Error_Code status;
+	status = I2C_ReadBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_CLKSEL_BIT, MPU6050_PWR1_CLKSEL_LENGTH, sel);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+
+I2C_Error_Code MPU6050_Get_FIFO_Count(uint16_t* sel)
+{
+	uint16_t tmp1 = 0;
+	uint16_t tmp2 = 0;
+
+	I2C_Error_Code status;
+
+	status = I2C_ReadByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_FIFO_COUNTH, tmp1);
+	if(status) {return status;}
+	status = I2C_ReadByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_FIFO_COUNTL, tmp2);
+	if(status) {return status;}
+
+	*sel = (tmp1<<8) | tmp2;
+
+	return I2C_NoError;
+}
+
+I2C_Error_Code MPU6050_Read_FIFO(MPU6050_Data_Raw* DataStruct)
+{
+	uint8_t tmp[14];
+	I2C_Error_Code status;
+	status = I2C_ReadByte_MultiReg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_FIFO_R_W, tmp, 14);
+	if(status) {return status;}
+
+	/* Format accelerometer data */
+	DataStruct->raw_accel_x = (int16_t)(tmp[0] << 8 | tmp[1]);
+	DataStruct->raw_accel_y = (int16_t)(tmp[2] << 8 | tmp[3]);
+	DataStruct->raw_accel_z = (int16_t)(tmp[4] << 8 | tmp[5]);
+
+	/* Format temperature */
+	DataStruct->raw_temp = (int16_t)(tmp[6] << 8 | tmp[7]);
+
+	/* Format gyroscope tmp */
+	DataStruct->raw_gyro_x = (int16_t)(tmp[8] << 8 | tmp[9]);
+	DataStruct->raw_gyro_y = (int16_t)(tmp[10] << 8 | tmp[11]);
+	DataStruct->raw_gyro_z = (int16_t)(tmp[12] << 8 | tmp[13]);
+
+	return I2C_NoError;
+}
+
+
 
 
 
