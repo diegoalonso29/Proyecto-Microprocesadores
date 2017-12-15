@@ -12,7 +12,7 @@ int main(void)
 	    USART2_Init(9600);
 	    USART_Send(USART2, "Arranque\n");
 
-	    status = MPU6050_InitConfig(&MPU6050_Data, MPU6050_ACCEL_FS_4, MPU6050_GYRO_FS_250);
+	    status = MPU6050_InitConfig(MPU6050_ACCEL_FS_4, MPU6050_GYRO_FS_250);
 		if(status)
 		{
 	    	DisplayErrorCode(status);
@@ -26,7 +26,7 @@ int main(void)
 	    	Delay(20);
 
 
-	    	MPU6050_Read_Raw_Values(&MPU6050_Data);
+	    	MPU6050_Get_Raw_Data(&MPU6050_Data);
 
 //	    	status = MPU6050_Read_Raw_Values(&MPU6050_Data);
 //			if(status)
@@ -35,7 +35,7 @@ int main(void)
 //		    	return 0;
 //			}
 
-			USART_SendFloat(USART2, MPU6050_Data.accel_z,2);
+//			USART_SendFloat(USART2, MPU6050_Data.accel_z,2);
 
 	        }
 

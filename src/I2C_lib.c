@@ -308,7 +308,6 @@ I2C_Error_Code I2C_ReadByte_MultiReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, ui
 *				BitStart		-> Initial bit to read (76543210)
 *				lenght			-> Portion size of the register
 *				data			-> Direction to store the byte data
-*				count			-> Number of bytes to read
 * Return :
 *				I2C_Error_Code  -> Returns the error code ( defined on I2C_Lib.h )
 */

@@ -1,7 +1,7 @@
 #include "MPU6050.h"
 
 
-I2C_Error_Code MPU6050_InitConfig(MPU6050_Data_Raw* DataStruct, uint8_t AccelRange, uint8_t GyroRange)
+I2C_Error_Code MPU6050_InitConfig(uint8_t AccelRange, uint8_t GyroRange)
 {
 
 	uint8_t data_temp = 0;
@@ -31,13 +31,13 @@ I2C_Error_Code MPU6050_InitConfig(MPU6050_Data_Raw* DataStruct, uint8_t AccelRan
 	status = I2C_WriteBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_GYRO_CONFIG,  MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, GyroRange);
 	if(status) {return status;}
 
-	status = setLPF(DataStruct, MPU6050_DLPF_BW_5);
+	status = MPU6050_SetLPF(DataStruct, MPU6050_DLPF_BW_5);
 	if(status) {return status;}
 
 	return I2C_NoError;
 }
 
-I2C_Error_Code MPU6050_Read_Raw_Accelerometer(MPU6050_Data_Raw* DataStruct)
+I2C_Error_Code MPU6050_Get_Raw_Accelerometer(MPU6050_Data_Raw* DataStruct)
 {
 	uint8_t data[6];
 	I2C_Error_Code status;
@@ -55,7 +55,7 @@ I2C_Error_Code MPU6050_Read_Raw_Accelerometer(MPU6050_Data_Raw* DataStruct)
 	return I2C_NoError;
 }
 
-I2C_Error_Code MPU6050_Read_Raw_Gyroscope(MPU6050_Data_Raw* DataStruct)
+I2C_Error_Code MPU6050_Get_Raw_Gyroscope(MPU6050_Data_Raw* DataStruct)
 {
 	uint8_t data[6];
 	I2C_Error_Code status;
@@ -73,7 +73,7 @@ I2C_Error_Code MPU6050_Read_Raw_Gyroscope(MPU6050_Data_Raw* DataStruct)
 	return I2C_NoError;
 }
 
-I2C_Error_Code MPU6050_Read_Raw_Temperature(MPU6050_Data_Raw* DataStruct)
+I2C_Error_Code MPU6050_Get_Raw_Temperature(MPU6050_Data_Raw* DataStruct)
 {
 	uint8_t data[2];
 	int16_t temp;
@@ -91,7 +91,7 @@ I2C_Error_Code MPU6050_Read_Raw_Temperature(MPU6050_Data_Raw* DataStruct)
 	return I2C_NoError;
 }
 
-I2C_Error_Code MPU6050_Read_Raw_Values(MPU6050_Data_Raw* DataStruct)
+I2C_Error_Code MPU6050_Get_Raw_Data(MPU6050_Data_Raw* DataStruct)
 {
 	uint8_t data[14];
 	I2C_Error_Code  status;
@@ -124,6 +124,9 @@ I2C_Error_Code MPU6050_Read_Raw_Values(MPU6050_Data_Raw* DataStruct)
 	/* Return OK */
 	return I2C_NoError;
 }
+
+
+
 
 float MPU6050_Mapf(float x, float in_min, float in_max, float out_min, float out_max)
 {
@@ -187,7 +190,7 @@ void DisplayErrorCode(I2C_Error_Code error)
 }
 
 
-I2C_Error_Code setLPF(MPU6050_Data_Raw* DataStruct, uint8_t bandwith)
+I2C_Error_Code MPU6050_SetLPF(uint8_t bandwith)
 {
 	I2C_Error_Code status;
 	status = I2C_WriteBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_CONFIG, MPU6050_CFG_DLPF_CFG_BIT, MPU6050_CFG_DLPF_CFG_LENGTH, bandwith);
@@ -195,6 +198,112 @@ I2C_Error_Code setLPF(MPU6050_Data_Raw* DataStruct, uint8_t bandwith)
 
 	return I2C_NoError;
 }
+
+
+I2C_Error_Code MPU6050_Set_SampleRate(uint8_t SampleRate)
+{
+	I2C_Error_Code status;
+	status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_SMPLRT_DIV, SampleRate);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+I2C_Error_Code MPU6050_Get_SampleRate(uint8_t* SampleRate)
+{
+	I2C_Error_Code status;
+	status = I2C_ReadByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_SMPLRT_DIV, SampleRate);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+I2C_Error_Code MPU6050_Set_FIFO_Config(uint8_t FilledData)
+{
+	I2C_Error_Code status;
+	status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_FIFO_EN, FilledData);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+I2C_Error_Code MPU6050_Get_FIFO_Config(uint8_t* FilledData)
+{
+	I2C_Error_Code status;
+	status = I2C_ReadByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_FIFO_EN, FilledData);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+
+I2C_Error_Code MPU6050_Set_INT_Config(uint8_t INT_Level, uint8_t INT_Open, uint8_t Latch, uint8_t Read_Clear)
+{
+	I2C_Error_Code status;
+
+	uint8_t int_config = 0;
+	int_config = (INT_Level << 3) | (INT_Open << 2) | (Latch << 1) | (Read_Clear);
+
+	status = I2C_WriteBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_INT_LEVEL_BIT, 4,  int_config);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+
+I2C_Error_Code MPU6050_Get_INT_Config(uint8_t* int_config)
+{
+	I2C_Error_Code status;
+	status = I2C_ReadByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_INT_PIN_CFG, int_config);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+
+I2C_Error_Code MPU6050_Set_INT_Enable(uint8_t int_enable)
+{
+	I2C_Error_Code status;
+	status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_INT_ENABLE, int_enable);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+I2C_Error_Code MPU6050_Get_INT_Enable(uint8_t* int_enable)
+{
+	I2C_Error_Code status;
+	status = I2C_ReadByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_INT_ENABLE, int_enable);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+
+I2C_Error_Code MPU6050_Get_INT_Status(uint8_t INT, uint8_t* int_status)
+{
+	I2C_Error_Code status;
+	status = I2C_ReadBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_INT_STATUS, INT, 1, int_status);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+I2C_Error_Code MPU6050_SignalPath_Reset(uint8_t sensor_reset)
+{
+	I2C_Error_Code status;
+	status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_SIGNAL_PATH_RESET, sensor_reset);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+
+
+
+
+
+
 //uint8_t MPU6050_GetDeviceID()
 //{
 //    uint8_t tmp;
