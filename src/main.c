@@ -2,13 +2,16 @@
 
 int main(void)
 {
+		int i;
+
 		MPU6050_Data_Raw MPU6050_Data;
-	    //char str[120];
 	    I2C_Error_Code status;
+	    float_data cipotes;
 
 	    /* Initialize system */
 	    SystemInit();
 	    Systick_Configuration();
+
 	    USART2_Init(9600);
 	    USART_Send(USART2, "Arranque\n");
 
@@ -19,14 +22,20 @@ int main(void)
 	    	return 0;
 		}
 
+		MPU6050_Config_ContinuousMeasurement();
 
-	    Delay(1000);
-	    while (1){
+	    while (1)
+	    {
 
-	    	Delay(20);
-
-
-	    	MPU6050_Get_Raw_Data(&MPU6050_Data);
+	    	if(data_available)
+	    		{
+	    			MPU6050_Data_Raw tmp[data_available];
+	    			for(i=0;i<data_available; i++)
+	    			{
+	    				cipotes = getFloat(Buffer_Data[i]);
+	    				USART_SendFloat(USART2, cipotes.accel_z,2);
+	    			}
+	    		}
 
 //	    	status = MPU6050_Read_Raw_Values(&MPU6050_Data);
 //			if(status)

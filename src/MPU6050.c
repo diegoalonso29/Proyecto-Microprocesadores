@@ -37,9 +37,6 @@ I2C_Error_Code MPU6050_InitConfig(uint8_t AccelRange, uint8_t GyroRange, uint8_t
 	status = MPU6050_Set_INT_Config(DISABLE,DISABLE,DISABLE,1);
 	if(status) {return status;}
 
-	status = MPU6050_Set_INT_Enable(MPU6050_DATA_RDY_INT_EN);
-	if(status) {return status;}
-
 	status = MPU6050_Set_ClockSel(MPU6050_CLOCK_PLL_XGYRO);
 	if(status) {return status;}
 
@@ -125,18 +122,25 @@ I2C_Error_Code MPU6050_Get_Raw_Data(MPU6050_Data_Raw* DataStruct)
 	DataStruct->raw_gyro_y = (int16_t)(data[10] << 8 | data[11]);
 	DataStruct->raw_gyro_z = (int16_t)(data[12] << 8 | data[13]);
 
-//	DataStruct->accel_x = MPU6050_Mapf((float)DataStruct->raw_accel_x,(float)-32768,(float)32767,-9.81*DataStruct->Acce_Mult,9.81*DataStruct->Acce_Mult);
-//	DataStruct->accel_y = MPU6050_Mapf((float)DataStruct->raw_accel_y,(float)-32768,(float)32767,-9.81*DataStruct->Acce_Mult,9.81*DataStruct->Acce_Mult);
-//	DataStruct->accel_z = MPU6050_Mapf((float)DataStruct->raw_accel_z,(float)-32768,(float)32767,-9.81*DataStruct->Acce_Mult,9.81*DataStruct->Acce_Mult);
-//
-//	DataStruct->gyro_x = MPU6050_Mapf((float)DataStruct->raw_gyro_x,(float)-32768,(float)32767,-9.81*DataStruct->Gyro_Mult,9.81*DataStruct->Gyro_Mult);
-//	DataStruct->gyro_y = MPU6050_Mapf((float)DataStruct->raw_gyro_y,(float)-32768,(float)32767,-9.81*DataStruct->Gyro_Mult,9.81*DataStruct->Gyro_Mult);
-//	DataStruct->gyro_z = MPU6050_Mapf((float)DataStruct->raw_gyro_z,(float)-32768,(float)32767,-9.81*DataStruct->Gyro_Mult,9.81*DataStruct->Gyro_Mult);
 
 	/* Return OK */
 	return I2C_NoError;
 }
 
+float_data getFloat (MPU6050_Data_Raw DataStruct)
+{
+	float_data DataFloat;
+
+	DataFloat.accel_x = (float)DataStruct.raw_accel_x / MPU6050_ACCE_SENS_4;
+	DataFloat.accel_y = (float)DataStruct.raw_accel_y / MPU6050_ACCE_SENS_4;
+	DataFloat.accel_z = (float)DataStruct.raw_accel_x / MPU6050_ACCE_SENS_4;
+
+	DataFloat.gyro_x = (float)DataStruct.raw_gyro_x / MPU6050_GYRO_SENS_250;
+	DataFloat.gyro_y = (float)DataStruct.raw_gyro_x / MPU6050_GYRO_SENS_250;
+	DataFloat.gyro_z = (float)DataStruct.raw_gyro_x / MPU6050_GYRO_SENS_250;
+
+	return DataFloat;
+}
 
 
 
@@ -400,8 +404,8 @@ I2C_Error_Code MPU6050_Get_ClockSel(uint8_t* sel)
 
 I2C_Error_Code MPU6050_Get_FIFO_Count(uint16_t* sel)
 {
-	uint16_t tmp1 = 0;
-	uint16_t tmp2 = 0;
+	uint8_t tmp1 = 0;
+	uint8_t tmp2 = 0;
 
 	I2C_Error_Code status;
 
@@ -410,7 +414,7 @@ I2C_Error_Code MPU6050_Get_FIFO_Count(uint16_t* sel)
 	status = I2C_ReadByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_FIFO_COUNTL, &tmp2);
 	if(status) {return status;}
 
-	*sel = (tmp1<<8) | tmp2;
+	*sel = (uint16_t)(tmp1<<8) | (uint16_t)tmp2;
 
 	return I2C_NoError;
 }
@@ -438,7 +442,72 @@ I2C_Error_Code MPU6050_Read_FIFO(MPU6050_Data_Raw* DataStruct)
 	return I2C_NoError;
 }
 
+I2C_Error_Code MPU6050_Config_ContinuousMeasurement(void)
+{
+	I2C_Error_Code status;
 
+	GPIO_InitTypeDef gpio_init_struct;
+	EXTI_InitTypeDef EXTI_InitStructure;
+	NVIC_InitTypeDef NVIC_InitStructure;
+
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+
+	/* Configuracion Pin13 del GPIOC para la entrada de la EXTI */
+	gpio_init_struct.GPIO_Mode = GPIO_Mode_IN;
+	gpio_init_struct.GPIO_OType =GPIO_OType_PP;
+	gpio_init_struct.GPIO_Pin= GPIO_Pin_13;
+	gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
+	gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
+	GPIO_Init(GPIOC,&gpio_init_struct);
+
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG,ENABLE);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOC, EXTI_PinSource13);
+
+	EXTI_InitStructure.EXTI_Line = GPIO_Pin_13;
+	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+	EXTI_InitStructure.EXTI_Trigger	= EXTI_Trigger_Falling;
+	EXTI_InitStructure.EXTI_LineCmd	= ENABLE;
+	EXTI_Init(&EXTI_InitStructure);
+
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+
+	pos_buffer = 0;
+	data_available = 0;
+
+	status = MPU6050_Set_INT_Enable(MPU6050_DATA_RDY_INT_EN);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
+
+void EXTI15_10_IRQHandler(void)
+{
+	if(EXTI_GetFlagStatus(EXTI_Line13))
+	{
+		if(pos_buffer < BUFFER_SIZE)
+		{
+			Main_State = MPU6050_Get_Raw_Data(Buffer_Data+pos_buffer);
+			if(Main_State == I2C_NoError)
+			{
+				data_available++;
+				pos_buffer++;
+			}
+		}
+		else
+		{
+			pos_buffer = 0;
+			Main_State = MPU6050_Get_Raw_Data(Buffer_Data+pos_buffer);
+			if(Main_State == I2C_NoError) {pos_buffer++;}
+		}
+
+		EXTI_ClearITPendingBit(EXTI_Line13);
+
+	}
+}
 
 
 

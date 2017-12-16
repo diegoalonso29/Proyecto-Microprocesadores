@@ -280,7 +280,7 @@
 #define MPU6050_ACCE_SENS_8			((float) 4096)
 #define MPU6050_ACCE_SENS_16		((float) 2048)
 
-
+#define BUFFER_SIZE						40
 typedef struct {
 
 	int16_t raw_accel_x; /*!< Accelerometer value X axis */
@@ -293,6 +293,24 @@ typedef struct {
 
 } MPU6050_Data_Raw;
 
+typedef struct
+{
+	float accel_x;
+	float accel_y;
+	float accel_z;
+	float gyro_x;
+	float gyro_y;
+	float gyro_z;
+	float temp;
+
+}float_data;
+
+MPU6050_Data_Raw Buffer_Data[BUFFER_SIZE];
+uint8_t pos_buffer;
+uint8_t data_available;
+I2C_Error_Code Main_State;
+
+
 
 I2C_Error_Code MPU6050_InitConfig(uint8_t AccelRange, uint8_t GyroRange, uint8_t SampleRate);
 
@@ -300,6 +318,7 @@ I2C_Error_Code MPU6050_Get_Raw_Accelerometer(MPU6050_Data_Raw* DataStruct);
 I2C_Error_Code MPU6050_Get_Raw_Gyroscope(MPU6050_Data_Raw* DataStruct);
 I2C_Error_Code MPU6050_Get_Raw_Temperature(MPU6050_Data_Raw* DataStruct);
 I2C_Error_Code MPU6050_Get_Raw_Data(MPU6050_Data_Raw* DataStruct);
+
 
 I2C_Error_Code MPU6050_SetLPF(uint8_t bandwith);
 I2C_Error_Code MPU6050_GetLPF(uint8_t* bandwith);
@@ -328,6 +347,11 @@ I2C_Error_Code MPU6050_Get_ClockSel(uint8_t* sel);
 I2C_Error_Code MPU6050_Get_FIFO_Count(uint16_t* sel);
 I2C_Error_Code MPU6050_Read_FIFO(MPU6050_Data_Raw* DataStruct);
 
+void EXTI15_10_IRQHandler(void);
+I2C_Error_Code MPU6050_Config_ContinuousMeasurement(void);
+
+float_data getFloat (MPU6050_Data_Raw DataStruct);
+
 float MPU6050_Mapf(float x, float in_min, float in_max, float out_min, float out_max);
 void DisplayErrorCode(I2C_Error_Code error);
 //typedef struct
@@ -342,20 +366,12 @@ void DisplayErrorCode(I2C_Error_Code error);
 //
 //}raw_data;
 //
-//typedef struct
-//{
-//  float accel_x;
-//  float accel_y;
-//  float accel_z;
-//
-//}accel_data;
+
 //
 //
 //typedef struct
 //{
-//	float gyro_x;
-//	float gyro_y;
-//	float gyro_z;
+
 //
 //}gyro_data;
 //
