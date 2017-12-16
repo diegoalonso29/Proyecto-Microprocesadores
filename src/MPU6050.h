@@ -193,7 +193,7 @@
 #define MPU6050_SLV0_FIFO_EN	    0x01
 
 #define MPU6050_FIFO_OFLOW_INT_EN	0X10
-#define MPU6050_I2C_MST_INT_EN		0X80
+#define MPU6050_I2C_MST_INT_EN		0X80				Lo utilizo
 #define MPU6050_DATA_RDY_INT_EN		0x01
 
 #define MPU6050_INTCFG_INT_LEVEL_BIT        7
@@ -294,7 +294,7 @@ typedef struct {
 } MPU6050_Data_Raw;
 
 
-I2C_Error_Code MPU6050_InitConfig(uint8_t AccelRange, uint8_t GyroRange);
+I2C_Error_Code MPU6050_InitConfig(uint8_t AccelRange, uint8_t GyroRange, uint8_t SampleRate);
 
 I2C_Error_Code MPU6050_Get_Raw_Accelerometer(MPU6050_Data_Raw* DataStruct);
 I2C_Error_Code MPU6050_Get_Raw_Gyroscope(MPU6050_Data_Raw* DataStruct);
@@ -302,6 +302,7 @@ I2C_Error_Code MPU6050_Get_Raw_Temperature(MPU6050_Data_Raw* DataStruct);
 I2C_Error_Code MPU6050_Get_Raw_Data(MPU6050_Data_Raw* DataStruct);
 
 I2C_Error_Code MPU6050_SetLPF(uint8_t bandwith);
+I2C_Error_Code MPU6050_GetLPF(uint8_t* bandwith);
 
 I2C_Error_Code MPU6050_Set_SampleRate(uint8_t SampleRate);
 I2C_Error_Code MPU6050_Get_SampleRate(uint8_t* SampleRate);

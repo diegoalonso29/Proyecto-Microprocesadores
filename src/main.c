@@ -12,7 +12,7 @@ int main(void)
 	    USART2_Init(9600);
 	    USART_Send(USART2, "Arranque\n");
 
-	    status = MPU6050_InitConfig(MPU6050_ACCEL_FS_4, MPU6050_GYRO_FS_250);
+	    status = MPU6050_InitConfig(MPU6050_ACCEL_FS_4, MPU6050_GYRO_FS_250, 20);
 		if(status)
 		{
 	    	DisplayErrorCode(status);

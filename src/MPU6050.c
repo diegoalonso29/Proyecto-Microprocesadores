@@ -1,7 +1,7 @@
 #include "MPU6050.h"
 
 
-I2C_Error_Code MPU6050_InitConfig(uint8_t AccelRange, uint8_t GyroRange)
+I2C_Error_Code MPU6050_InitConfig(uint8_t AccelRange, uint8_t GyroRange, uint8_t  SampleRate)
 {
 
 	uint8_t data_temp = 0;
@@ -19,6 +19,13 @@ I2C_Error_Code MPU6050_InitConfig(uint8_t AccelRange, uint8_t GyroRange)
 	if(status) {return status;}
 	if (data_temp != MPU6050_I_AM) { return I2C_WhoIam_Error; }
 
+	status = MPU6050_SetLPF(MPU6050_DLPF_BW_5);
+	if(status) {return status;}
+
+	/* Set 20Hz sample rate */
+	status = MPU6050_Set_SampleRate(SampleRate);
+	if(status) {return status;}
+
 	/* Configuración de la escala para el acelerómetro */
 	status = I2C_WriteBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_AFS_SEL_BIT, MPU6050_ACONFIG_AFS_SEL_LENGTH, AccelRange);
 	if(status) {return status;}
@@ -27,11 +34,16 @@ I2C_Error_Code MPU6050_InitConfig(uint8_t AccelRange, uint8_t GyroRange)
 	status = I2C_WriteBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_GYRO_CONFIG,  MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, GyroRange);
 	if(status) {return status;}
 
-	status = MPU6050_SetLPF(MPU6050_DLPF_BW_5);
+	status = MPU6050_Set_INT_Config(DISABLE,DISABLE,DISABLE,1);
 	if(status) {return status;}
 
-	/* Arranque del MPU6050 */
-	status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_PWR_MGMT_1, 0x00);
+	status = MPU6050_Set_INT_Enable(MPU6050_DATA_RDY_INT_EN);
+	if(status) {return status;}
+
+	status = MPU6050_Set_ClockSel(MPU6050_CLOCK_PLL_XGYRO);
+	if(status) {return status;}
+
+	status = MPU6050_SleepMode(DISABLE);
 	if(status) {return status;}
 
 	return I2C_NoError;
@@ -199,13 +211,36 @@ I2C_Error_Code MPU6050_SetLPF(uint8_t bandwith)
 	return I2C_NoError;
 }
 
+I2C_Error_Code MPU6050_GetLPF(uint8_t* bandwith)
+{
+	I2C_Error_Code status;
+	status = I2C_ReadBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_CONFIG, MPU6050_CFG_DLPF_CFG_BIT, MPU6050_CFG_DLPF_CFG_LENGTH, bandwith);
+	if(status) {return status;}
+
+	return I2C_NoError;
+}
 
 I2C_Error_Code MPU6050_Set_SampleRate(uint8_t SampleRate)
 {
 	I2C_Error_Code status;
-	status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_SMPLRT_DIV, SampleRate);
+	uint8_t bandwith;
+	uint8_t rate_div = 0;
+
+	status = I2C_ReadBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_CONFIG, MPU6050_CFG_DLPF_CFG_BIT, MPU6050_CFG_DLPF_CFG_LENGTH, &bandwith);
 	if(status) {return status;}
 
+	if(bandwith != 0)
+	{
+		rate_div = (uint8_t)(1000/SampleRate) -1;
+		status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_SMPLRT_DIV, rate_div);
+		if(status) {return status;}
+	}
+	else
+	{
+		rate_div = (uint8_t)(8000/SampleRate) -1;
+		status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_SMPLRT_DIV, rate_div);
+		if(status) {return status;}
+	}
 	return I2C_NoError;
 }
 
@@ -370,9 +405,9 @@ I2C_Error_Code MPU6050_Get_FIFO_Count(uint16_t* sel)
 
 	I2C_Error_Code status;
 
-	status = I2C_ReadByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_FIFO_COUNTH, tmp1);
+	status = I2C_ReadByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_FIFO_COUNTH, &tmp1);
 	if(status) {return status;}
-	status = I2C_ReadByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_FIFO_COUNTL, tmp2);
+	status = I2C_ReadByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_FIFO_COUNTL, &tmp2);
 	if(status) {return status;}
 
 	*sel = (tmp1<<8) | tmp2;
