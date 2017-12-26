@@ -6,7 +6,8 @@ int main(void)
 
 		MPU6050_Data_Raw MPU6050_Data;
 	    I2C_Error_Code status;
-	    float_data cipotes;
+	    MPU6050_Data_Float cipotes;
+	    MPU6050_Data_RPY rpy;
 
 	    /* Initialize system */
 	    SystemInit();
@@ -15,7 +16,7 @@ int main(void)
 	    USART2_Init(9600);
 	    USART_Send(USART2, "Arranque\n");
 
-	    status = MPU6050_InitConfig(MPU6050_ACCEL_FS_4, MPU6050_GYRO_FS_250, 20);
+	    status = MPU6050_InitConfig(MPU6050_ACCEL_FS_4, MPU6050_GYRO_FS_250, SAMPLE_FREQ);
 		if(status)
 		{
 	    	DisplayErrorCode(status);
@@ -24,17 +25,29 @@ int main(void)
 
 		MPU6050_Config_ContinuousMeasurement();
 
+		rpy.pitch = 0;
+		rpy.roll = 0;
+
 	    while (1)
 	    {
 
 	    	if(data_available)
 	    		{
-	    			MPU6050_Data_Raw tmp[data_available];
-	    			for(i=0;i<data_available; i++)
+	    			uint8_t cipote_actual = data_available;
+
+	    			for(i=0;i<cipote_actual; i++)
 	    			{
-	    				cipotes = getFloat(Buffer_Data[i]);
-	    				USART_SendFloat(USART2, cipotes.accel_z,2);
+//	    				cipotes = getFloat(Buffer_Data[i]);
+//	    				USART_SendFloat(USART2, cipotes.accel_z,3);
+	    				MPU6050_Get_RPY_Data(&rpy, &Buffer_Data[i]);
+	    				USART_Send(USART2, "Roll: ");
+	    				USART_SendFloat(USART2, rpy.roll,2);
+	    				USART_Send(USART2, "\tPitch: ");
+	    				USART_SendFloat(USART2, rpy.pitch,2);
+	    				USART_Send(USART2, "\n");
+	    				data_available--;
 	    			}
+	    			pos_buffer = 0;
 	    		}
 
 //	    	status = MPU6050_Read_Raw_Values(&MPU6050_Data);

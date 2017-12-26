@@ -4,15 +4,12 @@
 #include "stm32l1xx_nucleo.h"
 #include "I2C_lib.h"
 #include "stm32l1xx.h"
-
-//#define MPU6050_Address 			0x68
-//#define MPU6050_I2C_Speed 			100000
-//#define MPU6050_Accel_Range			4
-//#define MPU6050_Gyro_Range          500
+#include "math.h"
 
 #define	MPU6050_I2C					I2C1
 #define MPU6050_I_AM				0x68
 #define MPU6050_I2C_ADDR			0x68
+
 
 #define MPU6050_RA_XG_OFFS_TC       0x00 //[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
 #define MPU6050_RA_YG_OFFS_TC       0x01 //[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
@@ -280,7 +277,15 @@
 #define MPU6050_ACCE_SENS_8			((float) 4096)
 #define MPU6050_ACCE_SENS_16		((float) 2048)
 
-#define BUFFER_SIZE						40
+
+
+/******************************************************************CONFIGURATION****************************************************************************/
+#define SAMPLE_FREQ					20
+#define ACCEL_SENS					MPU6050_ACCE_SENS_4
+#define GYRO_SENS					MPU6050_GYRO_SENS_250
+#define BUFFER_SIZE					40
+//#define M_PI 						3.14159265359
+
 typedef struct {
 
 	int16_t raw_accel_x; /*!< Accelerometer value X axis */
@@ -303,10 +308,18 @@ typedef struct
 	float gyro_z;
 	float temp;
 
-}float_data;
+}MPU6050_Data_Float;
+
+typedef struct
+{
+	float roll;
+	float pitch;
+	float yaw;
+
+}MPU6050_Data_RPY;
 
 MPU6050_Data_Raw Buffer_Data[BUFFER_SIZE];
-uint8_t pos_buffer;
+uint32_t pos_buffer;
 uint8_t data_available;
 I2C_Error_Code Main_State;
 
@@ -349,63 +362,11 @@ I2C_Error_Code MPU6050_Read_FIFO(MPU6050_Data_Raw* DataStruct);
 
 void EXTI15_10_IRQHandler(void);
 I2C_Error_Code MPU6050_Config_ContinuousMeasurement(void);
-
-float_data getFloat (MPU6050_Data_Raw DataStruct);
+void MPU6050_Get_RPY_Data(MPU6050_Data_RPY* DataRPY, MPU6050_Data_Raw* DataRaw);
+MPU6050_Data_Float getFloat (MPU6050_Data_Raw DataStruct);
 
 float MPU6050_Mapf(float x, float in_min, float in_max, float out_min, float out_max);
 void DisplayErrorCode(I2C_Error_Code error);
-//typedef struct
-//{
-//  int16_t raw_accel_x;
-//  int16_t raw_accel_y;
-//  int16_t raw_accel_z;
-//  int16_t raw_gyro_x;
-//  int16_t raw_gyro_y;
-//  int16_t raw_gyro_z;
-//  int16_t raw_temp;
-//
-//}raw_data;
-//
-
-//
-//
-//typedef struct
-//{
-
-//
-//}gyro_data;
-//
-//typedef struct
-//{
-//	float init_accel_x;
-//	float init_accel_y;
-//	float init_accel_z;
-//	float init_gyro_x;
-//	float init_gyro_y;
-//	float init_gyro_z;
-//}init_data;
-//void MPU6050_Init(void);
-//void MPU6050_CalibrateSensor(init_data *init);
-//
-//uint8_t MPU6050_GetDeviceID(void);
-//uint8_t MPU6050_TestConnection(void);
-//
-//void MPU6050_SetClockSource(uint8_t source);
-//void MPU6050_SetFullScaleGyroRange(uint8_t range);
-//uint8_t MPU6050_GetFullScaleGyroRange(void);
-//uint8_t MPU6050_GetFullScaleAccelRange(void);
-//void MPU6050_SetFullScaleAccelRange(uint8_t range);
-//
-//uint8_t MPU6050_GetSleepModeStatus(void);
-//void MPU6050_SleepMode(FunctionalState NewState);
-//
-//void MPU6050_GetRawAccelGyro(raw_data* data);
-//void MPU6050_ConvertToFloat(raw_data* raw, accel_data *a_data, gyro_data *g_data);
-
-
-
-
-
 
 
 #endif /* MPU6050_H_ */

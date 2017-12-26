@@ -98,7 +98,7 @@ void USART_SendFloat(USART_TypeDef* USARTx, float f, int decimals)
 	}
 	sprintf(str,"%d.%d",entera,decimal);
 	USART_Send(USARTx, str);
-	USART_Send(USARTx, "\n");
+
 }
 
 // reverses a string 'str' of length 'len'
