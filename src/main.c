@@ -6,8 +6,9 @@ int main(void)
 
 		MPU6050_Data_Raw MPU6050_Data;
 	    I2C_Error_Code status;
-	    MPU6050_Data_Float cipotes;
+	    MPU6050_Data_Float datafloat;
 	    MPU6050_Data_RPY rpy;
+
 
 	    /* Initialize system */
 	    SystemInit();
@@ -15,6 +16,20 @@ int main(void)
 
 	    USART2_Init(9600);
 	    USART_Send(USART2, "Arranque\n");
+
+//	    status = MPU6050_Calibration(&datafloat);
+//		if(status)
+//		{
+//	    	DisplayErrorCode(status);
+//	    	return 0;
+//		}
+
+	    USART_SendFloat(USART2, datafloat.accel_x_trim,4);
+	    USART_Send(USART2, "\t");
+	    USART_SendFloat(USART2, datafloat.accel_y_trim,4);
+	    USART_Send(USART2, "\t");
+	    USART_SendFloat(USART2, datafloat.accel_z_trim,4);
+	    USART_Send(USART2, "\n");
 
 	    status = MPU6050_InitConfig(MPU6050_ACCEL_FS_4, MPU6050_GYRO_FS_250, SAMPLE_FREQ);
 		if(status)

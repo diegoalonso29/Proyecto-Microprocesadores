@@ -5,6 +5,9 @@
 #include "I2C_lib.h"
 #include "stm32l1xx.h"
 #include "math.h"
+#include "main.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 #define	MPU6050_I2C					I2C1
 #define MPU6050_I_AM				0x68
@@ -248,22 +251,10 @@
 #define MPU6050_PWR2_STBY_YG_BIT            1
 #define MPU6050_PWR2_STBY_ZG_BIT            0
 
-#define MPU6050_WAKE_FREQ_1P25      0x0
-#define MPU6050_WAKE_FREQ_2P5       0x1
-#define MPU6050_WAKE_FREQ_5         0x2
-#define MPU6050_WAKE_FREQ_10        0x3
-
-#define MPU6050_BANKSEL_PRFTCH_EN_BIT       6
-#define MPU6050_BANKSEL_CFG_USER_BANK_BIT   5
-#define MPU6050_BANKSEL_MEM_SEL_BIT         4
-#define MPU6050_BANKSEL_MEM_SEL_LENGTH      5
 
 #define MPU6050_WHO_AM_I_BIT        6
 #define MPU6050_WHO_AM_I_LENGTH     6
 
-#define MPU6050_DMP_MEMORY_BANKS        8
-#define MPU6050_DMP_MEMORY_BANK_SIZE    256
-#define MPU6050_DMP_MEMORY_CHUNK_SIZE   16
 
 /* Gyro sensitivities in °/s */
 #define MPU6050_GYRO_SENS_250		((float) 131)
@@ -280,10 +271,11 @@
 
 
 /******************************************************************CONFIGURATION****************************************************************************/
-#define SAMPLE_FREQ					20
+#define SAMPLE_FREQ					50
 #define ACCEL_SENS					MPU6050_ACCE_SENS_4
 #define GYRO_SENS					MPU6050_GYRO_SENS_250
 #define BUFFER_SIZE					40
+#define LPF_BW						MPU6050_DLPF_BW_188
 //#define M_PI 						3.14159265359
 
 typedef struct {
@@ -308,7 +300,15 @@ typedef struct
 	float gyro_z;
 	float temp;
 
+	float accel_x_trim;
+	float accel_y_trim;
+	float accel_z_trim;
+	float gyro_x_trim;
+	float gyro_y_trim;
+	float gyro_z_trim;
+
 }MPU6050_Data_Float;
+
 
 typedef struct
 {
@@ -364,7 +364,7 @@ void EXTI15_10_IRQHandler(void);
 I2C_Error_Code MPU6050_Config_ContinuousMeasurement(void);
 void MPU6050_Get_RPY_Data(MPU6050_Data_RPY* DataRPY, MPU6050_Data_Raw* DataRaw);
 MPU6050_Data_Float getFloat (MPU6050_Data_Raw DataStruct);
-
+I2C_Error_Code MPU6050_Calibration(MPU6050_Data_Float* DataStruct);
 float MPU6050_Mapf(float x, float in_min, float in_max, float out_min, float out_max);
 void DisplayErrorCode(I2C_Error_Code error);
 
