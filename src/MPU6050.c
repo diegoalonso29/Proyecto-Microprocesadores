@@ -133,13 +133,13 @@ MPU6050_Data_Float getFloat (MPU6050_Data_Raw DataStruct)
 {
 	MPU6050_Data_Float DataFloat;
 
-	DataFloat.accel_x = ((float)DataStruct.raw_accel_x) / MPU6050_ACCE_SENS_4;
-	DataFloat.accel_y = ((float)DataStruct.raw_accel_y) / MPU6050_ACCE_SENS_4;
-	DataFloat.accel_z = ((float)DataStruct.raw_accel_z) / MPU6050_ACCE_SENS_4;
+	DataFloat.accel_x = (((float)DataStruct.raw_accel_x) / MPU6050_ACCE_SENS_4) - DataFloat.accel_x_trim;
+	DataFloat.accel_y = (((float)DataStruct.raw_accel_y) / MPU6050_ACCE_SENS_4) - DataFloat.accel_y_trim;
+	DataFloat.accel_z = (((float)DataStruct.raw_accel_z) / MPU6050_ACCE_SENS_4) - DataFloat.accel_z_trim;
 
-	DataFloat.gyro_x = ((float)DataStruct.raw_gyro_x) / MPU6050_GYRO_SENS_250;
-	DataFloat.gyro_y = ((float)DataStruct.raw_gyro_y) / MPU6050_GYRO_SENS_250;
-	DataFloat.gyro_z = ((float)DataStruct.raw_gyro_z) / MPU6050_GYRO_SENS_250;
+	DataFloat.gyro_x = (((float)DataStruct.raw_gyro_x) / MPU6050_GYRO_SENS_250) - DataFloat.gyro_x_trim;
+	DataFloat.gyro_y = (((float)DataStruct.raw_gyro_y) / MPU6050_GYRO_SENS_250) - DataFloat.gyro_y_trim;
+	DataFloat.gyro_z = (((float)DataStruct.raw_gyro_z) / MPU6050_GYRO_SENS_250) - DataFloat.gyro_z_trim;
 
 	return DataFloat;
 }
@@ -726,4 +726,78 @@ I2C_Error_Code MPU6050_Calibration(MPU6050_Data_Float* DataStruct)
 
    return I2C_NoError;
 }
+
+I2C_Error_Code MPU6050_Calibration2(MPU6050_Data_Float* DataStruct)
+{
+	I2C_Error_Code status;
+	int j = 0;
+	int i = 0;
+	int32_t acc_x_offset = 0;
+	int32_t acc_y_offset = 0;
+	int32_t acc_z_offset = 0;
+	int32_t gyro_x_offset = 0;
+	int32_t gyro_y_offset = 0;
+	int32_t gyro_z_offset = 0;
+	USART_Send(USART2, "Realizando Calibración... \n");
+
+	status = MPU6050_Config_ContinuousMeasurement();
+
+	if(status) {return status;}
+
+	while(j<600)
+	{
+	if(data_available)
+		{
+			uint8_t m = data_available;
+
+			for(i=0;i<m; i++)
+			{
+				if(j>100)
+				{
+			   	acc_x_offset += Buffer_Data[i].raw_accel_x;
+			   	acc_y_offset += Buffer_Data[i].raw_accel_y;
+			   	acc_z_offset += Buffer_Data[i].raw_accel_z - (int16_t)ACCEL_SENS;
+			   	gyro_x_offset += Buffer_Data[i].raw_gyro_x;
+			   	gyro_y_offset += Buffer_Data[i].raw_gyro_y;
+			   	gyro_z_offset += Buffer_Data[i].raw_gyro_z;
+				}
+			   	data_available--;
+				j++;
+
+			}
+			pos_buffer = 0;
+		}
+	}
+
+	USART_SendFloat(USART2, (float)j,1);
+
+	status = MPU6050_Set_INT_Enable(0x00);
+	if(status) {return status;}
+
+	DataStruct->accel_x_trim = (float)(((float)acc_x_offset) / (((float)j)*ACCEL_SENS));
+	DataStruct->accel_y_trim = (float)(((float)acc_y_offset) / (((float)j)*ACCEL_SENS));
+	DataStruct->accel_z_trim = (float)(((float)acc_z_offset) / (((float)j)*ACCEL_SENS));
+
+	DataStruct->gyro_x_trim= (float)(((float)gyro_x_offset) / (((float)j)*GYRO_SENS));
+	DataStruct->gyro_y_trim= (float)(((float)gyro_y_offset) / (((float)j)*GYRO_SENS));
+	DataStruct->gyro_z_trim= (float)(((float)gyro_z_offset) / (((float)j)*GYRO_SENS));
+
+	USART_Send(USART2, "accel x: ");
+	USART_SendFloat(USART2, DataStruct->accel_x_trim,5);
+	USART_Send(USART2, "\taccel y: ");
+	USART_SendFloat(USART2, DataStruct->accel_y_trim,5);
+	USART_Send(USART2, "\taccel z: ");
+	USART_SendFloat(USART2, DataStruct->accel_z_trim,5);
+	USART_Send(USART2, "\tgyro x: ");
+	USART_SendFloat(USART2, DataStruct->gyro_x_trim,5);
+	USART_Send(USART2, "\tgyro y: ");
+	USART_SendFloat(USART2, DataStruct->gyro_y_trim,5);
+	USART_Send(USART2, "\tgyro z: ");
+	USART_SendFloat(USART2, DataStruct->gyro_z_trim,5);
+	USART_Send(USART2, "\n");
+
+	return I2C_NoError;
+}
+
+
 

@@ -272,10 +272,16 @@
 
 /******************************************************************CONFIGURATION****************************************************************************/
 #define SAMPLE_FREQ					50
-#define ACCEL_SENS					MPU6050_ACCE_SENS_4
-#define GYRO_SENS					MPU6050_GYRO_SENS_250
-#define BUFFER_SIZE					40
 #define LPF_BW						MPU6050_DLPF_BW_188
+
+#define ACCEL_SENS					MPU6050_ACCE_SENS_4
+#define ACCEL_FS					MPU6050_ACCEL_FS_4
+
+#define GYRO_SENS					MPU6050_GYRO_SENS_250
+#define GYRO_FS						MPU6050_GYRO_FS_250
+
+#define BUFFER_SIZE					40
+
 //#define M_PI 						3.14159265359
 
 typedef struct {
@@ -367,6 +373,6 @@ MPU6050_Data_Float getFloat (MPU6050_Data_Raw DataStruct);
 I2C_Error_Code MPU6050_Calibration(MPU6050_Data_Float* DataStruct);
 float MPU6050_Mapf(float x, float in_min, float in_max, float out_min, float out_max);
 void DisplayErrorCode(I2C_Error_Code error);
-
+I2C_Error_Code MPU6050_Calibration2(MPU6050_Data_Float* DataStruct);
 
 #endif /* MPU6050_H_ */

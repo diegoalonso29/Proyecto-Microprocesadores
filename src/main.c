@@ -16,22 +16,29 @@ int main(void)
 
 	    USART2_Init(9600);
 	    USART_Send(USART2, "Arranque\n");
+//
+////	    status = MPU6050_Calibration(&datafloat);
+////		if(status)
+////		{
+////	    	DisplayErrorCode(status);
+////	    	return 0;
+////		}
+//
+//	    USART_SendFloat(USART2, datafloat.accel_x_trim,4);
+//	    USART_Send(USART2, "\t");
+//	    USART_SendFloat(USART2, datafloat.accel_y_trim,4);
+//	    USART_Send(USART2, "\t");
+//	    USART_SendFloat(USART2, datafloat.accel_z_trim,4);
+//	    USART_Send(USART2, "\n");
 
-//	    status = MPU6050_Calibration(&datafloat);
-//		if(status)
-//		{
-//	    	DisplayErrorCode(status);
-//	    	return 0;
-//		}
-
-	    USART_SendFloat(USART2, datafloat.accel_x_trim,4);
-	    USART_Send(USART2, "\t");
-	    USART_SendFloat(USART2, datafloat.accel_y_trim,4);
-	    USART_Send(USART2, "\t");
-	    USART_SendFloat(USART2, datafloat.accel_z_trim,4);
-	    USART_Send(USART2, "\n");
-
-	    status = MPU6050_InitConfig(MPU6050_ACCEL_FS_4, MPU6050_GYRO_FS_250, SAMPLE_FREQ);
+	    status = MPU6050_InitConfig(ACCEL_FS, GYRO_FS, SAMPLE_FREQ);
+		if(status)
+		{
+	    	DisplayErrorCode(status);
+	    	return 0;
+		}
+		USART_Send(USART2, "Arranque\n");
+		status = MPU6050_Calibration2(&datafloat);
 		if(status)
 		{
 	    	DisplayErrorCode(status);
@@ -52,15 +59,16 @@ int main(void)
 
 	    			for(i=0;i<cipote_actual; i++)
 	    			{
-//	    				cipotes = getFloat(Buffer_Data[i]);
-//	    				USART_SendFloat(USART2, cipotes.accel_z,3);
-	    				MPU6050_Get_RPY_Data(&rpy, &Buffer_Data[i]);
-	    				USART_Send(USART2, "Roll: ");
-	    				USART_SendFloat(USART2, rpy.roll,2);
-	    				USART_Send(USART2, "\tPitch: ");
-	    				USART_SendFloat(USART2, rpy.pitch,2);
+	    				datafloat = getFloat(Buffer_Data[i]);
+	    				USART_SendFloat(USART2, datafloat.accel_z,3);
 	    				USART_Send(USART2, "\n");
-	    				data_available--;
+//	    				MPU6050_Get_RPY_Data(&rpy, &Buffer_Data[i]);
+//	    				USART_Send(USART2, "Roll: ");
+//	    				USART_SendFloat(USART2, rpy.roll,2);
+//	    				USART_Send(USART2, "\tPitch: ");
+//	    				USART_SendFloat(USART2, rpy.pitch,2);
+//	    				USART_Send(USART2, "\n");
+//	    				data_available--;
 	    			}
 	    			pos_buffer = 0;
 	    		}
