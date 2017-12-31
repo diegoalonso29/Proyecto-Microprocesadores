@@ -272,7 +272,7 @@
 
 /******************************************************************CONFIGURATION****************************************************************************/
 #define SAMPLE_FREQ					50
-#define LPF_BW						MPU6050_DLPF_BW_188
+#define LPF_BW						MPU6050_DLPF_BW_10
 
 #define ACCEL_SENS					MPU6050_ACCE_SENS_4
 #define ACCEL_FS					MPU6050_ACCEL_FS_4

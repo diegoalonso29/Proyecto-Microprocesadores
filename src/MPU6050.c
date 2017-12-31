@@ -22,7 +22,7 @@ I2C_Error_Code MPU6050_InitConfig(uint8_t AccelRange, uint8_t GyroRange, uint8_t
 	status = MPU6050_SetLPF(LPF_BW);
 	if(status) {return status;}
 
-	/* Set 20Hz sample rate */
+	/* Set sample rate */
 	status = MPU6050_Set_SampleRate(SampleRate);
 	if(status) {return status;}
 
@@ -133,13 +133,21 @@ MPU6050_Data_Float getFloat (MPU6050_Data_Raw DataStruct)
 {
 	MPU6050_Data_Float DataFloat;
 
-	DataFloat.accel_x = (((float)DataStruct.raw_accel_x) / MPU6050_ACCE_SENS_4) - DataFloat.accel_x_trim;
-	DataFloat.accel_y = (((float)DataStruct.raw_accel_y) / MPU6050_ACCE_SENS_4) - DataFloat.accel_y_trim;
-	DataFloat.accel_z = (((float)DataStruct.raw_accel_z) / MPU6050_ACCE_SENS_4) - DataFloat.accel_z_trim;
+//	DataFloat.accel_x = (((float)DataStruct.raw_accel_x) / ACCEL_SENS) - DataFloat.accel_x_trim;
+//	DataFloat.accel_y = (((float)DataStruct.raw_accel_y) / ACCEL_SENS) - DataFloat.accel_y_trim;
+//	DataFloat.accel_z = (((float)DataStruct.raw_accel_z) / ACCEL_SENS) - DataFloat.accel_z_trim;
+//
+//	DataFloat.gyro_x = (((float)DataStruct.raw_gyro_x) / GYRO_SENS) - DataFloat.gyro_x_trim;
+//	DataFloat.gyro_y = (((float)DataStruct.raw_gyro_y) / GYRO_SENS) - DataFloat.gyro_y_trim;
+//	DataFloat.gyro_z = (((float)DataStruct.raw_gyro_z) / GYRO_SENS) - DataFloat.gyro_z_trim;
 
-	DataFloat.gyro_x = (((float)DataStruct.raw_gyro_x) / MPU6050_GYRO_SENS_250) - DataFloat.gyro_x_trim;
-	DataFloat.gyro_y = (((float)DataStruct.raw_gyro_y) / MPU6050_GYRO_SENS_250) - DataFloat.gyro_y_trim;
-	DataFloat.gyro_z = (((float)DataStruct.raw_gyro_z) / MPU6050_GYRO_SENS_250) - DataFloat.gyro_z_trim;
+	DataFloat.accel_x = ((float)DataStruct.raw_accel_x) / ACCEL_SENS;
+	DataFloat.accel_y = ((float)DataStruct.raw_accel_y) / ACCEL_SENS;
+	DataFloat.accel_z = ((float)DataStruct.raw_accel_z) / ACCEL_SENS;
+
+	DataFloat.gyro_x = ((float)DataStruct.raw_gyro_x) / GYRO_SENS;
+	DataFloat.gyro_y = ((float)DataStruct.raw_gyro_y) / GYRO_SENS;
+	DataFloat.gyro_z = ((float)DataStruct.raw_gyro_z) / GYRO_SENS;
 
 	return DataFloat;
 }

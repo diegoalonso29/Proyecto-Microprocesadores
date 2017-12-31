@@ -31,6 +31,8 @@ int main(void)
 //	    USART_SendFloat(USART2, datafloat.accel_z_trim,4);
 //	    USART_Send(USART2, "\n");
 
+
+
 	    status = MPU6050_InitConfig(ACCEL_FS, GYRO_FS, SAMPLE_FREQ);
 		if(status)
 		{
@@ -45,10 +47,14 @@ int main(void)
 	    	return 0;
 		}
 
+
+
 		MPU6050_Config_ContinuousMeasurement();
 
 		rpy.pitch = 0;
 		rpy.roll = 0;
+
+
 
 	    while (1)
 	    {
@@ -59,8 +65,11 @@ int main(void)
 
 	    			for(i=0;i<cipote_actual; i++)
 	    			{
+
 	    				datafloat = getFloat(Buffer_Data[i]);
-	    				USART_SendFloat(USART2, datafloat.accel_z,3);
+	    				USART_SendFloat(USART2, datafloat.accel_z,5);
+	    				USART_Send(USART2, "\t");
+	    				USART_SendFloat(USART2, Buffer_Data[i].raw_accel_z,5);
 	    				USART_Send(USART2, "\n");
 //	    				MPU6050_Get_RPY_Data(&rpy, &Buffer_Data[i]);
 //	    				USART_Send(USART2, "Roll: ");
@@ -68,21 +77,36 @@ int main(void)
 //	    				USART_Send(USART2, "\tPitch: ");
 //	    				USART_SendFloat(USART2, rpy.pitch,2);
 //	    				USART_Send(USART2, "\n");
-//	    				data_available--;
+	    				data_available--;
 	    			}
 	    			pos_buffer = 0;
 	    		}
+	    }
 
-//	    	status = MPU6050_Read_Raw_Values(&MPU6050_Data);
+
+
+
+
+//	    	while(1)
+//	    	{
+//	    	status = MPU6050_Get_Raw_Accelerometer(&MPU6050_Data);
 //			if(status)
 //			{
 //		    	DisplayErrorCode(status);
 //		    	return 0;
 //			}
-
-//			USART_SendFloat(USART2, MPU6050_Data.accel_z,2);
-
-	        }
+//
+//			USART_SendFloat(USART2, (float)MPU6050_Data.raw_accel_x,3);
+//			USART_Send(USART2, "\t");
+//			datafloat = getFloat(MPU6050_Data);
+//			USART_SendFloat(USART2, datafloat.accel_x,3);
+//			USART_Send(USART2, "\n");
+//
+//
+//			Delay(20);
+//
+//
+//	        }
 
 
 	    return 0;
@@ -111,3 +135,8 @@ void Systick_Configuration(void)
   RCC_GetClocksFreq(&RCC_Clocks);
   SysTick_Config(RCC_Clocks.HCLK_Frequency/1000);
 }
+
+
+
+
+

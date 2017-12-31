@@ -81,23 +81,8 @@ void USART_ReadByte(USART_TypeDef* USARTx, uint8_t* data)
 // C program for implementation of ftoa()
 void USART_SendFloat(USART_TypeDef* USARTx, float f, int decimals)
 {
-	char str[40];
-	//ftoa(f,str,2);
-
-	int entera;
-	int decimal;
-	if(f>0)
-	{
-	entera = (int)f;
-	decimal = (int)((f - (float)entera)*pow(10,decimals));
-	}
-	else
-	{
-	entera = (int)f;
-	decimal = -(int)((f - (float)entera)*pow(10,decimals));
-	}
-	sprintf(str,"%d.%d",entera,decimal);
-	USART_Send(USARTx, str);
+	char str[16];
+	USART_Send(USART2, ftoa(f, str, decimals));
 
 }
 
@@ -112,4 +97,132 @@ void reverse(char *str, int len)
         str[j] = temp;
         i++; j--;
     }
+}
+
+void USART2_IRQHandler(void)
+{
+	if( USART_GetITStatus(USART2, USART_IT_RXNE) )
+	{
+		uint8_t DR = USART2->DR;
+
+		/* If the RX buffer is full, it doesn´t save a new byte until it´s free*/
+		if(pending_data < RX_Buffer_Lenght)
+		{
+			OVERRUN = 0;
+
+			/* Resets the Index ( RX_Buffer_Counter ) of the Buffer if it overflows */
+			if(RX_Buffer_Counter >= RX_Buffer_Lenght)
+			{
+				RX_Buffer_Counter = 0;
+			}
+			/* Saves into the RX_Buffer the last byte received */
+			RX_Buffer[RX_Buffer_Counter++] = DR;
+			pending_data++;
+		}
+		else { OVERRUN = 1; }
+	}
+
+
+	if( USART_GetITStatus(USART2, USART_IT_TXE) )
+	{
+		if(*TX_Data)
+		{
+		USART_SendData(USART2, *TX_Data);
+		TX_Data++;
+		}
+		else
+		{
+		SENT = 1;
+		USART_ITConfig(USART2, USART_IT_TXE, DISABLE);
+		}
+	}
+}
+
+char * ftoa(double f, char * buf, int precision)
+{
+	char * ptr = buf;
+	char * p = ptr;
+	char * p1;
+	char c;
+	long intPart;
+
+	// check precision bounds
+	if (precision > MAX_PRECISION)
+		precision = MAX_PRECISION;
+
+	// sign stuff
+	if (f < 0)
+	{
+		f = -f;
+		*ptr++ = '-';
+	}
+
+	if (precision < 0)  // negative precision == automatic precision guess
+	{
+		if (f < 1.0) precision = 6;
+		else if (f < 10.0) precision = 5;
+		else if (f < 100.0) precision = 4;
+		else if (f < 1000.0) precision = 3;
+		else if (f < 10000.0) precision = 2;
+		else if (f < 100000.0) precision = 1;
+		else precision = 0;
+	}
+
+	// round value according the precision
+	if (precision)
+		f += rounders[precision];
+
+	// integer part...
+	intPart = f;
+	f -= intPart;
+
+	if (!intPart)
+		*ptr++ = '0';
+	else
+	{
+		// save start pointer
+		p = ptr;
+
+		// convert (reverse order)
+		while (intPart)
+		{
+			*p++ = '0' + intPart % 10;
+			intPart /= 10;
+		}
+
+		// save end pos
+		p1 = p;
+
+		// reverse result
+		while (p > ptr)
+		{
+			c = *--p;
+			*p = *ptr;
+			*ptr++ = c;
+		}
+
+		// restore end pos
+		ptr = p1;
+	}
+
+	// decimal part
+	if (precision)
+	{
+		// place decimal point
+		*ptr++ = '.';
+
+		// convert
+		while (precision--)
+		{
+			f *= 10.0;
+			c = f;
+			*ptr++ = '0' + c;
+			f -= c;
+		}
+	}
+
+	// terminating zero
+	*ptr = 0;
+
+	return buf;
 }
