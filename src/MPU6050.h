@@ -272,7 +272,7 @@
 
 /******************************************************************CONFIGURATION****************************************************************************/
 #define SAMPLE_FREQ					25
-#define LPF_BW						MPU6050_DLPF_BW_10
+#define LPF_BW						MPU6050_DLPF_BW_256
 
 #define ACCEL_SENS					MPU6050_ACCE_SENS_4
 #define ACCEL_FS					MPU6050_ACCEL_FS_4
@@ -319,12 +319,14 @@ typedef struct
 
 typedef struct
 {
-float accel_x_trim;
-float accel_y_trim;
-float accel_z_trim;
-float gyro_x_trim;
-float gyro_y_trim;
-float gyro_z_trim;
+
+int16_t accel_x_trim;
+int16_t accel_y_trim;
+int16_t accel_z_trim;
+int16_t gyro_x_trim;
+int16_t gyro_y_trim;
+int16_t gyro_z_trim;
+
 }MPU6050_Data_Trim;
 
 MPU6050_Data_Raw Buffer_Data[BUFFER_SIZE];

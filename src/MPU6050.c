@@ -7,6 +7,13 @@ I2C_Error_Code MPU6050_InitConfig(uint8_t AccelRange, uint8_t GyroRange, uint8_t
 	uint8_t data_temp = 0;
 	I2C_Error_Code status;
 
+	offsets.accel_x_trim = 0;
+	offsets.accel_y_trim = 0;
+	offsets.accel_z_trim = 0;
+	offsets.gyro_x_trim = 0;
+	offsets.gyro_y_trim = 0;
+	offsets.gyro_z_trim = 0;
+
 	/* Inicialización y configuración de la comunicación I2C */
 	I2C_InitConfig(MPU6050_I2C);
 
@@ -112,17 +119,17 @@ I2C_Error_Code MPU6050_Get_Raw_Data(MPU6050_Data_Raw* DataStruct)
 	if(status) {return status;}
 
 	/* Format accelerometer data */
-	DataStruct->raw_accel_x = (((int16_t)data[0]) << 8) | data[1];
-	DataStruct->raw_accel_y = (((int16_t)data[2]) << 8) | data[3];
-	DataStruct->raw_accel_z = (((int16_t)data[4]) << 8) | data[5];
+	DataStruct->raw_accel_x = ((((int16_t)data[0]) << 8) | data[1]) - offsets.accel_x_trim;
+	DataStruct->raw_accel_y = ((((int16_t)data[2]) << 8) | data[3]) - offsets.accel_y_trim;
+	DataStruct->raw_accel_z = ((((int16_t)data[4]) << 8) | data[5]) - offsets.accel_z_trim;
 
 	/* Format temperature */
 	DataStruct->raw_temp = (((int16_t)data[6]) << 8) | data[7];
 
 	/* Format gyroscope data */
-	DataStruct->raw_gyro_x = (((int16_t)data[8]) << 8) | data[9];
-	DataStruct->raw_gyro_y = (((int16_t)data[10]) << 8) | data[11];
-	DataStruct->raw_gyro_z = (((int16_t)data[12]) << 8) | data[13];
+	DataStruct->raw_gyro_x = ((((int16_t)data[8]) << 8) | data[9]) - offsets.gyro_x_trim;
+	DataStruct->raw_gyro_y = ((((int16_t)data[10]) << 8) | data[11]) - offsets.gyro_y_trim;
+	DataStruct->raw_gyro_z = ((((int16_t)data[12]) << 8) | data[13]) - offsets.gyro_z_trim;
 
 
 	/* Return OK */
@@ -133,13 +140,13 @@ MPU6050_Data_Float getFloat (MPU6050_Data_Raw DataStruct)
 {
 	MPU6050_Data_Float df;
 
-	df.accel_x = (((float)DataStruct.raw_accel_x) / ACCEL_SENS) - offsets.accel_x_trim;
-	df.accel_y = (((float)DataStruct.raw_accel_y) / ACCEL_SENS) - offsets.accel_y_trim;
-	df.accel_z = (((float)DataStruct.raw_accel_z) / ACCEL_SENS) - offsets.accel_z_trim;
+	df.accel_x = (((float)DataStruct.raw_accel_x) / ACCEL_SENS);
+	df.accel_y = (((float)DataStruct.raw_accel_y) / ACCEL_SENS);
+	df.accel_z = (((float)DataStruct.raw_accel_z) / ACCEL_SENS);
 
-	df.gyro_x = (((float)DataStruct.raw_gyro_x) / GYRO_SENS) - offsets.gyro_x_trim;
-	df.gyro_y = (((float)DataStruct.raw_gyro_y) / GYRO_SENS) - offsets.gyro_y_trim;
-	df.gyro_z = (((float)DataStruct.raw_gyro_z) / GYRO_SENS) - offsets.gyro_z_trim;
+	df.gyro_x = (((float)DataStruct.raw_gyro_x) / GYRO_SENS);
+	df.gyro_y = (((float)DataStruct.raw_gyro_y) / GYRO_SENS);
+	df.gyro_z = (((float)DataStruct.raw_gyro_z) / GYRO_SENS);
 
 	return df;
 }
@@ -517,31 +524,13 @@ void EXTI15_10_IRQHandler(void)
 	}
 }
 
-
 void MPU6050_Get_RPY_Data(MPU6050_Data_RPY* DataRPY, MPU6050_Data_Raw* DataRaw)
-
 {
-    float pitchAcc, rollAcc;
-    MPU6050_Data_Float df;
-    df = getFloat(DataRaw);
-
-    DataRPY->pitch += df.gyro_x * (float)(1/SAMPLE_FREQ); 	// Angle around the X-axis
-    DataRPY->roll  -= df.gyro_y * (float)(1/SAMPLE_FREQ);   // Angle around the Y-axis
-
-
-    int forceMagnitudeApprox = abs(DataRaw->raw_accel_x) + abs(DataRaw->raw_accel_y) + abs(DataRaw->raw_accel_z);
-    if (forceMagnitudeApprox > 8192 && forceMagnitudeApprox < 32768)
-    {
-	// Turning around the X axis results in a vector on the Y-axis
-        pitchAcc = atan2f((float)DataRaw->raw_accel_y, (float)DataRaw->raw_accel_z) * 180 / M_PI;
-        DataRPY->pitch = DataRPY->pitch * 0.98 + pitchAcc * 0.02;
-
-	// Turning around the Y axis results in a vector on the X-axis
-        rollAcc = atan2f((float)DataRaw->raw_accel_x, (float)DataRaw->raw_accel_z) * 180 / M_PI;
-        DataRPY->roll = DataRPY->roll * 0.98 + rollAcc * 0.02;
-    }
+	DataRPY->pitch = 0.98*(DataRPY->pitch + (((float)DataRaw->raw_gyro_y / GYRO_SENS) * (1/SAMPLE_FREQ)))
+					+ 0.02 *(atan2f((float)DataRaw->raw_accel_x, (float)DataRaw->raw_accel_z) * 180 / M_PI);
+	DataRPY->roll = 0.98*(DataRPY->roll + (((float)DataRaw->raw_gyro_x / GYRO_SENS) * (1/SAMPLE_FREQ)))
+					+ 0.02 *(atan2f((float)DataRaw->raw_accel_y, (float)DataRaw->raw_accel_z) * 180 / M_PI);
 }
-
 
 
 I2C_Error_Code MPU6050_Calibration()
@@ -555,8 +544,6 @@ I2C_Error_Code MPU6050_Calibration()
 	int32_t gyro_x_offset = 0;
 	int32_t gyro_y_offset = 0;
 	int32_t gyro_z_offset = 0;
-
-	USART_Send(USART2, "\nRealizando Calibración... \n");
 
 	status = MPU6050_Config_ContinuousMeasurement();
 	if(status) {return status;}
@@ -589,26 +576,26 @@ I2C_Error_Code MPU6050_Calibration()
 	status = MPU6050_Set_INT_Enable(0x00);
 	if(status) {return status;}
 
-	offsets.accel_x_trim = (float)(((float)acc_x_offset) / (((float)(j-100))*ACCEL_SENS));
-	offsets.accel_y_trim = (float)(((float)acc_y_offset) / (((float)(j-100))*ACCEL_SENS));
-	offsets.accel_z_trim = (float)(((float)acc_z_offset) / (((float)(j-100))*ACCEL_SENS));
+	offsets.accel_x_trim = (int16_t)(acc_x_offset / (j-100));
+	offsets.accel_y_trim = (int16_t)(acc_y_offset / (j-100));
+	offsets.accel_z_trim = (int16_t)(acc_z_offset / (j-100));
 
-	offsets.gyro_x_trim= (float)(((float)gyro_x_offset) / (((float)(j-100))*GYRO_SENS));
-	offsets.gyro_y_trim= (float)(((float)gyro_y_offset) / (((float)(j-100))*GYRO_SENS));
-	offsets.gyro_z_trim= (float)(((float)gyro_z_offset) / (((float)(j-100))*GYRO_SENS));
+	offsets.gyro_x_trim= (int16_t)(gyro_x_offset / (j-100));
+	offsets.gyro_y_trim= (int16_t)(gyro_y_offset / (j-100));
+	offsets.gyro_z_trim= (int16_t)(gyro_z_offset / (j-100));
 
 	USART_Send(USART2, "accel x: ");
-	USART_SendFloat(USART2, offsets.accel_x_trim,3);
+	USART_SendFloat(USART2, (float)offsets.accel_x_trim,3);
 	USART_Send(USART2, "\taccel y: ");
-	USART_SendFloat(USART2, offsets.accel_y_trim,3);
+	USART_SendFloat(USART2, (float)offsets.accel_y_trim,3);
 	USART_Send(USART2, "\taccel z: ");
-	USART_SendFloat(USART2, offsets.accel_z_trim,3);
+	USART_SendFloat(USART2, (float)offsets.accel_z_trim,3);
 	USART_Send(USART2, "\tgyro x: ");
-	USART_SendFloat(USART2, offsets.gyro_x_trim,3);
+	USART_SendFloat(USART2, (float)offsets.gyro_x_trim,3);
 	USART_Send(USART2, "\tgyro y: ");
-	USART_SendFloat(USART2, offsets.gyro_y_trim,3);
+	USART_SendFloat(USART2, (float)offsets.gyro_y_trim,3);
 	USART_Send(USART2, "\tgyro z: ");
-	USART_SendFloat(USART2, offsets.gyro_z_trim,3);
+	USART_SendFloat(USART2, (float)offsets.gyro_z_trim,3);
 	USART_Send(USART2, "\n");
 
 	return I2C_NoError;

@@ -4,34 +4,18 @@ int main(void)
 {
 		int i;
 
-		MPU6050_Data_Raw MPU6050_Data;
-	    I2C_Error_Code status;
-	    MPU6050_Data_Float datafloat;
-	    MPU6050_Data_RPY rpy;
 
+	    I2C_Error_Code status;
+	    MPU6050_Data_RPY rpy;
+		rpy.pitch = 0;
+		rpy.roll = 0;
 
 	    /* Initialize system */
 	    SystemInit();
 	    Systick_Configuration();
 
-	    USART2_Init(9600);
-	    USART_Send(USART2, "Arranque\n");
-//
-////	    status = MPU6050_Calibration(&datafloat);
-////		if(status)
-////		{
-////	    	DisplayErrorCode(status);
-////	    	return 0;
-////		}
-//
-//	    USART_SendFloat(USART2, datafloat.accel_x_trim,4);
-//	    USART_Send(USART2, "\t");
-//	    USART_SendFloat(USART2, datafloat.accel_y_trim,4);
-//	    USART_Send(USART2, "\t");
-//	    USART_SendFloat(USART2, datafloat.accel_z_trim,4);
-//	    USART_Send(USART2, "\n");
-
-
+	    USART2_Init(57600);
+	    USART_Send(USART2, "Inicializando MPU6050... \n\n");
 
 	    status = MPU6050_InitConfig(ACCEL_FS, GYRO_FS, SAMPLE_FREQ);
 		if(status)
@@ -39,7 +23,9 @@ int main(void)
 	    	DisplayErrorCode(status);
 	    	return 0;
 		}
-		USART_Send(USART2, "Arranque\n");
+
+		USART_Send(USART2, "Realizando Calibración... \n\n");
+
 		status = MPU6050_Calibration();
 		if(status)
 		{
@@ -51,11 +37,6 @@ int main(void)
 
 		MPU6050_Config_ContinuousMeasurement();
 
-		rpy.pitch = 0;
-		rpy.roll = 0;
-
-
-
 	    while (1)
 	    {
 
@@ -66,49 +47,17 @@ int main(void)
 	    			for(i=0;i<cipote_actual; i++)
 	    			{
 
-	    				datafloat = getFloat(Buffer_Data[i]);
-	    				USART_SendFloat(USART2, datafloat.accel_z,3);
-	    				USART_Send(USART2, "\t");
-	    				USART_SendFloat(USART2, Buffer_Data[i].raw_accel_z,3);
+	    				MPU6050_Get_RPY_Data(&rpy, &Buffer_Data[i]);
+	    				USART_Send(USART2, "Roll: ");
+	    				USART_SendFloat(USART2, rpy.roll,2);
+	    				USART_Send(USART2, "\tPitch: ");
+	    				USART_SendFloat(USART2, rpy.pitch,2);
 	    				USART_Send(USART2, "\n");
-//	    				MPU6050_Get_RPY_Data(&rpy, &Buffer_Data[i]);
-//	    				USART_Send(USART2, "Roll: ");
-//	    				USART_SendFloat(USART2, rpy.roll,2);
-//	    				USART_Send(USART2, "\tPitch: ");
-//	    				USART_SendFloat(USART2, rpy.pitch,2);
-//	    				USART_Send(USART2, "\n");
 	    				data_available--;
 	    			}
 	    			pos_buffer = 0;
 	    		}
 	    }
-
-
-
-
-
-//	    	while(1)
-//	    	{
-//	    	status = MPU6050_Get_Raw_Accelerometer(&MPU6050_Data);
-//			if(status)
-//			{
-//		    	DisplayErrorCode(status);
-//		    	return 0;
-//			}
-//
-//			USART_SendFloat(USART2, (float)MPU6050_Data.raw_accel_x,3);
-//			USART_Send(USART2, "\t");
-//			datafloat = getFloat(MPU6050_Data);
-//			USART_SendFloat(USART2, datafloat.accel_x,3);
-//			USART_Send(USART2, "\n");
-//
-//
-//			Delay(20);
-//
-//
-//	        }
-
-
 	    return 0;
 }
 
