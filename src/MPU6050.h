@@ -271,7 +271,7 @@
 
 
 /******************************************************************CONFIGURATION****************************************************************************/
-#define SAMPLE_FREQ					50
+#define SAMPLE_FREQ					25
 #define LPF_BW						MPU6050_DLPF_BW_10
 
 #define ACCEL_SENS					MPU6050_ACCE_SENS_4
@@ -280,7 +280,7 @@
 #define GYRO_SENS					MPU6050_GYRO_SENS_250
 #define GYRO_FS						MPU6050_GYRO_FS_250
 
-#define BUFFER_SIZE					40
+#define BUFFER_SIZE					100
 
 //#define M_PI 						3.14159265359
 
@@ -306,13 +306,6 @@ typedef struct
 	float gyro_z;
 	float temp;
 
-	float accel_x_trim;
-	float accel_y_trim;
-	float accel_z_trim;
-	float gyro_x_trim;
-	float gyro_y_trim;
-	float gyro_z_trim;
-
 }MPU6050_Data_Float;
 
 
@@ -324,11 +317,21 @@ typedef struct
 
 }MPU6050_Data_RPY;
 
+typedef struct
+{
+float accel_x_trim;
+float accel_y_trim;
+float accel_z_trim;
+float gyro_x_trim;
+float gyro_y_trim;
+float gyro_z_trim;
+}MPU6050_Data_Trim;
+
 MPU6050_Data_Raw Buffer_Data[BUFFER_SIZE];
 uint32_t pos_buffer;
 uint8_t data_available;
 I2C_Error_Code Main_State;
-
+MPU6050_Data_Trim offsets;
 
 
 I2C_Error_Code MPU6050_InitConfig(uint8_t AccelRange, uint8_t GyroRange, uint8_t SampleRate);
@@ -370,9 +373,8 @@ void EXTI15_10_IRQHandler(void);
 I2C_Error_Code MPU6050_Config_ContinuousMeasurement(void);
 void MPU6050_Get_RPY_Data(MPU6050_Data_RPY* DataRPY, MPU6050_Data_Raw* DataRaw);
 MPU6050_Data_Float getFloat (MPU6050_Data_Raw DataStruct);
-I2C_Error_Code MPU6050_Calibration(MPU6050_Data_Float* DataStruct);
 float MPU6050_Mapf(float x, float in_min, float in_max, float out_min, float out_max);
 void DisplayErrorCode(I2C_Error_Code error);
-I2C_Error_Code MPU6050_Calibration2(MPU6050_Data_Float* DataStruct);
+I2C_Error_Code MPU6050_Calibration();
 
 #endif /* MPU6050_H_ */

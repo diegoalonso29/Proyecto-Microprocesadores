@@ -131,25 +131,17 @@ I2C_Error_Code MPU6050_Get_Raw_Data(MPU6050_Data_Raw* DataStruct)
 
 MPU6050_Data_Float getFloat (MPU6050_Data_Raw DataStruct)
 {
-	MPU6050_Data_Float DataFloat;
+	MPU6050_Data_Float df;
 
-//	DataFloat.accel_x = (((float)DataStruct.raw_accel_x) / ACCEL_SENS) - DataFloat.accel_x_trim;
-//	DataFloat.accel_y = (((float)DataStruct.raw_accel_y) / ACCEL_SENS) - DataFloat.accel_y_trim;
-//	DataFloat.accel_z = (((float)DataStruct.raw_accel_z) / ACCEL_SENS) - DataFloat.accel_z_trim;
-//
-//	DataFloat.gyro_x = (((float)DataStruct.raw_gyro_x) / GYRO_SENS) - DataFloat.gyro_x_trim;
-//	DataFloat.gyro_y = (((float)DataStruct.raw_gyro_y) / GYRO_SENS) - DataFloat.gyro_y_trim;
-//	DataFloat.gyro_z = (((float)DataStruct.raw_gyro_z) / GYRO_SENS) - DataFloat.gyro_z_trim;
+	df.accel_x = (((float)DataStruct.raw_accel_x) / ACCEL_SENS) - offsets.accel_x_trim;
+	df.accel_y = (((float)DataStruct.raw_accel_y) / ACCEL_SENS) - offsets.accel_y_trim;
+	df.accel_z = (((float)DataStruct.raw_accel_z) / ACCEL_SENS) - offsets.accel_z_trim;
 
-	DataFloat.accel_x = ((float)DataStruct.raw_accel_x) / ACCEL_SENS;
-	DataFloat.accel_y = ((float)DataStruct.raw_accel_y) / ACCEL_SENS;
-	DataFloat.accel_z = ((float)DataStruct.raw_accel_z) / ACCEL_SENS;
+	df.gyro_x = (((float)DataStruct.raw_gyro_x) / GYRO_SENS) - offsets.gyro_x_trim;
+	df.gyro_y = (((float)DataStruct.raw_gyro_y) / GYRO_SENS) - offsets.gyro_y_trim;
+	df.gyro_z = (((float)DataStruct.raw_gyro_z) / GYRO_SENS) - offsets.gyro_z_trim;
 
-	DataFloat.gyro_x = ((float)DataStruct.raw_gyro_x) / GYRO_SENS;
-	DataFloat.gyro_y = ((float)DataStruct.raw_gyro_y) / GYRO_SENS;
-	DataFloat.gyro_z = ((float)DataStruct.raw_gyro_z) / GYRO_SENS;
-
-	return DataFloat;
+	return df;
 }
 
 
@@ -530,9 +522,11 @@ void MPU6050_Get_RPY_Data(MPU6050_Data_RPY* DataRPY, MPU6050_Data_Raw* DataRaw)
 
 {
     float pitchAcc, rollAcc;
+    MPU6050_Data_Float df;
+    df = getFloat(DataRaw);
 
-    DataRPY->pitch += ((float)DataRaw->raw_gyro_x / GYRO_SENS) * (1/SAMPLE_FREQ); 	// Angle around the X-axis
-    DataRPY->roll  -= ((float)DataRaw->raw_gyro_x / GYRO_SENS) * (1/SAMPLE_FREQ);   // Angle around the Y-axis
+    DataRPY->pitch += df.gyro_x * (float)(1/SAMPLE_FREQ); 	// Angle around the X-axis
+    DataRPY->roll  -= df.gyro_y * (float)(1/SAMPLE_FREQ);   // Angle around the Y-axis
 
 
     int forceMagnitudeApprox = abs(DataRaw->raw_accel_x) + abs(DataRaw->raw_accel_y) + abs(DataRaw->raw_accel_z);
@@ -549,193 +543,8 @@ void MPU6050_Get_RPY_Data(MPU6050_Data_RPY* DataRPY, MPU6050_Data_Raw* DataRaw)
 }
 
 
-I2C_Error_Code MPU6050_Calibration(MPU6050_Data_Float* DataStruct)
-{
-  uint8_t data[12]; // data array to hold accelerometer and gyro x, y, z, data
-  uint16_t ii, packet_count, fifo_count;
-  int32_t gyro_bias[3] = {0, 0, 0};
-  int32_t accel_bias[3] = {0, 0, 0};
-  I2C_Error_Code status;
 
-  I2C_InitConfig(MPU6050_I2C);
-
-/* Comprobación de la conexión del dispositivo*/
-  status = I2C_IsConnected(MPU6050_I2C, MPU6050_I2C_ADDR);
-  if(status) {return status;}
-
-  status = MPU6050_SleepMode(DISABLE);
-  if(status) {return status;}
-  Delay(200);
-  status = MPU6050_ResetDevice();
-  if(status) {return status;}
-  Delay(200);
-// get stable time source
-// Set clock source to be PLL with x-axis gyroscope reference, bits 2:0 = 001
-  status = MPU6050_Set_ClockSel(MPU6050_CLOCK_PLL_XGYRO);
-  if(status) {return status;}
-
-  USART_Send(USART2, "1");
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_PWR_MGMT_2, 0x00);
-  if(status) {return status;}
-  Delay(100);
-
-// Configure device for bias calculation
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_INT_ENABLE, 0x00);   // Disable all interrupts
-  if(status) {return status;}
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_FIFO_EN, 0x00);      // Disable FIFO
-  if(status) {return status;}
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_PWR_MGMT_1, 0x00);   // Turn on internal clock source
-  if(status) {return status;}
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_I2C_MST_CTRL, 0x00); // Disable I2C master
-  if(status) {return status;}
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_USER_CTRL, 0x00);    // Disable FIFO and I2C master modes
-  if(status) {return status;}
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_USER_CTRL, 0x0C);    // Reset FIFO and DMP
-  if(status) {return status;}
-
-  Delay(15);
-  USART_Send(USART2, "2");
-// Configure MPU6050 gyro and accelerometer for bias calculation
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_CONFIG, MPU6050_DLPF_BW_188);      // Set low-pass filter to 188 Hz
-  if(status) {return status;}
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_SMPLRT_DIV, 0x00);  // Set sample rate to 1 kHz
-  if(status) {return status;}
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_GYRO_CONFIG, 0x00);  // Set gyro full-scale to 250 degrees per second, maximum sensitivity
-  if(status) {return status;}
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_ACCEL_CONFIG, 0x00); // Set accelerometer full-scale to 2 g, maximum sensitivity
-  if(status) {return status;}
-
-  uint16_t  gyrosensitivity  = 131;   // = 131 LSB/degrees/sec
-  uint16_t  accelsensitivity = 16384;  // = 16384 LSB/g
-
-// Configure FIFO to capture accelerometer and gyro data for bias calculation
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_USER_CTRL, 0x40);   // Enable FIFO
-  if(status) {return status;}
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_FIFO_EN, 0x78);     // Enable gyro and accelerometer sensors for FIFO  (max size 1024 bytes in MPU-6050)
-  if(status) {return status;}
-  Delay(80); // accumulate 80 samples in 80 milliseconds = 960 bytes
-
-// At end of sample accumulation, turn off FIFO sensor read
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_FIFO_EN, 0x00);        // Disable gyro and accelerometer sensors for FIFO
-  if(status) {return status;}
-  status = I2C_ReadByte_MultiReg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_FIFO_COUNTH, &data[0], 2); // read FIFO sample count
-  if(status) {return status;}
-  fifo_count = ((uint16_t)data[0] << 8) | data[1];
-  packet_count = fifo_count/12;// How many sets of full gyro and accelerometer data for averaging
-
-  USART_Send(USART2, "3");
-
-  for (ii = 0; ii < packet_count; ii++) {
-    int16_t accel_temp[3] = {0, 0, 0}, gyro_temp[3] = {0, 0, 0};
-    status = I2C_ReadByte_MultiReg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_FIFO_R_W, &data[0], 12); // read data for averaging
-
-    accel_temp[0] = (int16_t) (((int16_t)data[0] << 8) | data[1]  ) ;  // Form signed 16-bit integer for each sample in FIFO
-    accel_temp[1] = (int16_t) (((int16_t)data[2] << 8) | data[3]  ) ;
-    accel_temp[2] = (int16_t) (((int16_t)data[4] << 8) | data[5]  ) ;
-    gyro_temp[0]  = (int16_t) (((int16_t)data[6] << 8) | data[7]  ) ;
-    gyro_temp[1]  = (int16_t) (((int16_t)data[8] << 8) | data[9]  ) ;
-    gyro_temp[2]  = (int16_t) (((int16_t)data[10] << 8) | data[11]) ;
-
-    accel_bias[0] += (int32_t) accel_temp[0]; // Sum individual signed 16-bit biases to get accumulated signed 32-bit biases
-    accel_bias[1] += (int32_t) accel_temp[1];
-    accel_bias[2] += (int32_t) accel_temp[2];
-    gyro_bias[0]  += (int32_t) gyro_temp[0];
-    gyro_bias[1]  += (int32_t) gyro_temp[1];
-    gyro_bias[2]  += (int32_t) gyro_temp[2];
-
-}
-    accel_bias[0] /= (int32_t) packet_count; // Normalize sums to get average count biases
-    accel_bias[1] /= (int32_t) packet_count;
-    accel_bias[2] /= (int32_t) packet_count;
-    gyro_bias[0]  /= (int32_t) packet_count;
-    gyro_bias[1]  /= (int32_t) packet_count;
-    gyro_bias[2]  /= (int32_t) packet_count;
-
-  if(accel_bias[2] > 0L) {accel_bias[2] -= (int32_t) accelsensitivity;}  // Remove gravity from the z-axis accelerometer bias calculation
-  else {accel_bias[2] += (int32_t) accelsensitivity;}
-
-// Construct the gyro biases for push to the hardware gyro bias registers, which are reset to zero upon device startup
-  data[0] = (-gyro_bias[0]/4  >> 8) & 0xFF; // Divide by 4 to get 32.9 LSB per deg/s to conform to expected bias input format
-  data[1] = (-gyro_bias[0]/4)       & 0xFF; // Biases are additive, so change sign on calculated average gyro biases
-  data[2] = (-gyro_bias[1]/4  >> 8) & 0xFF;
-  data[3] = (-gyro_bias[1]/4)       & 0xFF;
-  data[4] = (-gyro_bias[2]/4  >> 8) & 0xFF;
-  data[5] = (-gyro_bias[2]/4)       & 0xFF;
-
-// Push gyro biases to hardware registers
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_XG_OFFS_USRH, data[0]);
-  if(status) {return status;}
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_XG_OFFS_USRL, data[1]);
-  if(status) {return status;}
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_YG_OFFS_USRH, data[2]);
-  if(status) {return status;}
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_YG_OFFS_USRL, data[3]);
-  if(status) {return status;}
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_ZG_OFFS_USRH, data[4]);
-  if(status) {return status;}
-  status = I2C_WriteByte_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_ZG_OFFS_USRL, data[5]);
-  if(status) {return status;}
-
-  DataStruct->gyro_x = (float) gyro_bias[0]/(float) gyrosensitivity; // construct gyro bias in deg/s for later manual subtraction
-  DataStruct->gyro_y = (float) gyro_bias[1]/(float) gyrosensitivity;
-  DataStruct->gyro_z = (float) gyro_bias[2]/(float) gyrosensitivity;
-
-// Construct the accelerometer biases for push to the hardware accelerometer bias registers. These registers contain
-// factory trim values which must be added to the calculated accelerometer biases; on boot up these registers will hold
-// non-zero values. In addition, bit 0 of the lower byte must be preserved since it is used for temperature
-// compensation calculations. Accelerometer bias registers expect bias input as 2048 LSB per g, so that
-// the accelerometer biases calculated above must be divided by 8.
-
-  int32_t accel_bias_reg[3] = {0, 0, 0}; // A place to hold the factory accelerometer trim biases
-  status = I2C_ReadByte_MultiReg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_XA_OFFS_H, &data[0], 2); // Read factory accelerometer trim values
-  if(status) {return status;}
-  accel_bias_reg[0] = (int16_t) ((int16_t)data[0] << 8) | data[1];
-  status = I2C_ReadByte_MultiReg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_YA_OFFS_H, &data[0], 2);
-  if(status) {return status;}
-  accel_bias_reg[1] = (int16_t) ((int16_t)data[0] << 8) | data[1];
-  status = I2C_ReadByte_MultiReg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_ZA_OFFS_H, &data[0], 2);
-  if(status) {return status;}
-  accel_bias_reg[2] = (int16_t) ((int16_t)data[0] << 8) | data[1];
-
-  uint32_t mask = 1uL; // Define mask for temperature compensation bit 0 of lower byte of accelerometer bias registers
-  uint8_t mask_bit[3] = {0, 0, 0}; // Define array to hold mask bit for each accelerometer bias axis
-
-  for(ii = 0; ii < 3; ii++) {
-    if(accel_bias_reg[ii] & mask) mask_bit[ii] = 0x01; // If temperature compensation bit is set, record that fact in mask_bit
-  }
-
-  // Construct total accelerometer bias, including calculated average accelerometer bias from above
-  accel_bias_reg[0] -= (accel_bias[0]/8); // Subtract calculated averaged accelerometer bias scaled to 2048 LSB/g (16 g full scale)
-  accel_bias_reg[1] -= (accel_bias[1]/8);
-  accel_bias_reg[2] -= (accel_bias[2]/8);
-
-  data[0] = (accel_bias_reg[0] >> 8) & 0xFF;
-  data[1] = (accel_bias_reg[0])      & 0xFF;
-  data[1] = data[1] | mask_bit[0]; // preserve temperature compensation bit when writing back to accelerometer bias registers
-  data[2] = (accel_bias_reg[1] >> 8) & 0xFF;
-  data[3] = (accel_bias_reg[1])      & 0xFF;
-  data[3] = data[3] | mask_bit[1]; // preserve temperature compensation bit when writing back to accelerometer bias registers
-  data[4] = (accel_bias_reg[2] >> 8) & 0xFF;
-  data[5] = (accel_bias_reg[2])      & 0xFF;
-  data[5] = data[5] | mask_bit[2]; // preserve temperature compensation bit when writing back to accelerometer bias registers
-
-  // Push accelerometer biases to hardware registers
-//  writeByte(MPU6050_ADDRESS, XA_OFFSET_H, data[0]);
-//  writeByte(MPU6050_ADDRESS, XA_OFFSET_L_TC, data[1]);
-//  writeByte(MPU6050_ADDRESS, YA_OFFSET_H, data[2]);
-//  writeByte(MPU6050_ADDRESS, YA_OFFSET_L_TC, data[3]);
-//  writeByte(MPU6050_ADDRESS, ZA_OFFSET_H, data[4]);
-//  writeByte(MPU6050_ADDRESS, ZA_OFFSET_L_TC, data[5]);
-
-// Output scaled accelerometer biases for manual subtraction in the main program
-   DataStruct->accel_x_trim = (float)accel_bias[0]/(float)accelsensitivity;
-   DataStruct->accel_y_trim = (float)accel_bias[1]/(float)accelsensitivity;
-   DataStruct->accel_z_trim = (float)accel_bias[2]/(float)accelsensitivity;
-
-   return I2C_NoError;
-}
-
-I2C_Error_Code MPU6050_Calibration2(MPU6050_Data_Float* DataStruct)
+I2C_Error_Code MPU6050_Calibration()
 {
 	I2C_Error_Code status;
 	int j = 0;
@@ -746,10 +555,10 @@ I2C_Error_Code MPU6050_Calibration2(MPU6050_Data_Float* DataStruct)
 	int32_t gyro_x_offset = 0;
 	int32_t gyro_y_offset = 0;
 	int32_t gyro_z_offset = 0;
-	USART_Send(USART2, "Realizando Calibración... \n");
+
+	USART_Send(USART2, "\nRealizando Calibración... \n");
 
 	status = MPU6050_Config_ContinuousMeasurement();
-
 	if(status) {return status;}
 
 	while(j<600)
@@ -764,7 +573,7 @@ I2C_Error_Code MPU6050_Calibration2(MPU6050_Data_Float* DataStruct)
 				{
 			   	acc_x_offset += Buffer_Data[i].raw_accel_x;
 			   	acc_y_offset += Buffer_Data[i].raw_accel_y;
-			   	acc_z_offset += Buffer_Data[i].raw_accel_z - (int16_t)ACCEL_SENS;
+			   	acc_z_offset += Buffer_Data[i].raw_accel_z - (int)ACCEL_SENS;
 			   	gyro_x_offset += Buffer_Data[i].raw_gyro_x;
 			   	gyro_y_offset += Buffer_Data[i].raw_gyro_y;
 			   	gyro_z_offset += Buffer_Data[i].raw_gyro_z;
@@ -777,31 +586,29 @@ I2C_Error_Code MPU6050_Calibration2(MPU6050_Data_Float* DataStruct)
 		}
 	}
 
-	USART_SendFloat(USART2, (float)j,1);
-
 	status = MPU6050_Set_INT_Enable(0x00);
 	if(status) {return status;}
 
-	DataStruct->accel_x_trim = (float)(((float)acc_x_offset) / (((float)j)*ACCEL_SENS));
-	DataStruct->accel_y_trim = (float)(((float)acc_y_offset) / (((float)j)*ACCEL_SENS));
-	DataStruct->accel_z_trim = (float)(((float)acc_z_offset) / (((float)j)*ACCEL_SENS));
+	offsets.accel_x_trim = (float)(((float)acc_x_offset) / (((float)(j-100))*ACCEL_SENS));
+	offsets.accel_y_trim = (float)(((float)acc_y_offset) / (((float)(j-100))*ACCEL_SENS));
+	offsets.accel_z_trim = (float)(((float)acc_z_offset) / (((float)(j-100))*ACCEL_SENS));
 
-	DataStruct->gyro_x_trim= (float)(((float)gyro_x_offset) / (((float)j)*GYRO_SENS));
-	DataStruct->gyro_y_trim= (float)(((float)gyro_y_offset) / (((float)j)*GYRO_SENS));
-	DataStruct->gyro_z_trim= (float)(((float)gyro_z_offset) / (((float)j)*GYRO_SENS));
+	offsets.gyro_x_trim= (float)(((float)gyro_x_offset) / (((float)(j-100))*GYRO_SENS));
+	offsets.gyro_y_trim= (float)(((float)gyro_y_offset) / (((float)(j-100))*GYRO_SENS));
+	offsets.gyro_z_trim= (float)(((float)gyro_z_offset) / (((float)(j-100))*GYRO_SENS));
 
 	USART_Send(USART2, "accel x: ");
-	USART_SendFloat(USART2, DataStruct->accel_x_trim,5);
+	USART_SendFloat(USART2, offsets.accel_x_trim,3);
 	USART_Send(USART2, "\taccel y: ");
-	USART_SendFloat(USART2, DataStruct->accel_y_trim,5);
+	USART_SendFloat(USART2, offsets.accel_y_trim,3);
 	USART_Send(USART2, "\taccel z: ");
-	USART_SendFloat(USART2, DataStruct->accel_z_trim,5);
+	USART_SendFloat(USART2, offsets.accel_z_trim,3);
 	USART_Send(USART2, "\tgyro x: ");
-	USART_SendFloat(USART2, DataStruct->gyro_x_trim,5);
+	USART_SendFloat(USART2, offsets.gyro_x_trim,3);
 	USART_Send(USART2, "\tgyro y: ");
-	USART_SendFloat(USART2, DataStruct->gyro_y_trim,5);
+	USART_SendFloat(USART2, offsets.gyro_y_trim,3);
 	USART_Send(USART2, "\tgyro z: ");
-	USART_SendFloat(USART2, DataStruct->gyro_z_trim,5);
+	USART_SendFloat(USART2, offsets.gyro_z_trim,3);
 	USART_Send(USART2, "\n");
 
 	return I2C_NoError;

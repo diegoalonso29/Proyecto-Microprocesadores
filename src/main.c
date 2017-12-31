@@ -40,7 +40,7 @@ int main(void)
 	    	return 0;
 		}
 		USART_Send(USART2, "Arranque\n");
-		status = MPU6050_Calibration2(&datafloat);
+		status = MPU6050_Calibration();
 		if(status)
 		{
 	    	DisplayErrorCode(status);
@@ -67,9 +67,9 @@ int main(void)
 	    			{
 
 	    				datafloat = getFloat(Buffer_Data[i]);
-	    				USART_SendFloat(USART2, datafloat.accel_z,5);
+	    				USART_SendFloat(USART2, datafloat.accel_z,3);
 	    				USART_Send(USART2, "\t");
-	    				USART_SendFloat(USART2, Buffer_Data[i].raw_accel_z,5);
+	    				USART_SendFloat(USART2, Buffer_Data[i].raw_accel_z,3);
 	    				USART_Send(USART2, "\n");
 //	    				MPU6050_Get_RPY_Data(&rpy, &Buffer_Data[i]);
 //	    				USART_Send(USART2, "Roll: ");
