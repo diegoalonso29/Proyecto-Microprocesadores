@@ -1,29 +1,20 @@
-
 #ifndef TIMERS_H_
 #define TIMERS_H_
 
-#include <inttypes.h>
+#include "stm32l1xx_nucleo.h"
+#include "stm32l1xx.h"
 
-/**
- * @defgroup  TIMER TIMER
- * @brief     Timing control functions
- */
+static volatile uint32_t TimingDelay;
+RCC_ClocksTypeDef RCC_Clocks;
 
-/**
- * @addtogroup TIMER
- * @{
- */
-
-void      TIMER_Init              (uint32_t freq);
-void      TIMER_DelayUS           (uint32_t us);
-void      TIMER_Delay             (uint32_t ms);
-uint8_t   TIMER_DelayTimer        (uint32_t ms, uint32_t startTime);
-int8_t    TIMER_AddSoftTimer      (uint32_t maxVal, void (*fun)(void));
-void      TIMER_StartSoftTimer    (uint8_t id);
-void      TIMER_SoftTimersUpdate  (void);
-uint32_t  TIMER_GetTime           (void);
+void Systick_Configuration(void);
+void TimingDelay_Decrement(void);
+void Delay(uint32_t nTime);
+void Delay_lcd(uint32_t nTime);
+void SysTick_Handler(void);
 
 
 
 #endif /* TIMERS_H_ */
+
 

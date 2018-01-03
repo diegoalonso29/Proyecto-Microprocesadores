@@ -6,15 +6,21 @@
 #include "Timer.h"
 #include <math.h>
 #include <stdio.h>
+#include <Timer.h>
+#include "stm32l1xx_nucleo.h"
+#include "LCD.h"
+#include "strings.h"
 
-void Systick_Configuration(void);
-void TimingDelay_Decrement(void);
-void Delay(uint32_t nTime);
+typedef enum {
+	Initialization=0,
+	Wait=1,
+	Measurement=2,
+	Calibration=3,
+	ExportData=4,
+	Error=5,
+	ShutDown=6,
+} StateMachine;
 
-static volatile uint32_t counter;
-static volatile uint32_t TimingDelay;
-
-
-
+void StateMachineSystem(void);
 
 #endif /* MAIN_H_ */

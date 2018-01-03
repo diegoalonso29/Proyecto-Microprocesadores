@@ -946,7 +946,7 @@ static int FAT_FindFile(FAT_File* file) {
 			FAT_ReadSector(currentSector);
 
 			// FIXME This may be needed for terminal
-			//      TIMER_Delay(1000);
+			//      Delay(1000);
 
 			// first entry in buffer for new sector
 			dirEntry = (FAT_RootDirEntry*)buf;
@@ -1177,7 +1177,3 @@ int FAT_SDJumpLineFile(int file)
 /**
  * @}
  */
-
-
-
-

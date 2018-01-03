@@ -452,44 +452,51 @@ I2C_Error_Code MPU6050_Read_FIFO(MPU6050_Data_Raw* DataStruct)
 	return I2C_NoError;
 }
 
-I2C_Error_Code MPU6050_Config_ContinuousMeasurement(void)
+I2C_Error_Code MPU6050_Config_ContinuousMeasurement(uint8_t enable)
 {
 	I2C_Error_Code status;
+	if(enable != 0)
+	{
+		GPIO_InitTypeDef gpio_init_struct;
+		EXTI_InitTypeDef EXTI_InitStructure;
+		NVIC_InitTypeDef NVIC_InitStructure;
 
-	GPIO_InitTypeDef gpio_init_struct;
-	EXTI_InitTypeDef EXTI_InitStructure;
-	NVIC_InitTypeDef NVIC_InitStructure;
+		RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
 
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+		/* Configuracion Pin13 del GPIOC para la entrada de la EXTI */
+		gpio_init_struct.GPIO_Mode = GPIO_Mode_IN;
+		gpio_init_struct.GPIO_OType =GPIO_OType_PP;
+		gpio_init_struct.GPIO_Pin= GPIO_Pin_13;
+		gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
+		gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
+		GPIO_Init(GPIOC,&gpio_init_struct);
 
-	/* Configuracion Pin13 del GPIOC para la entrada de la EXTI */
-	gpio_init_struct.GPIO_Mode = GPIO_Mode_IN;
-	gpio_init_struct.GPIO_OType =GPIO_OType_PP;
-	gpio_init_struct.GPIO_Pin= GPIO_Pin_13;
-	gpio_init_struct.GPIO_PuPd= GPIO_PuPd_NOPULL;
-	gpio_init_struct.GPIO_Speed=GPIO_Speed_2MHz;
-	GPIO_Init(GPIOC,&gpio_init_struct);
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG,ENABLE);
+		SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOC, EXTI_PinSource13);
 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG,ENABLE);
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOC, EXTI_PinSource13);
+		EXTI_InitStructure.EXTI_Line = GPIO_Pin_13;
+		EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+		EXTI_InitStructure.EXTI_Trigger	= EXTI_Trigger_Falling;
+		EXTI_InitStructure.EXTI_LineCmd	= ENABLE;
+		EXTI_Init(&EXTI_InitStructure);
 
-	EXTI_InitStructure.EXTI_Line = GPIO_Pin_13;
-	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStructure.EXTI_Trigger	= EXTI_Trigger_Falling;
-	EXTI_InitStructure.EXTI_LineCmd	= ENABLE;
-	EXTI_Init(&EXTI_InitStructure);
+		NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
+		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+		NVIC_Init(&NVIC_InitStructure);
 
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
+		pos_buffer = 0;
+		data_available = 0;
 
-	pos_buffer = 0;
-	data_available = 0;
-
-	status = MPU6050_Set_INT_Enable(MPU6050_DATA_RDY_INT_EN);
-	if(status) {return status;}
+		status = MPU6050_Set_INT_Enable(MPU6050_DATA_RDY_INT_EN);
+		if(status) {return status;}
+	}
+	else
+	{
+		status = MPU6050_Set_INT_Enable(0x00);
+		if(status) {return status;}
+	}
 
 	return I2C_NoError;
 }
@@ -545,7 +552,7 @@ I2C_Error_Code MPU6050_Calibration()
 	int32_t gyro_y_offset = 0;
 	int32_t gyro_z_offset = 0;
 
-	status = MPU6050_Config_ContinuousMeasurement();
+	status = MPU6050_Config_ContinuousMeasurement(1);
 	if(status) {return status;}
 
 	while(j<600)

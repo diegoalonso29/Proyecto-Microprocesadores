@@ -307,7 +307,7 @@ void SD_Init(void) {
 		resp.responseR1 = SD_SendCommand(SD_ACMD_SEND_OP_COND, SD_ACMD41_HCS);
 		// Without this delay card wouldn't initialize the first time after
 		// power was connected.
-		TIMER_Delay(50);
+		Delay(50);
 		if (resp.responseR1 == 0x00) { // Card left IDLE state and no errors
 			break;
 		}
@@ -632,5 +632,3 @@ static void SD_GetResponseR3orR7(uint8_t* buf) {
 	buf[i++] = SD_HAL_TransmitData(0xff);
 
 }
-
-

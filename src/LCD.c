@@ -370,29 +370,29 @@ void menu(void){
 	  }
 	}
 }
-void EXTI4_IRQHandler(void){
-	if(EXTI_GetFlagStatus(EXTI_Line4)!=0){
-		if(entrar_menu_princial==1)
-		{
-			interruption=1;
-		}
-		EXTI_ClearITPendingBit(EXTI_Line4);	// LIMPIAMOS EL FLAG
-		}
-}
-void EXTI9_5_IRQHandler(void){
-	if(EXTI_GetFlagStatus(EXTI_Line8)!=0){
-		if(entrar_menu_princial==1)
-		{
-			interruption=2;
-		}
-		EXTI_ClearITPendingBit(EXTI_Line8);	// LIMPIAMOS EL FLAG
-		}
-
-	if(EXTI_GetFlagStatus(EXTI_Line9)!=0){
-		interruption=3;
-			EXTI_ClearITPendingBit(EXTI_Line9);	// LIMPIAMOS EL FLAG
-			}
-}
+//void EXTI4_IRQHandler(void){
+//	if(EXTI_GetFlagStatus(EXTI_Line4)!=0){
+//		if(entrar_menu_princial==1)
+//		{
+//			interruption=1;
+//		}
+//		EXTI_ClearITPendingBit(EXTI_Line4);	// LIMPIAMOS EL FLAG
+//		}
+//}
+//void EXTI9_5_IRQHandler(void){
+//	if(EXTI_GetFlagStatus(EXTI_Line8)!=0){
+//		if(entrar_menu_princial==1)
+//		{
+//			interruption=2;
+//		}
+//		EXTI_ClearITPendingBit(EXTI_Line8);	// LIMPIAMOS EL FLAG
+//		}
+//
+//	if(EXTI_GetFlagStatus(EXTI_Line9)!=0){
+//		interruption=3;
+//			EXTI_ClearITPendingBit(EXTI_Line9);	// LIMPIAMOS EL FLAG
+//			}
+//}
 void mensaje_inicial(void){
   clear();
   write_char("   ***Bienvenido***");
@@ -403,10 +403,10 @@ void mensaje_inicial(void){
   movercursor(4,7);
   write_char(">START");
 }
-void entrar_menu_opciones(void){
-	if(entrar==0) entrar=1;
-	else entrar=0;
-}
+//void entrar_menu_opciones(void){
+//	if(entrar==0) entrar=1;
+//	else entrar=0;
+//}
 //----------------------------------------------
 
 

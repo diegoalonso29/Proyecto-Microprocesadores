@@ -372,7 +372,7 @@ I2C_Error_Code MPU6050_Get_FIFO_Count(uint16_t* sel);
 I2C_Error_Code MPU6050_Read_FIFO(MPU6050_Data_Raw* DataStruct);
 
 void EXTI15_10_IRQHandler(void);
-I2C_Error_Code MPU6050_Config_ContinuousMeasurement(void);
+I2C_Error_Code MPU6050_Config_ContinuousMeasurement(uint8_t enable);
 void MPU6050_Get_RPY_Data(MPU6050_Data_RPY* DataRPY, MPU6050_Data_Raw* DataRaw);
 MPU6050_Data_Float getFloat (MPU6050_Data_Raw DataStruct);
 float MPU6050_Mapf(float x, float in_min, float in_max, float out_min, float out_max);

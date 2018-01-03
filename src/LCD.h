@@ -58,9 +58,9 @@ void menuPrincipal(int posicion);
 void conf_inte(void);
 void mensaje_inicial(void);
 void menu(void);
-void EXTI4_IRQHandler(void);
-void EXTI9_5_IRQHandler(void);
-void entrar_menu_opciones(void);
+//void EXTI4_IRQHandler(void);
+//void EXTI9_5_IRQHandler(void);
+//void entrar_menu_opciones(void);
 //-----------------------------------------
 #endif
 

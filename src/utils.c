@@ -63,7 +63,7 @@ void hexdump(const uint8_t const *buf, uint32_t length) {
 		}
 		// delay every 50 chars
 		if ((i % 50) == 0) {
-			TIMER_Delay(100); // Delay so as not to overflow buffer
+			Delay(100); // Delay so as not to overflow buffer
 		}
 	}
 	printf("\r\n");
@@ -94,7 +94,7 @@ void hexdumpC(const uint8_t const *buf, uint32_t length) {
 		}
 		// delay every 50 chars
 		if ((i % 50) == 0) {
-			//      TIMER_Delay(100); // Delay so as not to overflow buffer
+			//      Delay(100); // Delay so as not to overflow buffer
 		}
 	}
 	printf("\r\n");
@@ -125,11 +125,8 @@ void hexdump16C(const uint16_t const *buf, uint32_t length) {
 		}
 		// delay every 50 chars
 		if ((i % 50) == 0) {
-			//      TIMER_Delay(100); // Delay so as not to overflow buffer
+			//      Delay(100); // Delay so as not to overflow buffer
 		}
 	}
 	printf("\r\n");
 }
-
-
-
