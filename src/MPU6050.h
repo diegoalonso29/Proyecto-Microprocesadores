@@ -9,28 +9,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define	MPU6050_I2C					I2C1
-#define MPU6050_I_AM				0x68
-#define MPU6050_I2C_ADDR			0x68
-
-
-#define MPU6050_RA_XG_OFFS_TC       0x00 //[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
-#define MPU6050_RA_YG_OFFS_TC       0x01 //[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
-#define MPU6050_RA_ZG_OFFS_TC       0x02 //[7] PWR_MODE, [6:1] ZG_OFFS_TC, [0] OTP_BNK_VLD
-#define MPU6050_RA_X_FINE_GAIN      0x03 //[7:0] X_FINE_GAIN
-#define MPU6050_RA_Y_FINE_GAIN      0x04 //[7:0] Y_FINE_GAIN
-#define MPU6050_RA_Z_FINE_GAIN      0x05 //[7:0] Z_FINE_GAIN
-#define MPU6050_RA_XA_OFFS_H        0x06 //[15:0] XA_OFFS
+#define MPU6050_RA_XG_OFFS_TC       0x00
+#define MPU6050_RA_YG_OFFS_TC       0x01
+#define MPU6050_RA_ZG_OFFS_TC       0x02
+#define MPU6050_RA_X_FINE_GAIN      0x03
+#define MPU6050_RA_Y_FINE_GAIN      0x04
+#define MPU6050_RA_Z_FINE_GAIN      0x05
+#define MPU6050_RA_XA_OFFS_H        0x06
 #define MPU6050_RA_XA_OFFS_L_TC     0x07
-#define MPU6050_RA_YA_OFFS_H        0x08 //[15:0] YA_OFFS
+#define MPU6050_RA_YA_OFFS_H        0x08
 #define MPU6050_RA_YA_OFFS_L_TC     0x09
-#define MPU6050_RA_ZA_OFFS_H        0x0A //[15:0] ZA_OFFS
+#define MPU6050_RA_ZA_OFFS_H        0x0A
 #define MPU6050_RA_ZA_OFFS_L_TC     0x0B
-#define MPU6050_RA_XG_OFFS_USRH     0x13 //[15:0] XG_OFFS_USR
+#define MPU6050_RA_XG_OFFS_USRH     0x13
 #define MPU6050_RA_XG_OFFS_USRL     0x14
-#define MPU6050_RA_YG_OFFS_USRH     0x15 //[15:0] YG_OFFS_USR
+#define MPU6050_RA_YG_OFFS_USRH     0x15
 #define MPU6050_RA_YG_OFFS_USRL     0x16
-#define MPU6050_RA_ZG_OFFS_USRH     0x17 //[15:0] ZG_OFFS_USR
+#define MPU6050_RA_ZG_OFFS_USRH     0x17
 #define MPU6050_RA_ZG_OFFS_USRL     0x18
 #define MPU6050_RA_SMPLRT_DIV       0x19
 #define MPU6050_RA_CONFIG           0x1A
@@ -186,21 +181,21 @@
 #define MPU6050_TEMP_FIFO_EN	    0x80
 #define MPU6050_XG_FIFO_EN    		0x40
 #define MPU6050_YG_FIFO_EN		    0x20
-#define MPU6050_ZG_FIFO_EN		    0x10				/* Utilizado */
+#define MPU6050_ZG_FIFO_EN		    0x10
 #define MPU6050_ACCEL_FIFO_EN		0x08
 #define MPU6050_SLV2_FIFO_EN		0x04
 #define MPU6050_SLV1_FIFO_EN		0x02
 #define MPU6050_SLV0_FIFO_EN	    0x01
 
 #define MPU6050_FIFO_OFLOW_INT_EN	0X10
-#define MPU6050_I2C_MST_INT_EN		0X80				Lo utilizo
+#define MPU6050_I2C_MST_INT_EN		0X80
 #define MPU6050_DATA_RDY_INT_EN		0x01
 
 #define MPU6050_INTCFG_INT_LEVEL_BIT        7
 #define MPU6050_INTCFG_INT_OPEN_BIT         6
 #define MPU6050_INTCFG_LATCH_INT_EN_BIT     5
 #define MPU6050_INTCFG_INT_RD_CLEAR_BIT     4
-#define MPU6050_INTCFG_FSYNC_INT_LEVEL_BIT  3						/* Lo utilizo */
+#define MPU6050_INTCFG_FSYNC_INT_LEVEL_BIT  3
 #define MPU6050_INTCFG_FSYNC_INT_EN_BIT     2
 #define MPU6050_INTCFG_I2C_BYPASS_EN_BIT    1
 #define MPU6050_INTCFG_CLKOUT_EN_BIT        0
@@ -208,14 +203,14 @@
 #define MPU6050_INTERRUPT_FF_BIT            7
 #define MPU6050_INTERRUPT_MOT_BIT           6
 #define MPU6050_INTERRUPT_ZMOT_BIT          5
-#define MPU6050_INTERRUPT_FIFO_OFLOW_BIT    4				/* Lo utilizo */
+#define MPU6050_INTERRUPT_FIFO_OFLOW_BIT    4
 #define MPU6050_INTERRUPT_I2C_MST_INT_BIT   3
 #define MPU6050_INTERRUPT_PLL_RDY_INT_BIT   2
 #define MPU6050_INTERRUPT_DMP_INT_BIT       1
 #define MPU6050_INTERRUPT_DATA_RDY_BIT      0
 
 #define MPU6050_PATHRESET_GYRO_RESET    		0x04
-#define MPU6050_PATHRESET_ACCEL_RESET			0x02           /* Lo utilizo */
+#define MPU6050_PATHRESET_ACCEL_RESET			0x02
 #define MPU6050_PATHRESET_TEMP_RESET		    0x01
 
 #define MPU6050_USERCTRL_DMP_EN_BIT             7
@@ -228,7 +223,7 @@
 #define MPU6050_USERCTRL_SIG_COND_RESET_BIT     0
 
 #define MPU6050_PWR1_DEVICE_RESET_BIT   7
-#define MPU6050_PWR1_SLEEP_BIT          6                       /* Lo utilizo */
+#define MPU6050_PWR1_SLEEP_BIT          6
 #define MPU6050_PWR1_CYCLE_BIT          5
 #define MPU6050_PWR1_TEMP_DIS_BIT       3
 #define MPU6050_PWR1_CLKSEL_BIT         2
@@ -271,6 +266,10 @@
 
 
 /******************************************************************CONFIGURATION****************************************************************************/
+#define	MPU6050_I2C					I2C1
+#define MPU6050_I_AM				0x68
+#define MPU6050_I2C_ADDR			0x68
+
 #define SAMPLE_FREQ					25
 #define LPF_BW						MPU6050_DLPF_BW_256
 
@@ -282,8 +281,8 @@
 
 #define BUFFER_SIZE					100
 
-//#define M_PI 						3.14159265359
 
+/**************************************************************************************************************************/
 typedef struct {
 
 	int16_t raw_accel_x; /*!< Accelerometer value X axis */
@@ -337,12 +336,20 @@ MPU6050_Data_Trim offsets;
 
 
 I2C_Error_Code MPU6050_InitConfig(uint8_t AccelRange, uint8_t GyroRange, uint8_t SampleRate);
+I2C_Error_Code MPU6050_ResetDevice();
+I2C_Error_Code MPU6050_SleepMode(uint8_t mode);
+I2C_Error_Code MPU6050_Calibration();
+
+void DisplayErrorCode(I2C_Error_Code error);
 
 I2C_Error_Code MPU6050_Get_Raw_Accelerometer(MPU6050_Data_Raw* DataStruct);
 I2C_Error_Code MPU6050_Get_Raw_Gyroscope(MPU6050_Data_Raw* DataStruct);
 I2C_Error_Code MPU6050_Get_Raw_Temperature(MPU6050_Data_Raw* DataStruct);
 I2C_Error_Code MPU6050_Get_Raw_Data(MPU6050_Data_Raw* DataStruct);
 
+I2C_Error_Code MPU6050_Config_ContinuousMeasurement(uint8_t enable);
+void MPU6050_Get_RPY_Data(MPU6050_Data_RPY* DataRPY, MPU6050_Data_Raw* DataRaw);
+MPU6050_Data_Float MPU6050_GetData (MPU6050_Data_Raw DataStruct);
 
 I2C_Error_Code MPU6050_SetLPF(uint8_t bandwith);
 I2C_Error_Code MPU6050_GetLPF(uint8_t* bandwith);
@@ -364,19 +371,15 @@ I2C_Error_Code MPU6050_SignalPath_Reset(uint8_t sensor_reset);
 
 I2C_Error_Code MPU6050_Set_FIFO_Enable();
 I2C_Error_Code MPU6050_Get_FIFO_Enable(uint8_t* fifo_en);
-I2C_Error_Code MPU6050_ResetDevice();
-I2C_Error_Code MPU6050_SleepMode(uint8_t mode);
+
 I2C_Error_Code MPU6050_Set_ClockSel(uint8_t sel);
 I2C_Error_Code MPU6050_Get_ClockSel(uint8_t* sel);
+
 I2C_Error_Code MPU6050_Get_FIFO_Count(uint16_t* sel);
+
 I2C_Error_Code MPU6050_Read_FIFO(MPU6050_Data_Raw* DataStruct);
 
 void EXTI15_10_IRQHandler(void);
-I2C_Error_Code MPU6050_Config_ContinuousMeasurement(uint8_t enable);
-void MPU6050_Get_RPY_Data(MPU6050_Data_RPY* DataRPY, MPU6050_Data_Raw* DataRaw);
-MPU6050_Data_Float getFloat (MPU6050_Data_Raw DataStruct);
-float MPU6050_Mapf(float x, float in_min, float in_max, float out_min, float out_max);
-void DisplayErrorCode(I2C_Error_Code error);
-I2C_Error_Code MPU6050_Calibration();
+
 
 #endif /* MPU6050_H_ */

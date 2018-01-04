@@ -1,10 +1,12 @@
 #include "main.h"
 
 I2C_Error_Code status;
+
 MPU6050_Data_RPY rpy;
+MPU6050_Data_Float data;
+
 StateMachine STATE;
 
-int i;
 
 int main(void)
 {
@@ -49,11 +51,11 @@ void StateMachineSystem(void)
 
 			USART_Send(USART2, "Inicializando MPU6050... \n\n");
 			status = MPU6050_InitConfig(ACCEL_FS, GYRO_FS, SAMPLE_FREQ);
-	//		if(status)
-	//		{
-	//			STATE = Error;
-	//			break;
-	//		}
+			if(status)
+			{
+				STATE = Error;
+				break;
+			}
 
 			STATE = Wait;
 
@@ -63,15 +65,13 @@ void StateMachineSystem(void)
 
 			MPU6050_Config_ContinuousMeasurement(0);
 
-			/* EN ESTE CASO DANI TIENE QUE CONDUCIR EL PROGRAMA EN FUNCION DE LOS BOTONES, O NO HACER NADA
-			 * SI NO SE TOCA NINGUN BOTON
-			 */
 			if(comprobar_menu_inicial==1) menuPrincipal(posicion_cursor);
 
 			movimientoCursor();
 			entrar_user_menu();
 
-			switch (enviar_a_opcion) {
+			switch (enviar_a_opcion)
+			{
 				case 2:
 					STATE =ExportData;
 					break;
@@ -81,9 +81,12 @@ void StateMachineSystem(void)
 				case 4:
 					STATE =	Measurement;
 					menu_medidas=0;
+					MPU6050_Config_ContinuousMeasurement(1);
 					break;
 				case 5:
 					STATE =	ShutDown;
+					break;
+				default:
 					break;
 			}
 			enviar_a_opcion=0;
@@ -94,25 +97,43 @@ void StateMachineSystem(void)
 			if(menu_medidas==0) menu_opciones();
 			parar_medidas=0;
 			entrar_user_menu();
-			if(parar_medidas==1) STATE =	Wait;
 
-			MPU6050_Config_ContinuousMeasurement(1);
+			if(parar_medidas==1)
+			{
+				STATE = Wait;
+				break;
+			}
+
+
 			if(data_available)
 			{
-			uint8_t cipote_actual = data_available;
+				uint8_t m = data_available;
+				int i;
 
-			for(i=0;i<cipote_actual; i++)
-			{
+				for(i=0;i<m; i++)
+				{
 
-			MPU6050_Get_RPY_Data(&rpy, &Buffer_Data[i]);
-			USART_Send(USART2, "Roll: ");
-			USART_SendFloat(USART2, rpy.roll,2);
-			USART_Send(USART2, "\tPitch: ");
-			USART_SendFloat(USART2, rpy.pitch,2);
-			USART_Send(USART2, "\n");
-			data_available--;
-			}
-			pos_buffer = 0;
+					MPU6050_Get_RPY_Data(&rpy, &Buffer_Data[i]);
+					data = MPU6050_GetData(Buffer_Data[i]);
+
+					USART_Send(USART2, "Roll: ");
+					USART_SendFloat(USART2, rpy.roll,2);
+					USART_Send(USART2, "\tPitch: ");
+					USART_SendFloat(USART2, rpy.pitch,2);
+					USART_Send(USART2, "\n");
+
+					/*** LIBERTO TIENES QUE GUARDAR LO SIGUIENTE :
+					 *
+					 * 	 rpy.roll / rpy.pitch / data.accel_x / data.accel_y / data.accel_z
+					 *
+					 * 	 tambien molaria poner un cabezera del archivo txt en la que apareciese entre otras cosas
+					 * 	 frecuencia de muestreo de la imu ( 1/SAMPLE_FREQ(variable global mia) o simplemente la frec SAMPLE_FREQ)
+					 *
+					 */
+
+					data_available--;
+				}
+				pos_buffer = 0;
 			}
 
 
@@ -128,11 +149,11 @@ void StateMachineSystem(void)
 
 			USART_Send(USART2, "Realizando Calibración... \n\n");
 			status = MPU6050_Calibration();
-		//	if(status)
-		//	{
-		//		STATE = Error;
-		//		break;
-		//	}
+			if(status)
+			{
+				STATE = Error;
+				break;
+			}
 
 			STATE = Wait;
 			break;
@@ -140,6 +161,9 @@ void StateMachineSystem(void)
 		case ExportData:
 			menu_opciones();
 
+			/*
+			 *  AQUI LIBERTO TIENES QUE PONER TODO EL PROCESO PARA QUE MANDE POR USART TODO LO QUE HAYA EN LA SD
+			 */
 			STATE = Wait;
 			break;
 
@@ -151,8 +175,12 @@ void StateMachineSystem(void)
 
 		case ShutDown:
 			menu_opciones();
-
-			return 0;
+			/*
+			 *  AQUI DANI TIENES QUE PONER UN MENSAJE QUE PONGA APAGADO EL SISTEMA Y METER EN EL ENUM QUE TE HE DICHO UN
+			 *  UN NUMERO MAS QUE SEA SI HEMOS LLEGAD AL ESTADO ShutDown PARA QUE DESDE EL MAIN LO PREGUNTEMOS Y SALGAMOS DEL
+			 *  PRGRAMA
+			 */
+			return;
 			break;
 
 		default:

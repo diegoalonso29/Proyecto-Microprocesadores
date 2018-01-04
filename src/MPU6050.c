@@ -136,7 +136,7 @@ I2C_Error_Code MPU6050_Get_Raw_Data(MPU6050_Data_Raw* DataStruct)
 	return I2C_NoError;
 }
 
-MPU6050_Data_Float getFloat (MPU6050_Data_Raw DataStruct)
+MPU6050_Data_Float MPU6050_GetData (MPU6050_Data_Raw DataStruct)
 {
 	MPU6050_Data_Float df;
 
