@@ -65,6 +65,7 @@ uint8_t mantenerse_opcion;
 uint8_t volver;
 uint8_t enviar_a_opcion;
 uint8_t parar_medidas;
+uint8_t salir_programa;
 
 
 uint8_t menu_medidas;
@@ -78,6 +79,7 @@ void mensaje_inicial(void);
 void movimientoCursor(void);
 void entrar_user_menu(void);
 void menu_medida(void);
+void inicilizar_variables(void);
 
 void EXTI4_IRQHandler(void);
 void EXTI9_5_IRQHandler(void);

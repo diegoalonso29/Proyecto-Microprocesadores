@@ -16,6 +16,7 @@ int main(void)
 	while (1)
 	{
 		StateMachineSystem();
+		if(salir_programa==1) return 0;
 	}
 
 	return 0;
@@ -30,15 +31,7 @@ void StateMachineSystem(void)
 
 			/****************************INICIALIZACIONES DE DANI **********************/
 			init_lcd();			//Inicializamos la pantalla LCD
-			comprobar_menu_inicial=0;
-			posicion_cursor=2;
-			movimiento_cursor=0;
-			entrar_menu_user=0;
-			pulse_ok=0;
-			volver=0;
-			mantenerse_opcion=0;
-			enviar_a_opcion=0;
-			parar_medidas=0;
+			inicilizar_variables();
 			mensaje_inicial();
 
 			/***************************************************************************/
@@ -97,11 +90,12 @@ void StateMachineSystem(void)
 			if(menu_medidas==0) menu_opciones();
 			parar_medidas=0;
 			entrar_user_menu();
+			if(parar_medidas==1) STATE=Wait;
 
 			if(parar_medidas==1)
 			{
 				STATE = Wait;
-				break;
+			break;
 			}
 
 

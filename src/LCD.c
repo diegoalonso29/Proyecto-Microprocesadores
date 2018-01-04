@@ -348,6 +348,18 @@ void entrar_user_menu(void){
 		mantenerse_opcion=0;
 	}
 }
+void inicilizar_variables(void){
+	comprobar_menu_inicial=0;
+	posicion_cursor=2;
+	movimiento_cursor=0;
+	entrar_menu_user=0;
+	pulse_ok=0;
+	volver=0;
+	mantenerse_opcion=0;
+	enviar_a_opcion=0;
+	parar_medidas=0;
+	salir_programa=0;
+}
 void menu_opciones(void){
 	clear();
 	movercursor(1,1);
@@ -374,8 +386,9 @@ void menu_opciones(void){
 			write_char("**Fin del programa**");
 			movercursor(2,1);
 			write_char("Retire la tarjeta SD");
-			movercursor(3,1);
-			write_char(" Que tenga buen dia ");
+			movercursor(4,1);
+			write_char("Apagando sistema...");
+			salir_programa=1;
 			break;
 	}
 }
