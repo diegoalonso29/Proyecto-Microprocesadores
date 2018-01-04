@@ -4,6 +4,8 @@
 #include "stm32l1xx_gpio.h"
 #include "strings.h"
 
+#include "Timer.h"
+
 //Constantes---------------------
 #define E 		GPIO_Pin_0		//PA0
 #define RS 		GPIO_Pin_1		//PA1
@@ -53,14 +55,33 @@ void write_int(int numero);
 void write_float(float numero,int decimales);
 void movercursor(int fila, int columna);
 //----------------------------------------
+//Variables que usamos en nuestro proyecto
+uint8_t comprobar_menu_inicial;
+uint8_t posicion_cursor;
+uint8_t movimiento_cursor;
+uint8_t pulse_ok;
+uint8_t entrar_menu_user;
+uint8_t mantenerse_opcion;
+uint8_t volver;
+uint8_t enviar_a_opcion;
+uint8_t parar_medidas;
+
+
+uint8_t menu_medidas;
+//----------------------------------------
 //Funciones utilizadas en nuestro proyecto
 void menuPrincipal(int posicion);
+void menu_2(void);
+void menu_opciones(void);
 void conf_inte(void);
 void mensaje_inicial(void);
-void menu(void);
-//void EXTI4_IRQHandler(void);
-//void EXTI9_5_IRQHandler(void);
-//void entrar_menu_opciones(void);
+void movimientoCursor(void);
+void entrar_user_menu(void);
+void menu_medida(void);
+
+void EXTI4_IRQHandler(void);
+void EXTI9_5_IRQHandler(void);
+
 //-----------------------------------------
 #endif
 

@@ -1,5 +1,4 @@
 #include "LCD.h"
-#include "main.h"
 
 int interruption;
 int contador=2;
@@ -99,7 +98,6 @@ void function_set(void){
 	introducir();
 	//INTRODUCIMOS LOS BIT MENOS SIGNIFICATIVOS
 	GPIO_ResetBits(PortA,RS);
-
 	PortB->ODR = (PortB->ODR & mask2) | (function_Set & mask);
     introducir();
 }
@@ -217,18 +215,6 @@ void write_float(float numero, int decimales){
 	write_char(cadena);
 }
 //Funciones personalizadas para nuestro proyecto
-void menuPrincipal(int posicion){
-	 movercursor(1,1);
-	 write_char("**Menu de opciones**");
-	 movercursor(2,2);
-	 write_char("1.Menu 1");
-	 movercursor(posicion,1);
-	 write_char(">");
-     movercursor(3,2);
-     write_char("2.Menu 2");
-	 movercursor(4,2);
-	 write_char("3.Menu 3");
-}
 void conf_inte(void){
 	//PARAMETROS DE CONFIGURACION
 	EXTI_InitTypeDef Configuracion_EXTI;
@@ -270,129 +256,6 @@ void conf_inte(void){
 	 NVIC_Init(&NVIC_InitStructure);
 //----------------------------------------------------------------
 }
-
-void menu(void){
-	 if(entrar==0){
-		  if(interruption==1 && entrar_menu_princial==1){
-			  if(contador<=3){
-				  Delay_lcd(15000);
-				  contador++;
-				  clear();
-				  menuPrincipal(contador);
-				  interruption=0;
-			  }
-		  }
-		  else if(interruption==2 && entrar_menu_princial==1){
-				 if(contador>2){
-					  Delay_lcd(15000);
-					  contador--;
-					  clear();
-					  menuPrincipal(contador);
-					  interruption=0;
-				 }
-		 }
-	}
-	if(interruption==3){
-	  switch (entrar_menu_princial) {
-			case 0:
-				Delay_lcd(15000);
-				clear();
-				menuPrincipal(contador);
-				entrar_menu_princial=1;
-				entrar=0;
-				interruption=0;
-				break;
-			case 1:
-				 switch (contador) {
-				 	 case 2:{
-				 		 entrar_menu_opciones();
-					     Delay_lcd(15000);
-						 if(entrar==0){
-							 clear();
-							 menuPrincipal(contador);
-						 }
-						 else{
-							clear();
-							movercursor(1,1);
-							write_char("**Menu_1**");
-							movercursor(4,1);
-							write_char(">");
-							movercursor(4,2);
-							write_char("Volver");
-							//Hacer lo que sea que haga el menu 1
-						 }
-						 break;
-				     }
-				     case 3:{
-				    	entrar_menu_opciones();
-
-					    Delay_lcd(15000);
-					    if(entrar==0){
-					    	clear();
-					    	menuPrincipal(contador);
-					    }
-					    else{
-							clear();
-							movercursor(1,1);
-							write_char("**Menu_2**");
-							movercursor(4,1);
-							write_char(">");
-							movercursor(4,2);
-							write_char("Volver");
-							//Hacer lo que sea que haga el menu 2
-						}
-					    break;
-				     }
-				     case 4:{
-				    	 entrar_menu_opciones();
-
-				    	 Delay_lcd(15000);
-						 if(entrar==0){
-							clear();
-							menuPrincipal(contador);
-						 }
-						 else{
-							 clear();
-							 movercursor(1,1);
-							 write_char("**Menu_3**");
-						 	 movercursor(4,1);
-						 	 write_char(">");
-						   	 movercursor(4,2);
-							 write_char("Volver");
-							 //Hacer lo que sea que haga el menu 3
-						 }
-
-						break;
-				     	}
-				 	 }
-				 	 interruption=0;
-			break;
-	  }
-	}
-}
-//void EXTI4_IRQHandler(void){
-//	if(EXTI_GetFlagStatus(EXTI_Line4)!=0){
-//		if(entrar_menu_princial==1)
-//		{
-//			interruption=1;
-//		}
-//		EXTI_ClearITPendingBit(EXTI_Line4);	// LIMPIAMOS EL FLAG
-//		}
-//}
-//void EXTI9_5_IRQHandler(void){
-//	if(EXTI_GetFlagStatus(EXTI_Line8)!=0){
-//		if(entrar_menu_princial==1)
-//		{
-//			interruption=2;
-//		}
-//		EXTI_ClearITPendingBit(EXTI_Line8);	// LIMPIAMOS EL FLAG
-//		}
-//
-//	if(EXTI_GetFlagStatus(EXTI_Line9)!=0){
-//		interruption=3;
-//			EXTI_ClearITPendingBit(EXTI_Line9);	// LIMPIAMOS EL FLAG
-//			}
-//}
 void mensaje_inicial(void){
   clear();
   write_char("   ***Bienvenido***");
@@ -403,10 +266,147 @@ void mensaje_inicial(void){
   movercursor(4,7);
   write_char(">START");
 }
-//void entrar_menu_opciones(void){
-//	if(entrar==0) entrar=1;
-//	else entrar=0;
-//}
+void menuPrincipal(int posicion){
+	 clear();
+	 movercursor(1,1);
+	 write_char("**Menu de opciones**");
+	 movercursor(2,2);
+	 write_char("1.Transferir datos");
+	 movercursor(posicion,1);
+	 write_char(">");
+     movercursor(3,2);
+     write_char("2.Calibracion");
+	 movercursor(4,2);
+	 write_char("3.medida");
+	 comprobar_menu_inicial=2;
+}
+void menu_medida(void){
+	clear();
+	write_char("**Medida**");
+	movercursor(2,1);
+	write_char(" Tomando medidas... ");
+	movercursor(4,1);
+	write_char(">");
+	movercursor(4,2);
+	write_char("Parar proceso");
+	menu_medidas=1;
+}
+
+void menu_2(void){
+	clear();
+	movercursor(1,1);
+	write_char("**Menu de opciones**");
+	movercursor(2,1);
+	write_char(">");
+	movercursor(2,2);
+	write_char("4.Salir");
+}
+void movimientoCursor(void){
+	if(comprobar_menu_inicial==2 && mantenerse_opcion==0){
+		if(movimiento_cursor==1){		// Go up
+			if(posicion_cursor<=4){
+			  Delay_lcd(15000);
+			  posicion_cursor++;
+			  if(posicion_cursor==5) menu_2();
+			  else menuPrincipal(posicion_cursor);
+			  movimiento_cursor=0;
+		  }
+		}
+		else if(movimiento_cursor==2){	//Go down
+			if(posicion_cursor>2){
+				  Delay_lcd(15000);
+				  posicion_cursor--;
+				  menuPrincipal(posicion_cursor);
+				  movimiento_cursor=0;
+			 }
+		}
+	}
+}
+
+void entrar_user_menu(void){
+	if(entrar_menu_user==1 && comprobar_menu_inicial==2){
+		Delay_lcd(13000);
+		if(pulse_ok==0 && volver==0) pulse_ok=1;
+		if(volver==1) pulse_ok=2;
+		entrar_menu_user=0;
+		mantenerse_opcion=1;
+	}
+	if(pulse_ok==1){
+		enviar_a_opcion=posicion_cursor;
+		pulse_ok=0;
+		volver=1;
+	}
+	else if(pulse_ok==2){
+		Delay_lcd(13000);
+		if(posicion_cursor==4){
+			parar_medidas=1;
+		}
+		if(posicion_cursor==5) menu_2();
+			else menuPrincipal(posicion_cursor);
+		volver=0;
+		pulse_ok=0;
+		mantenerse_opcion=0;
+	}
+}
+void menu_opciones(void){
+	clear();
+	movercursor(1,1);
+	switch (posicion_cursor) {
+		case 2:
+			write_char("**Transferir datos**");
+			movercursor(4,1);
+			write_char(">");
+			movercursor(4,2);
+			write_char("Volver");
+			break;
+		case 3:
+			clear();
+			write_char("**Calibracion**");
+			movercursor(4,1);
+			write_char(">");
+			movercursor(4,2);
+			write_char("Volver");
+			break;
+		case 4:
+			menu_medida();
+			break;
+		case 5:
+			write_char("**Fin del programa**");
+			movercursor(2,1);
+			write_char("Retire la tarjeta SD");
+			movercursor(3,1);
+			write_char(" Que tenga buen dia ");
+			break;
+	}
+}
+
+void EXTI4_IRQHandler(void){
+	if(EXTI_GetFlagStatus(EXTI_Line4)!=0){
+		if(comprobar_menu_inicial==2 && mantenerse_opcion==0){
+			movimiento_cursor=1;	//Mueve el cursor hacia abajo
+		}
+
+		EXTI_ClearITPendingBit(EXTI_Line4);	// LIMPIAMOS EL FLAG
+		}
+}
+void EXTI9_5_IRQHandler(void){
+	if(EXTI_GetFlagStatus(EXTI_Line8)!=0){
+		if(comprobar_menu_inicial==2 && mantenerse_opcion==0){
+			movimiento_cursor=2;	//Mueve el cursor hacia arriba
+		}
+		EXTI_ClearITPendingBit(EXTI_Line8);	// LIMPIAMOS EL FLAG
+		}
+
+	if(EXTI_GetFlagStatus(EXTI_Line9)!=0){
+		if(comprobar_menu_inicial==0){
+			comprobar_menu_inicial=1;
+		}
+		if(comprobar_menu_inicial==2) entrar_menu_user=1;
+		EXTI_ClearITPendingBit(EXTI_Line9);	// LIMPIAMOS EL FLAG
+	}
+}
+
+
 //----------------------------------------------
 
 

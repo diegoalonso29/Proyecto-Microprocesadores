@@ -16,6 +16,7 @@ void Delay(uint32_t nTime)
 
 void Delay_lcd(uint32_t nTime)
 {
+  RCC_GetClocksFreq(&RCC_Clocks);
   SysTick_Config(RCC_Clocks.HCLK_Frequency / 100000);	//Trabajamos en microsegundos
   TimingDelay = nTime;
 
