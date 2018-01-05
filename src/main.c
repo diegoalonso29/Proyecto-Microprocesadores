@@ -16,7 +16,7 @@ int main(void)
 	while (1)
 	{
 		StateMachineSystem();
-		if(salir_programa==1) return 0;
+		if(flags==salir_programa) return 0;
 	}
 
 	return 0;
@@ -33,7 +33,7 @@ void StateMachineSystem(void)
 			init_lcd();			//Inicializamos la pantalla LCD
 			inicilizar_variables();
 			mensaje_inicial();
-
+			flags=menu_inicial;
 			/***************************************************************************/
 			rpy.pitch = 0;
 			rpy.roll = 0;
@@ -44,11 +44,11 @@ void StateMachineSystem(void)
 
 			USART_Send(USART2, "Inicializando MPU6050... \n\n");
 			status = MPU6050_InitConfig(ACCEL_FS, GYRO_FS, SAMPLE_FREQ);
-			if(status)
-			{
-				STATE = Error;
-				break;
-			}
+//			if(status)
+//			{
+//				STATE = Error;
+//				break;
+//			}
 
 			STATE = Wait;
 
@@ -58,7 +58,10 @@ void StateMachineSystem(void)
 
 			MPU6050_Config_ContinuousMeasurement(0);
 
-			if(comprobar_menu_inicial==1) menuPrincipal(posicion_cursor);
+			if(flags == Paso_a_menu_principal){
+				menuPrincipal(posicion_cursor);
+				Delay_lcd(10000);
+			}
 
 			movimientoCursor();
 			entrar_user_menu();
@@ -66,38 +69,43 @@ void StateMachineSystem(void)
 			switch (enviar_a_opcion)
 			{
 				case 2:
+
 					STATE =ExportData;
 					break;
 				case 3:
+
 					STATE =	Calibration;
 					break;
 				case 4:
+
 					STATE =	Measurement;
-					menu_medidas=0;
 					MPU6050_Config_ContinuousMeasurement(1);
 					break;
 				case 5:
+
 					STATE =	ShutDown;
 					break;
 				default:
 					break;
+
 			}
-			enviar_a_opcion=0;
 			break;
 
 		case Measurement:
 
-			if(menu_medidas==0) menu_opciones();
-			parar_medidas=0;
 			entrar_user_menu();
-			if(parar_medidas==1) STATE=Wait;
 
-			if(parar_medidas==1)
-			{
-				STATE = Wait;
-			break;
+			if(flags==parar_de_tomar_datos){
+				flags=Paso_a_menu_principal;
+				cursor=reposo;
+				entrar_opcion=stop;
+				STATE=Wait;
+				break;
 			}
-
+			if(flags==tomando_datos){
+				menu_opciones();
+				flags=menu_secundario;
+			}
 
 			if(data_available)
 			{
@@ -143,11 +151,11 @@ void StateMachineSystem(void)
 
 			USART_Send(USART2, "Realizando Calibración... \n\n");
 			status = MPU6050_Calibration();
-			if(status)
-			{
-				STATE = Error;
-				break;
-			}
+//			if(status)
+//			{
+//				STATE = Error;
+//				break;
+//			}
 
 			STATE = Wait;
 			break;

@@ -1,9 +1,5 @@
 #include "LCD.h"
 
-int interruption;
-int contador=2;
-int entrar_menu_princial=0;
-int entrar=0;
 
 void init_port(void){
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB| RCC_AHBPeriph_GPIOH, ENABLE);
@@ -278,7 +274,7 @@ void menuPrincipal(int posicion){
      write_char("2.Calibracion");
 	 movercursor(4,2);
 	 write_char("3.medida");
-	 comprobar_menu_inicial=2;
+	 flags=mantenerse_menu_principal;
 }
 void menu_medida(void){
 	clear();
@@ -289,7 +285,7 @@ void menu_medida(void){
 	write_char(">");
 	movercursor(4,2);
 	write_char("Parar proceso");
-	menu_medidas=1;
+	flags=tomando_datos;
 }
 
 void menu_2(void){
@@ -302,68 +298,68 @@ void menu_2(void){
 	write_char("4.Salir");
 }
 void movimientoCursor(void){
-	if(comprobar_menu_inicial==2 && mantenerse_opcion==0){
-		if(movimiento_cursor==1){		// Go up
+	if(flags==mantenerse_menu_principal){
+		if(cursor==up){		// Go up
 			if(posicion_cursor<=4){
 			  Delay_lcd(15000);
 			  posicion_cursor++;
 			  if(posicion_cursor==5) menu_2();
 			  else menuPrincipal(posicion_cursor);
-			  movimiento_cursor=0;
+			  cursor=reposo;
 		  }
 		}
-		else if(movimiento_cursor==2){	//Go down
+		else if(cursor==down){	//Go down
 			if(posicion_cursor>2){
 				  Delay_lcd(15000);
 				  posicion_cursor--;
 				  menuPrincipal(posicion_cursor);
-				  movimiento_cursor=0;
+				  cursor=reposo;
 			 }
 		}
 	}
 }
 
 void entrar_user_menu(void){
-	if(entrar_menu_user==1 && comprobar_menu_inicial==2){
+	if(flags==menu_secundario  && entrar_menu==1){
 		Delay_lcd(13000);
-		if(pulse_ok==0 && volver==0) pulse_ok=1;
-		if(volver==1) pulse_ok=2;
-		entrar_menu_user=0;
-		mantenerse_opcion=1;
+		if(entrar_opcion==stop) entrar_opcion=entrar;
+		else if(entrar_opcion==entre_entrar_salir) entrar_opcion=salir;
 	}
-	if(pulse_ok==1){
+	if(entrar_opcion==entrar){
+		Delay_lcd(13000);
 		enviar_a_opcion=posicion_cursor;
-		pulse_ok=0;
-		volver=1;
+		flags=tomando_datos;
+		if(posicion_cursor==2 || posicion_cursor==3) flags=menu_secundario;
+		entrar_opcion=entre_entrar_salir;
+		entrar_menu=0;
 	}
-	else if(pulse_ok==2){
+	else if(entrar_opcion==salir){
 		Delay_lcd(13000);
 		if(posicion_cursor==4){
-			parar_medidas=1;
+			//menuPrincipal(posicion_cursor);
+			flags=parar_de_tomar_datos;
 		}
-		if(posicion_cursor==5) menu_2();
-			else menuPrincipal(posicion_cursor);
-		volver=0;
-		pulse_ok=0;
-		mantenerse_opcion=0;
+		else if(posicion_cursor==5){
+			menu_2();
+		}
+		else{
+			menuPrincipal(posicion_cursor);
+
+		}
+		entrar_menu=0;
+		entrar_opcion=stop;
 	}
+
 }
 void inicilizar_variables(void){
-	comprobar_menu_inicial=0;
+	entrar_menu=0;
 	posicion_cursor=2;
-	movimiento_cursor=0;
-	entrar_menu_user=0;
-	pulse_ok=0;
-	volver=0;
-	mantenerse_opcion=0;
-	enviar_a_opcion=0;
-	parar_medidas=0;
-	salir_programa=0;
+	entrar_opcion=stop;
 }
 void menu_opciones(void){
 	clear();
 	movercursor(1,1);
-	switch (posicion_cursor) {
+	switch (enviar_a_opcion) {
 		case 2:
 			write_char("**Transferir datos**");
 			movercursor(4,1);
@@ -388,15 +384,16 @@ void menu_opciones(void){
 			write_char("Retire la tarjeta SD");
 			movercursor(4,1);
 			write_char("Apagando sistema...");
-			salir_programa=1;
+			flags=salir_programa;
 			break;
 	}
+	enviar_a_opcion=0;
 }
 
 void EXTI4_IRQHandler(void){
 	if(EXTI_GetFlagStatus(EXTI_Line4)!=0){
-		if(comprobar_menu_inicial==2 && mantenerse_opcion==0){
-			movimiento_cursor=1;	//Mueve el cursor hacia abajo
+		if(flags==mantenerse_menu_principal){
+			cursor=down;	//Mueve el cursor hacia abajo
 		}
 
 		EXTI_ClearITPendingBit(EXTI_Line4);	// LIMPIAMOS EL FLAG
@@ -404,17 +401,20 @@ void EXTI4_IRQHandler(void){
 }
 void EXTI9_5_IRQHandler(void){
 	if(EXTI_GetFlagStatus(EXTI_Line8)!=0){
-		if(comprobar_menu_inicial==2 && mantenerse_opcion==0){
-			movimiento_cursor=2;	//Mueve el cursor hacia arriba
+		if(flags==mantenerse_menu_principal){
+			cursor=up;	//Mueve el cursor hacia arriba
 		}
 		EXTI_ClearITPendingBit(EXTI_Line8);	// LIMPIAMOS EL FLAG
 		}
 
 	if(EXTI_GetFlagStatus(EXTI_Line9)!=0){
-		if(comprobar_menu_inicial==0){
-			comprobar_menu_inicial=1;
+		if(flags==menu_inicial){
+			flags=Paso_a_menu_principal;
 		}
-		if(comprobar_menu_inicial==2) entrar_menu_user=1;
+		else if(flags==mantenerse_menu_principal || flags==menu_secundario || flags==menu_mediciones){
+			flags=menu_secundario;
+			entrar_menu=1;
+		}
 		EXTI_ClearITPendingBit(EXTI_Line9);	// LIMPIAMOS EL FLAG
 	}
 }
