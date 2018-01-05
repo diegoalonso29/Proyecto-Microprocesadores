@@ -10,6 +10,7 @@
 #include "stm32l1xx_nucleo.h"
 #include "LCD.h"
 #include "strings.h"
+#include "sdcard.h"
 
 typedef enum {
 	Initialization=0,

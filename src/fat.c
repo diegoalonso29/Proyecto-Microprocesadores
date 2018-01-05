@@ -439,6 +439,7 @@ int8_t FAT_Init(void (*phyInit)(void),
 		openedFiles[i].id = -1;
 	}
 
+
 	return 0;
 }
 /**
@@ -1147,11 +1148,11 @@ int FAT_SDWriteFloatFile(int file, float flot)
 
 	/* function that converts the float to char so that we can pass the data to the SD
 	 * in addition we can choose how many decimals we want to save*/
-	ftoa(flot, cad, 2);
+	ftoa(flot, cad, 3);
 
-	sprintf(cad,"%s|",cad);
+	sprintf(cad,"%s\t|\t",cad);
 
-	int g=strlen(cad);
+	int g=strlen(cad);//necesario para saber la longitud de la cadena, para saber cuantos bytes hay que escribir en la SD
 
 	int lenWrite=0;
 	/* function to send and save the data in the SD, where you can choose the file by sending a string of uint8 and how much we want to write*/
