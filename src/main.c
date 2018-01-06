@@ -192,26 +192,33 @@ void StateMachineSystem(void)
 			{
 				for(tipo=0;tipo<5;tipo++)
 				{
-					if (tipo==0){
+
+					switch (tipo)
+					{
+					case 0:
 						USART_Send(USART2,"\n");
 						USART_Send(USART2, "roll:\t");
-					}else if (tipo==1)
-					{
+						break;
+					case 1:
 						USART_Send(USART2,"\n");
 						USART_Send(USART2, "pitch:\t");
-					}else if (tipo==2)
-					{
+						break;
+					case 2:
 						USART_Send(USART2,"\n");
 						USART_Send(USART2, "accel_x:\t");
-					}else if (tipo==3)
-					{
+						break;
+					case 3:
 						USART_Send(USART2,"\n");
 						USART_Send(USART2, "accel_y:\t");
-					}else if (tipo==4)
-					{
+						break;
+					case 4:
 						USART_Send(USART2,"\n");
 						USART_Send(USART2, "accel_z:\t");
+						break;
+					default:
+						break;
 					}
+
 					FAT_ReadFile(hello,recibido,5);
 					RdPtr=FAT_RdPtr(hello);
 					FAT_MoveRdPtr(hello, RdPtr+9);//ya que son 4 espacios(tab)+1 | + 4 espacios(tab)
