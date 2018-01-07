@@ -36,8 +36,9 @@ void StateMachineSystem(void)
 
 		/****************************INICIALIZACIONES DE DANI **********************/
 		USART_Send(USART2, "\n\nInicializando LCD... \n\n");
-		init_lcd();			//Inicializamos la pantalla LCD
+		//Inicializamos la pantalla LCD
 		inicilizar_variables();
+		init_lcd();
 		mensaje_inicial();
 		flags=menu_inicial;
 		/***************************************************************************/
@@ -47,11 +48,11 @@ void StateMachineSystem(void)
 
 		USART_Send(USART2, "Inicializando MPU6050... \n\n");
 		status = MPU6050_InitConfig(ACCEL_FS, GYRO_FS, SAMPLE_FREQ);
-		//			if(status)
-		//			{
-		//				STATE = Error;
-		//				break;
-		//			}
+					if(status)
+					{
+						STATE = Error;
+						break;
+					}
 
 		USART_Send(USART2, "Inicializando la SD...\n\n");
 		FAT_Init(SD_Init, SD_ReadSectors, SD_WriteSectors);//inicializacion SD
@@ -171,11 +172,11 @@ void StateMachineSystem(void)
 
 			USART_Send(USART2, "Realizando Calibración... \n\n");
 			status = MPU6050_Calibration();
-			//			if(status)
-			//			{
-			//				STATE = Error;
-			//				break;
-			//			}
+						if(status)
+						{
+							STATE = Error;
+							break;
+						}
 
 			STATE = Wait;
 			break;

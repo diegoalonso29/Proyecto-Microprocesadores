@@ -28,7 +28,7 @@
 #define clear_display 0x01		//Valor para limpiar la pantalla
 #define return_home 0x80
 #define mode_set 0x06			//
-#define display_on_off 0x0D		//
+#define display_on_off 0x0C		//
 #define function_Set 0x28		//
 #define line1 0x80				//Valor para acceder a la primera fila de la pantalla
 #define line2 0xC0				//Valor para acceder a la segunda fila de la pantalla
