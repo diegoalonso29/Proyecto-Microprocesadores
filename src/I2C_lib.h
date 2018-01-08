@@ -14,7 +14,7 @@
 
 #define FLAG_MASK               ((uint32_t)0x00FFFFFF)  /*<! I2C FLAG mask */
 
-/*********************************************** ERROR FLOW CONTROL ******************************************/
+/******************************* ERROR FLOW CONTROL ********************************/
 
 
 typedef enum {
@@ -53,8 +53,7 @@ I2C_Error_Code I2C_WriteByte_Reg(I2C_TypeDef* I2Cx, uint8_t SlavAddress, uint8_t
 I2C_Error_Code I2C_WriteByte_MultiReg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t* data, uint16_t count);
 I2C_Error_Code I2C_WriteBits_Reg(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t reg, uint8_t BitStart, uint8_t length, uint8_t data);
 
-
-/********************************************* PRIVATE FUNCTIONS *****************************************************/
+/*************************************** PRIVATE FUNCTIONS ****************************************/
 
 I2C_Error_Code I2C_Start(I2C_TypeDef* I2Cx, uint8_t SlaveAddress, uint8_t direction, uint8_t ack);
 I2C_Error_Code I2C_Stop(I2C_TypeDef* I2Cx);
