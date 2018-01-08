@@ -1160,7 +1160,7 @@ int FAT_SDWriteFloatFile(int file, float flot)
 	 * in addition we can choose how many decimals we want to save*/
 	ftoa(flot, cad, 3);
 
-	sprintf(cad,"%s\t|\t",cad);
+	//sprintf(cad,"%s",cad);
 
 	int g=strlen(cad);//necesario para saber la longitud de la cadena, para saber cuantos bytes hay que escribir en la SD
 

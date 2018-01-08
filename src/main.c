@@ -89,14 +89,17 @@ void StateMachineSystem(void)
 		case 2:
 
 			STATE =ExportData;
+			hello = FAT_OpenFile("HELLO   TXT");
 			break;
 		case 3:
 
 			STATE =	Calibration;
+			hello=FAT_CloseFile("HELLO   TXT");
 			break;
 		case 4:
 
 			STATE =	Measurement;
+			hello = FAT_OpenFile("HELLO   TXT");
 			MPU6050_Config_ContinuousMeasurement(1);
 			break;
 		case 5:
@@ -111,7 +114,7 @@ void StateMachineSystem(void)
 
 		case Measurement:
 
-			hello = FAT_OpenFile("HELLO   TXT");
+
 			entrar_user_menu();
 
 			if(flags==parar_de_tomar_datos){
@@ -143,20 +146,18 @@ void StateMachineSystem(void)
 					USART_SendFloat(USART2, rpy.pitch,2);
 					USART_Send(USART2, "\n");
 
-					/*** LIBERTO TIENES QUE GUARDAR LO SIGUIENTE :
-					 *
-					 * 	 rpy.roll / rpy.pitch / data.accel_x / data.accel_y / data.accel_z
-					 *
-					 * 	 tambien molaria poner un cabezera del archivo txt en la que apareciese entre otras cosas
-					 * 	 frecuencia de muestreo de la imu ( 1/SAMPLE_FREQ(variable global mia) o simplemente la frec SAMPLE_FREQ)
-					 *
-					 */
+
 
 					FAT_SDWriteFloatFile(hello,rpy.roll);
+					FAT_WriteFile(hello,(uint8_t*)",",1);
 					FAT_SDWriteFloatFile(hello,rpy.pitch);
+					FAT_WriteFile(hello,(uint8_t*)",",1);
 					FAT_SDWriteFloatFile(hello,data.accel_x);
+					FAT_WriteFile(hello,(uint8_t*)",",1);
 					FAT_SDWriteFloatFile(hello,data.accel_y);
+					FAT_WriteFile(hello,(uint8_t*)",",1);
 					FAT_SDWriteFloatFile(hello,data.accel_z);
+					FAT_WriteFile(hello,(uint8_t*)";",1);
 
 					data_available--;
 				}
@@ -173,7 +174,7 @@ void StateMachineSystem(void)
 
 		case Calibration:
 
-			hello=FAT_CloseFile("HELLO   TXT");
+
 			menu_opciones();
 
 			USART_Send(USART2, "Realizando Calibración... \n\n");
@@ -188,7 +189,7 @@ void StateMachineSystem(void)
 			break;
 
 		case ExportData:
-			hello = FAT_OpenFile("HELLO   TXT");
+
 			menu_opciones();
 			int lenRead=0, RdPtr=0,tipo=0;
 			uint8_t recibido[20];
@@ -228,7 +229,7 @@ void StateMachineSystem(void)
 
 					FAT_ReadFile(hello,recibido,5);
 					RdPtr=FAT_RdPtr(hello);
-					FAT_MoveRdPtr(hello, RdPtr+9);//ya que son 4 espacios(tab)+1 | + 4 espacios(tab)
+					FAT_MoveRdPtr(hello, RdPtr+1);//ya que son 4 espacios(tab)+1 | + 4 espacios(tab)
 					USART_Send(USART2, recibido);
 					USART_Send(USART2,"\n");
 					for(i=0;i<20;i++)recibido[i]=0;//limpiamos el buff de envio de datos
