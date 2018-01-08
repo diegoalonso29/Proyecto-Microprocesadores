@@ -11,6 +11,7 @@
 #include "LCD.h"
 #include "strings.h"
 #include "sdcard.h"
+#include "fat.h"
 
 typedef enum {
 	Initialization=0,

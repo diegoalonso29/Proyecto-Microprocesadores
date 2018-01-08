@@ -270,7 +270,7 @@
 #define MPU6050_I_AM				0x68
 #define MPU6050_I2C_ADDR			0x68
 
-#define SAMPLE_FREQ					25
+#define SAMPLE_FREQ					35
 #define LPF_BW						MPU6050_DLPF_BW_256
 
 #define ACCEL_SENS					MPU6050_ACCE_SENS_4

@@ -65,6 +65,7 @@ void StateMachineSystem(void)
 		//ponemos por defecto al principio del fichero, aunque tenga datos dentro los sobreescribirá
 		FAT_MoveRdPtr(hello,0);
 		FAT_MoveWrPtr(hello,0);
+		USART_Send(USART2, "Inicializaciones acabadas\n\n");
 
 
 		STATE = Wait;
@@ -140,24 +141,16 @@ void StateMachineSystem(void)
 					MPU6050_Get_RPY_Data(&rpy, &Buffer_Data[i]);
 					data = MPU6050_GetData(Buffer_Data[i]);
 
+					FAT_SDWriteFloatFile(hello,rpy.roll);
+					FAT_WriteFile(hello,(uint8_t*)" ",1);
+					FAT_SDWriteFloatFile(hello,rpy.pitch);
+					FAT_WriteFile(hello,(uint8_t*)";",1);
 					USART_Send(USART2, "Roll: ");
 					USART_SendFloat(USART2, rpy.roll,2);
 					USART_Send(USART2, "\tPitch: ");
 					USART_SendFloat(USART2, rpy.pitch,2);
 					USART_Send(USART2, "\n");
 
-
-
-					FAT_SDWriteFloatFile(hello,rpy.roll);
-					FAT_WriteFile(hello,(uint8_t*)",",1);
-					FAT_SDWriteFloatFile(hello,rpy.pitch);
-					FAT_WriteFile(hello,(uint8_t*)",",1);
-					FAT_SDWriteFloatFile(hello,data.accel_x);
-					FAT_WriteFile(hello,(uint8_t*)",",1);
-					FAT_SDWriteFloatFile(hello,data.accel_y);
-					FAT_WriteFile(hello,(uint8_t*)",",1);
-					FAT_SDWriteFloatFile(hello,data.accel_z);
-					FAT_WriteFile(hello,(uint8_t*)";",1);
 
 					data_available--;
 				}
@@ -176,14 +169,19 @@ void StateMachineSystem(void)
 
 
 			menu_opciones();
-
+			movercursor(2,1);
+			write_char("Calibrando...");
 			USART_Send(USART2, "Realizando Calibración... \n\n");
+
 			status = MPU6050_Calibration();
 			if(status)
 			{
 				STATE = Error;
 				break;
 			}
+			movercursor(3,1);
+			write_char("Proceso acabado");
+
 
 			STATE = Wait;
 			break;
@@ -196,44 +194,41 @@ void StateMachineSystem(void)
 			int i;
 			for(i=0;i<20;i++)recibido[i]=0;
 
-			while(lenRead!=-1)
+			for(tipo=0;tipo<5;tipo++)
 			{
-				for(tipo=0;tipo<5;tipo++)
+
+				switch (tipo)
 				{
-
-					switch (tipo)
-					{
-					case 0:
-						USART_Send(USART2,"\n");
-						USART_Send(USART2, "roll:\t");
-						break;
-					case 1:
-						USART_Send(USART2,"\n");
-						USART_Send(USART2, "pitch:\t");
-						break;
-					case 2:
-						USART_Send(USART2,"\n");
-						USART_Send(USART2, "accel_x:\t");
-						break;
-					case 3:
-						USART_Send(USART2,"\n");
-						USART_Send(USART2, "accel_y:\t");
-						break;
-					case 4:
-						USART_Send(USART2,"\n");
-						USART_Send(USART2, "accel_z:\t");
-						break;
-					default:
-						break;
-					}
-
-					FAT_ReadFile(hello,recibido,5);
-					RdPtr=FAT_RdPtr(hello);
-					FAT_MoveRdPtr(hello, RdPtr+1);//ya que son 4 espacios(tab)+1 | + 4 espacios(tab)
-					USART_Send(USART2, recibido);
+				case 0:
 					USART_Send(USART2,"\n");
-					for(i=0;i<20;i++)recibido[i]=0;//limpiamos el buff de envio de datos
+					USART_Send(USART2, "roll:\t");
+					break;
+				case 1:
+					USART_Send(USART2,"\n");
+					USART_Send(USART2, "pitch:\t");
+					break;
+				case 2:
+					USART_Send(USART2,"\n");
+					USART_Send(USART2, "accel_x:\t");
+					break;
+				case 3:
+					USART_Send(USART2,"\n");
+					USART_Send(USART2, "accel_y:\t");
+					break;
+				case 4:
+					USART_Send(USART2,"\n");
+					USART_Send(USART2, "accel_z:\t");
+					break;
+				default:
+					break;
 				}
+
+				FAT_ReadFile(hello,recibido,6);
+				RdPtr=FAT_RdPtr(hello);
+				FAT_MoveRdPtr(hello, RdPtr+1);//ya que son 4 espacios(tab)+1 | + 4 espacios(tab)
+				USART_Send(USART2, recibido);
+				USART_Send(USART2,"\n");
+				for(i=0;i<20;i++)recibido[i]=0;//limpiamos el buff de envio de datos
 			}
 			/*
 			 *  AQUI LIBERTO TIENES QUE PONER TODO EL PROCESO PARA QUE MANDE POR USART TODO LO QUE HAYA EN LA SD

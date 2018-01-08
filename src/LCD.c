@@ -284,7 +284,7 @@ void menuPrincipal(int posicion){
      movercursor(3,2);
      write_char("2.Calibracion");
 	 movercursor(4,2);
-	 write_char("3.medida");
+	 write_char("3.Medida");
 	 flags=mantenerse_menu_principal;
 }
 void menu_medida(void){
@@ -310,7 +310,7 @@ void menu_2(void){
 }
 void movimientoCursor(void){
 	if(flags==mantenerse_menu_principal){
-		if(cursor==up){		// Go up
+		if(cursor==down){
 			if(posicion_cursor<=4){
 			  Delay_lcd(15000);
 			  posicion_cursor++;
@@ -319,7 +319,7 @@ void movimientoCursor(void){
 			  cursor=reposo;
 		  }
 		}
-		else if(cursor==down){	//Go down
+		else if(cursor==up){
 			if(posicion_cursor>2){
 				  Delay_lcd(15000);
 				  posicion_cursor--;
@@ -336,6 +336,7 @@ void entrar_user_menu(void){
 		if(entrar_opcion==stop) entrar_opcion=entrar;
 		else if(entrar_opcion==entre_entrar_salir) entrar_opcion=salir;
 	}
+	Delay_lcd(1000);
 	if(entrar_opcion==entrar){
 		Delay_lcd(13000);
 		enviar_a_opcion=posicion_cursor;
@@ -422,7 +423,7 @@ void EXTI9_5_IRQHandler(void){
 		if(flags==menu_inicial){
 			flags=Paso_a_menu_principal;
 		}
-		else if(flags==mantenerse_menu_principal || flags==menu_secundario || flags==menu_mediciones){
+		else if(flags==mantenerse_menu_principal || flags==menu_secundario){
 			flags=menu_secundario;
 			entrar_menu=1;
 		}

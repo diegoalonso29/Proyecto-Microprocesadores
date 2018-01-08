@@ -15,9 +15,9 @@
  * @endverbatim
  */
 
-#include <fat.h>
+#include "fat.h"
 #include <stdio.h>
-#include <utils.h>
+#include "utils.h"
 #include <string.h>
 
 #ifndef DEBUG
@@ -1154,13 +1154,15 @@ int FAT_SDWriteFloatFile(int file, float flot)
 {
 
 	char cad[6];
+	int auxiliar;
+	auxiliar=(int)flot;
 
 
 	/* function that converts the float to char so that we can pass the data to the SD
 	 * in addition we can choose how many decimals we want to save*/
 	ftoa(flot, cad, 3);
 
-	//sprintf(cad,"%s",cad);
+	//sprintf(cad,"%d",auxiliar);
 
 	int g=strlen(cad);//necesario para saber la longitud de la cadena, para saber cuantos bytes hay que escribir en la SD
 
