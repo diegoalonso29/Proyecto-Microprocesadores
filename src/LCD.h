@@ -104,6 +104,9 @@ void inicilizar_variables(void);		//Funcion que utilizamos para inicializar las 
 void EXTI4_IRQHandler(void);			//Contenido de la interrupcion del boton down
 void EXTI9_5_IRQHandler(void);			//Contenido de la interrupcion del boton up y del boton ok
 
+int lenRead;
+uint8_t transferir_fin;
+
 //-----------------------------------------
 #endif
 

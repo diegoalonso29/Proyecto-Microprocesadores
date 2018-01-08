@@ -331,7 +331,7 @@ void movimientoCursor(void){
 }
 
 void entrar_user_menu(void){
-	if(flags==menu_secundario  && entrar_menu==1){
+	if((flags==menu_secundario  && entrar_menu==1)||lenRead==-1){
 		Delay_lcd(13000);
 		if(entrar_opcion==stop) entrar_opcion=entrar;
 		else if(entrar_opcion==entre_entrar_salir) entrar_opcion=salir;
@@ -426,6 +426,11 @@ void EXTI9_5_IRQHandler(void){
 		else if(flags==mantenerse_menu_principal || flags==menu_secundario){
 			flags=menu_secundario;
 			entrar_menu=1;
+		}
+		if(posicion_cursor==2 && lenRead!=-1 && entrar_opcion==entre_entrar_salir)entrar_menu=0;
+		if(lenRead==-1){
+			entrar_menu=1;
+			transferir_fin=1;
 		}
 		EXTI_ClearITPendingBit(EXTI_Line9);	// LIMPIAMOS EL FLAG
 	}

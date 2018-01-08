@@ -8,6 +8,8 @@ MPU6050_Data_Float data;
 StateMachine STATE;
 
 
+
+
 int main(void)
 {
 
@@ -65,6 +67,7 @@ void StateMachineSystem(void)
 		//ponemos por defecto al principio del fichero, aunque tenga datos dentro los sobreescribirá
 		FAT_MoveRdPtr(hello,0);
 		FAT_MoveWrPtr(hello,0);
+		lenRead=0;
 		USART_Send(USART2, "Inicializaciones acabadas\n\n");
 
 
@@ -90,6 +93,7 @@ void StateMachineSystem(void)
 		case 2:
 
 			STATE =ExportData;
+			transferir_fin=0;
 			hello = FAT_OpenFile("HELLO   TXT");
 			break;
 		case 3:
@@ -189,12 +193,12 @@ void StateMachineSystem(void)
 		case ExportData:
 
 			menu_opciones();
-			int lenRead=0, RdPtr=0,tipo=0;
+			int RdPtr=0,tipo=0;
 			uint8_t recibido[20];
 			int i;
 			for(i=0;i<20;i++)recibido[i]=0;
 
-			for(tipo=0;tipo<5;tipo++)
+			for(tipo=0;tipo<2;tipo++)
 			{
 
 				switch (tipo)
@@ -207,23 +211,11 @@ void StateMachineSystem(void)
 					USART_Send(USART2,"\n");
 					USART_Send(USART2, "pitch:\t");
 					break;
-				case 2:
-					USART_Send(USART2,"\n");
-					USART_Send(USART2, "accel_x:\t");
-					break;
-				case 3:
-					USART_Send(USART2,"\n");
-					USART_Send(USART2, "accel_y:\t");
-					break;
-				case 4:
-					USART_Send(USART2,"\n");
-					USART_Send(USART2, "accel_z:\t");
-					break;
 				default:
 					break;
 				}
 
-				FAT_ReadFile(hello,recibido,6);
+				lenRead=FAT_ReadFile(hello,recibido,6);
 				RdPtr=FAT_RdPtr(hello);
 				FAT_MoveRdPtr(hello, RdPtr+1);//ya que son 4 espacios(tab)+1 | + 4 espacios(tab)
 				USART_Send(USART2, recibido);
@@ -233,7 +225,7 @@ void StateMachineSystem(void)
 			/*
 			 *  AQUI LIBERTO TIENES QUE PONER TODO EL PROCESO PARA QUE MANDE POR USART TODO LO QUE HAYA EN LA SD
 			 */
-			STATE = Wait;
+			if (transferir_fin==1)STATE=Wait;
 			break;
 
 		case Error:
