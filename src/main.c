@@ -26,6 +26,7 @@ int main(void)
 void StateMachineSystem(void)
 {
 	int hello;//nombre de identificacion del fichero
+	uint8_t error=0;
 	switch (STATE) {
 
 	case Initialization:
@@ -48,14 +49,18 @@ void StateMachineSystem(void)
 
 		USART_Send(USART2, "Inicializando MPU6050... \n\n");
 		status = MPU6050_InitConfig(ACCEL_FS, GYRO_FS, SAMPLE_FREQ);
-					if(status)
-					{
-						STATE = Error;
-						break;
-					}
+		if(status)
+		{
+			STATE = Error;
+			break;
+		}
 
 		USART_Send(USART2, "Inicializando la SD...\n\n");
-		FAT_Init(SD_Init, SD_ReadSectors, SD_WriteSectors);//inicializacion SD
+		error=FAT_Init(SD_Init, SD_ReadSectors, SD_WriteSectors);//inicializacion SD
+		if (error==1){
+			STATE=Error;
+			break;
+		}
 		//ponemos por defecto al principio del fichero, aunque tenga datos dentro los sobreescribirá
 		FAT_MoveRdPtr(hello,0);
 		FAT_MoveWrPtr(hello,0);
@@ -172,11 +177,11 @@ void StateMachineSystem(void)
 
 			USART_Send(USART2, "Realizando Calibración... \n\n");
 			status = MPU6050_Calibration();
-						if(status)
-						{
-							STATE = Error;
-							break;
-						}
+			if(status)
+			{
+				STATE = Error;
+				break;
+			}
 
 			STATE = Wait;
 			break;
@@ -237,13 +242,20 @@ void StateMachineSystem(void)
 		case Error:
 
 			DisplayErrorCode(status);
+			if (error==1){
+				clear();
+				movercursor(1,1);
+				write_char("*La SD no funciona*");
+			}
 			STATE=ShutDown;
 			break;
 
 		case ShutDown:
 
 			hello=FAT_CloseFile("HELLO   TXT");
+			Delay(2000);
 			menu_opciones();
+			Delay(2000);
 			/*
 			 *  AQUI DANI TIENES QUE PONER UN MENSAJE QUE PONGA APAGADO EL SISTEMA Y METER EN EL ENUM QUE TE HE DICHO UN
 			 *  UN NUMERO MAS QUE SEA SI HEMOS LLEGAD AL ESTADO ShutDown PARA QUE DESDE EL MAIN LO PREGUNTEMOS Y SALGAMOS DEL

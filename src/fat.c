@@ -243,7 +243,7 @@ typedef struct {
  * @brief Physical layer callbacks.
  */
 typedef struct {
-	void (*phyInit)(void);
+	uint8_t (*phyInit)(void);
 	uint8_t (*phyReadSectors)(uint8_t* buf, uint32_t sector, uint32_t count);
 	uint8_t (*phyWriteSectors)(uint8_t* buf, uint32_t sector, uint32_t count);
 } FAT_PhysicalCb;
@@ -316,16 +316,18 @@ static void FAT_WriteSector(uint32_t sector) {
  * @param phyWriteSectors Write sectors function
  * @return
  */
-int8_t FAT_Init(void (*phyInit)(void),
+int8_t FAT_Init(uint8_t (*phyInit)(void),
 		uint8_t (*phyReadSectors)(uint8_t* buf, uint32_t sector, uint32_t count),
 		uint8_t (*phyWriteSectors)(uint8_t* buf, uint32_t sector, uint32_t count)) {
+
+	uint8_t error=0;
 
 	phyCallbacks.phyInit = phyInit;
 	phyCallbacks.phyReadSectors = phyReadSectors;
 	phyCallbacks.phyWriteSectors = phyWriteSectors;
 
 	// initialize physical layer
-	phyCallbacks.phyInit();
+	error=phyCallbacks.phyInit();
 
 	// Read MBR - first sector (0)
 	FAT_ReadSector(0);
@@ -333,7 +335,9 @@ int8_t FAT_Init(void (*phyInit)(void),
 	FAT_MBR* mbr = (FAT_MBR*)buf;
 	if (mbr->signature != 0xaa55) {
 		println("Invalid disk signature %04x", mbr->signature);
-		return -1;
+		error=1;
+		USART_Send(USART2,"Invalid disk signature error");
+		return error;
 	}
 	println("Found valid disk signature");
 
@@ -371,7 +375,9 @@ int8_t FAT_Init(void (*phyInit)(void),
 
 	if (bootSector->signature != 0xaa55) {
 		println("Invalid partition signature %04x", mbr->signature);
-		return -2;
+		USART_Send(USART2,"Invalid partition signature error");
+		error=1;
+		return error;
 	}
 
 	println("Found valid partition signature");
@@ -381,7 +387,9 @@ int8_t FAT_Init(void (*phyInit)(void),
 
 	if (bootSector->totalSectors32 != mountedDisks[0].partitionInfo[0].length) {
 		println("Error: Wrong partition size");
-		while(1);
+		USART_Send(USART2,"Error: Wrong partition size");
+		error=1;
+		return error;
 	}
 	// reserved sectors are the sectors before the FAT including boot sector
 	//  println("Reserved sectors = %d", (unsigned int)bootSector->reservedSectors);
@@ -391,7 +399,9 @@ int8_t FAT_Init(void (*phyInit)(void),
 	if (bootSector->bytesPerSector != 512) {
 		// TODO Make library sector length independent
 		println("Error: incompatible sector length");
-		while(1);
+		USART_Send(USART2,"Error: incompatible sector length");
+		error=1;
+		return error;
 	}
 	// hidden sectors are the sectors on disk preceding partition
 	//  println("Hidden sectors %d", (unsigned int)bootSector->hiddenSectors);
@@ -440,7 +450,7 @@ int8_t FAT_Init(void (*phyInit)(void),
 	}
 
 
-	return 0;
+	return error;
 }
 /**
  * @brief Opens a file.

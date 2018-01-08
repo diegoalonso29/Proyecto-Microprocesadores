@@ -241,10 +241,11 @@ static void SD_ReadCSD(SD_CSD* csd);
  * It uses low-level SPI functions.
  *
  */
-void SD_Init(void) {
+uint8_t SD_Init(void) {
 
 	int i; // for counter
 	uint8_t buf[10]; // buffer for responses
+	uint8_t error=0;
 	SD_OCR ocr;
 
 	SD_SPI_Init(); // Initialize SPI interface.
@@ -265,6 +266,8 @@ void SD_Init(void) {
 	if (resp.responseR1 != 0x01) {
 		println("GO_IDLE_STATE error");
 		USART_Send(USART2,"GO_IDLE_STATE error");
+		error=1;
+		return error;
 	}
 
 	// send CMD8
@@ -278,16 +281,20 @@ void SD_Init(void) {
 	if (resp.responseR1 != 0x01) {
 		println("SEND_IF_COND error");
 		USART_Send(USART2,"SEND_IF_COND error");
+		error=1;
+		return error;
 	}
 
 	// Check if card supports given voltage range
 	if ((buf[3] != SD_IF_COND_CHECK) || (buf[2] != (SD_IF_COND_VOLT>>8))) {
 		println("SEND_IF_COND error");
 		USART_Send(USART2,"SEND_IF_COND error");
+		error=1;
 		for (i=0; i<4; i++) {
 			print("%02x ", buf[i]);
 		}
 		print("\r\n");
+		return error;
 
 	}
 
@@ -298,6 +305,8 @@ void SD_Init(void) {
 	if (resp.responseR1 != 0x01) {
 		println("READ_OCR error");
 		USART_Send(USART2,"READ_OCR error");
+		error=1;
+		return error;
 	}
 
 	// Send ACMD41 until card goes out of IDLE state
@@ -315,7 +324,8 @@ void SD_Init(void) {
 		if (i == 9) {
 			println("Failed to initialize SD card");
 			USART_Send(USART2,"\n*******Failed to initialize SD card*******\n");
-			while(1);
+			error=1;
+			return error;
 		}
 	}
 
@@ -332,6 +342,8 @@ void SD_Init(void) {
 	if (resp.responseR1 != 0x00) {
 		println("READ_OCR error");
 		USART_Send(USART2,"READ_OCR error");
+		error=1;
+		return error;
 	}
 
 	// check capacity
@@ -345,6 +357,7 @@ void SD_Init(void) {
 
 	SD_HAL_DeselectCard();
 
+	return error;
 }
 /**
  * @brief Gets the capacity of the card.
@@ -365,6 +378,7 @@ uint64_t SD_ReadCapacity(void) {
 uint8_t SD_ReadSectors(uint8_t* buf, uint32_t sector, uint32_t count)
 {
 
+	uint8_t error=0;
 	SD_ResponseR1 resp;
 
 	// SDSC cards use byte addressing, SDHC use block addressing
@@ -379,8 +393,9 @@ uint8_t SD_ReadSectors(uint8_t* buf, uint32_t sector, uint32_t count)
 	if (resp.responseR1 != 0x00) {
 		println("SD_READ_MULTIPLE_BLOCK error");
 		USART_Send(USART2,"SD_READ_MULTIPLE_BLOCK error");
+		error=1;
 		SD_HAL_DeselectCard();
-		return 1;
+		return error;
 	}
 
 	while (count) {
@@ -399,7 +414,7 @@ uint8_t SD_ReadSectors(uint8_t* buf, uint32_t sector, uint32_t count)
 
 	SD_HAL_DeselectCard();
 
-	return 0;
+	return error;
 }
 /**
  * @brief Write sectors to SD card
@@ -411,6 +426,7 @@ uint8_t SD_ReadSectors(uint8_t* buf, uint32_t sector, uint32_t count)
  */
 uint8_t SD_WriteSectors(uint8_t* buf, uint32_t sector, uint32_t count) {
 
+	uint8_t error=0;
 	SD_ResponseR1 resp;
 
 	// SDSC cards use byte addressing, SDHC use block addressing
@@ -426,7 +442,8 @@ uint8_t SD_WriteSectors(uint8_t* buf, uint32_t sector, uint32_t count) {
 		println("SD_WRITE_MULTIPLE_BLOCK error");
 		USART_Send(USART2,"SD_READ_MULTIPLE_BLOCK error");
 		SD_HAL_DeselectCard();
-		return 1;
+		error=1;
+		return error;
 	}
 
 	while (count) {
@@ -449,7 +466,7 @@ uint8_t SD_WriteSectors(uint8_t* buf, uint32_t sector, uint32_t count) {
 
 	SD_HAL_DeselectCard();
 
-	return 0;
+	return error;
 }
 /**
  * @brief Reads OCR register
