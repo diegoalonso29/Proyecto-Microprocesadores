@@ -70,12 +70,20 @@ void init_port(void){
 }
 //Con esta funcion inicializamos la pantalla lcd
 void init_lcd(void){
+	  Delay_lcd(45000);
 	  init_port();
 	  conf_inte();
 	  inicializar();
+	  introducir();
+
 	  function_set();
+	  introducir();
+
 	  display_on();
+	  introducir();
+
 	  modeset();
+	  introducir();
 }
 void toggleEnable(void){
 	GPIO_ToggleBits(PortA,E);	//ENABLE
@@ -83,12 +91,11 @@ void toggleEnable(void){
 void introducir(void){
 	Delay_lcd(time_read);
     toggleEnable();	//Ponemos en enable a 0
-    Delay_lcd(10);
+    Delay_lcd(37);
     toggleEnable();	//Ponemos el enable a 1
 }
 void function_set(void){
 	//INTRODUCIMOS LOS BITS MAS SIGNIFICATIVOS
-
 	GPIO_ResetBits(PortA,RS);
 	PortB->ODR= PortB->ODR | function_Set>>4;	//DESPLAZAMOS 4 BITS A LA DERECHA
 	introducir();
@@ -99,9 +106,9 @@ void function_set(void){
 }
 void display_on(void){
 	//INTRODUCIMOS LOS BITS MAS SIGNIFICATIVOS
-		//GPIO_ResetBits(PortA,RS);
-		//PortB->ODR =display_on_off>>4;	//DESPLAZAMOS 4 BITS A LA DERECHA
-		//introducir();
+		GPIO_ResetBits(PortA,RS);
+		PortB->ODR =display_on_off>>4;	//DESPLAZAMOS 4 BITS A LA DERECHA
+		introducir();
 		//INTRODUCIMOS LOS BIT MENOS SIGNIFICATIVOS
 		GPIO_ResetBits(PortA,RS);
 		PortB->ODR = (PortB->ODR & mask2) | (display_on_off & mask);
@@ -110,7 +117,7 @@ void display_on(void){
 void modeset(void){
 	//INTRODUCIMOS LOS BITS MAS SIGNIFICATIVOS
 		GPIO_ResetBits(PortA,RS);
-		PortB->ODR =0x06>>4;	//DESPLAZAMOS 4 BITS A LA DERECHA
+		PortB->ODR =mode_set>>4;	//DESPLAZAMOS 4 BITS A LA DERECHA
 		introducir();
 		//INTRODUCIMOS LOS BIT MENOS SIGNIFICATIVOS
 		GPIO_ResetBits(PortA,RS);
@@ -122,11 +129,14 @@ void clear(void){
 		GPIO_ResetBits(PortA,RS);
 		PortB->ODR =clear_display>>4;	//DESPLAZAMOS 4 BITS A LA DERECHA
 		introducir();
+		Delay_lcd(1520);
 		//INTRODUCIMOS LOS BIT MENOS SIGNIFICATIVOS
 		GPIO_ResetBits(PortA,RS);
 		PortB->ODR = (PortB->ODR & mask2) | (clear_display & mask);
 		introducir();
+		Delay_lcd(1520);
 }
+
 void returnHome(void){
 	GPIO_ResetBits(PortA,RS);
 	PortB->ODR =return_home>>4;	//DESPLAZAMOS 4 BITS A LA DERECHA
@@ -254,7 +264,8 @@ void conf_inte(void){
 }
 void mensaje_inicial(void){
   clear();
-  write_char("   ***Bienvenido***");
+  movercursor(1,3);
+  write_char("***Bienvenido***");
   movercursor(2,4);
   write_char("Para continuar");
   movercursor(3,5);
