@@ -14,7 +14,7 @@
 
 #define FLAG_MASK               ((uint32_t)0x00FFFFFF)  /*<! I2C FLAG mask */
 
-/******************************* ERROR FLOW CONTROL ********************************/
+/******************************* ERROR FLOW CONTROL *******************************/
 
 
 typedef enum {
