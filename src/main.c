@@ -27,6 +27,7 @@ void StateMachineSystem(void)
 {
 	int hello;//nombre de identificacion del fichero
 	uint8_t error=0;
+
 	switch (STATE) {
 
 	case Initialization:
