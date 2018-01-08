@@ -19,7 +19,9 @@
 #define FAT_H_
 
 #include <inttypes.h>
-
+#include <stdio.h>
+#include "utils.h"
+#include <string.h>
 #include "USART_Lib.h"
 
 /**
@@ -47,7 +49,7 @@ int FAT_WrPtr(int file);
 
 
 int FAT_SDWriteFloatFile(int file, float flot);
-int FAT_SDJumpLineFile(int file);
+
 
 /**
  * @}

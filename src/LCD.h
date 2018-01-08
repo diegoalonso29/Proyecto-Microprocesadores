@@ -3,7 +3,7 @@
 //Librerias
 #include "stm32l1xx_gpio.h"
 #include "strings.h"
-
+#include "USART_Lib.h"
 #include "Timer.h"
 
 //Constantes---------------------
