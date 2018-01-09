@@ -68,17 +68,7 @@ void USART_ReadByte(USART_TypeDef* USARTx, uint8_t* data)
 	*data = RX_Buffer[Read_Counter++];
 }
 
-//void USART_ReadBytes(USART_TypeDef* USARTx, uint8_t* data, uint8_t num)
-//{
-//	pending_data -= num;
-//}
-//
-//void USART_ReadBuffer(USART_TypeDef* USARTx, uint8_t* data)
-//{
-//
-//}
 
-// C program for implementation of ftoa()
 void USART_SendFloat(USART_TypeDef* USARTx, float f, int decimals)
 {
 	char str[16];
@@ -86,18 +76,6 @@ void USART_SendFloat(USART_TypeDef* USARTx, float f, int decimals)
 
 }
 
-// reverses a string 'str' of length 'len'
-void reverse(char *str, int len)
-{
-    int i=0, j=len-1, temp;
-    while (i<j)
-    {
-        temp = str[i];
-        str[i] = str[j];
-        str[j] = temp;
-        i++; j--;
-    }
-}
 
 void USART2_IRQHandler(void)
 {
