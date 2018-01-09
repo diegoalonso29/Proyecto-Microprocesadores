@@ -96,21 +96,25 @@ void StateMachineSystem(void)
 			transferir_fin=0;
 			hello = FAT_OpenFile("HELLO   TXT");
 			break;
+
 		case 3:
 
 			STATE =	Calibration;
 			hello=FAT_CloseFile("HELLO   TXT");
 			break;
+
 		case 4:
 
 			STATE =	Measurement;
 			hello = FAT_OpenFile("HELLO   TXT");
 			MPU6050_Config_ContinuousMeasurement(1);
 			break;
+
 		case 5:
 
 			STATE =	ShutDown;
 			break;
+
 		default:
 			break;
 
@@ -119,31 +123,32 @@ void StateMachineSystem(void)
 
 		case Measurement:
 
-
 			entrar_user_menu();
 
-			if(flags==parar_de_tomar_datos){
+			if(flags==parar_de_tomar_datos)
+			{
 				flags=Paso_a_menu_principal;
 				cursor=reposo;
 				entrar_opcion=stop;
 				STATE=Wait;
 				break;
 			}
-			if(flags==tomando_datos){
+			if(flags==tomando_datos)
+			{
 				menu_opciones();
 				flags=menu_secundario;
 			}
 
-			if(data_available)
+			if(read_flag == 0 && data_available_0 > 0)
 			{
-				uint8_t m = data_available;
+				read_flag = 1;
+				uint8_t m = data_available_0;
 				int i;
-
 				for(i=0;i<m; i++)
 				{
 
-					MPU6050_Get_RPY_Data(&rpy, &Buffer_Data[i]);
-					data = MPU6050_GetData(Buffer_Data[i]);
+					MPU6050_Get_RPY_Data(&rpy, &Buffer_Data_0[i]);
+					data = MPU6050_GetData(Buffer_Data_0[i]);
 
 					FAT_SDWriteFloatFile(hello,rpy.roll);
 					FAT_WriteFile(hello,(uint8_t*)" ",1);
@@ -154,18 +159,35 @@ void StateMachineSystem(void)
 					USART_Send(USART2, "\tPitch: ");
 					USART_SendFloat(USART2, rpy.pitch,2);
 					USART_Send(USART2, "\n");
-
-
-					data_available--;
 				}
-				pos_buffer = 0;
+				pos_buffer_0 = 0;
+				data_available_0 = 0;
 			}
 
+			if(read_flag == 1 && data_available_1 > 0)
+			{
+				read_flag = 0;
+				int i;
+				uint8_t m = data_available_1;
 
-			/* AQUÍ DANI TIENES QUE, EN CASO DE QUE SE HAYA PULSADO LA OPCION DE PARAR O STOP, REDIRIGIR AL ESTADO WAIT(ESPERA)
-			 * ES DECIR IF(LO QUE SEA) -> STATE = Wait; SI NO SE PULSA NADA NO PONGAS NADA YA QUE VOLVERÁ A ENTRAR EN EL MISMO ESTADO
-			 * EN LA SIGUIENTE ITERACIÓN
-			 */
+				for(i=0;i<m; i++)
+				{
+					MPU6050_Get_RPY_Data(&rpy, &Buffer_Data_1[i]);
+					data = MPU6050_GetData(Buffer_Data_1[i]);
+
+					FAT_SDWriteFloatFile(hello,rpy.roll);
+					FAT_WriteFile(hello,(uint8_t*)" ",1);
+					FAT_SDWriteFloatFile(hello,rpy.pitch);
+					FAT_WriteFile(hello,(uint8_t*)";",1);
+					USART_Send(USART2, "Roll: ");
+					USART_SendFloat(USART2, rpy.roll,2);
+					USART_Send(USART2, "\tPitch: ");
+					USART_SendFloat(USART2, rpy.pitch,2);
+					USART_Send(USART2, "\n");
+				}
+				pos_buffer_1 = 0;
+				data_available_1 = 0;
+			}
 
 			break;
 

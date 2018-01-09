@@ -486,8 +486,11 @@ I2C_Error_Code MPU6050_Config_ContinuousMeasurement(uint8_t enable)
 		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 		NVIC_Init(&NVIC_InitStructure);
 
-		pos_buffer = 0;
-		data_available = 0;
+		pos_buffer_0 = 0;
+		pos_buffer_1 = 0;
+		data_available_0 = 0;
+		data_available_1 = 0;
+		read_flag = 0;
 
 		status = MPU6050_Set_INT_Enable(MPU6050_DATA_RDY_INT_EN);
 		if(status) {return status;}
@@ -511,20 +514,20 @@ void EXTI15_10_IRQHandler(void)
 		status = I2C_ReadBits_Reg(MPU6050_I2C, MPU6050_I2C_ADDR, MPU6050_RA_INT_STATUS,0,1,&tmp);
 		if(tmp == 0x01 && status == I2C_NoError)
 		{
-			if(pos_buffer < BUFFER_SIZE)
+			if(read_flag == 0)
 			{
-				Main_State = MPU6050_Get_Raw_Data(&Buffer_Data[pos_buffer++]);
-				if(Main_State == I2C_NoError)
-				{
-					data_available++;
-				}
+				if(data_available_0 >= BUFFER_SIZE) { pos_buffer_0 = 0;	data_available_0 = 0;}
+				status = MPU6050_Get_Raw_Data(&Buffer_Data_0[pos_buffer_0]);
+				if(status == I2C_NoError) { pos_buffer_0++; data_available_0++;}
 			}
-			else
+
+			else if(read_flag == 1)
 			{
-				pos_buffer = 0;
-				Main_State = MPU6050_Get_Raw_Data(&Buffer_Data[pos_buffer++]);
-				if(Main_State != I2C_NoError) {data_available++;}
+				if(data_available_1 >= BUFFER_SIZE)	{ pos_buffer_1 = 0;	data_available_1 = 0;}
+				status = MPU6050_Get_Raw_Data(&Buffer_Data_1[pos_buffer_1]);
+				if(status == I2C_NoError) { pos_buffer_1++; data_available_1++; }
 			}
+
 		}
 		EXTI_ClearITPendingBit(EXTI_Line13);
 
@@ -544,7 +547,7 @@ I2C_Error_Code MPU6050_Calibration()
 {
 	I2C_Error_Code status;
 	int j = 0;
-	int i = 0;
+
 	int32_t acc_x_offset = 0;
 	int32_t acc_y_offset = 0;
 	int32_t acc_z_offset = 0;
@@ -557,26 +560,51 @@ I2C_Error_Code MPU6050_Calibration()
 
 	while(j<600)
 	{
-	if(data_available)
+		if(read_flag == 0 && data_available_0 > 0)
 		{
-			uint8_t m = data_available;
-
+			read_flag = 1;
+			uint8_t m = data_available_0;
+			int i = 0;
 			for(i=0;i<m; i++)
 			{
 				if(j>100)
 				{
-			   	acc_x_offset += Buffer_Data[i].raw_accel_x;
-			   	acc_y_offset += Buffer_Data[i].raw_accel_y;
-			   	acc_z_offset += Buffer_Data[i].raw_accel_z - (int)ACCEL_SENS;
-			   	gyro_x_offset += Buffer_Data[i].raw_gyro_x;
-			   	gyro_y_offset += Buffer_Data[i].raw_gyro_y;
-			   	gyro_z_offset += Buffer_Data[i].raw_gyro_z;
+				acc_x_offset += Buffer_Data_0[i].raw_accel_x;
+				acc_y_offset += Buffer_Data_0[i].raw_accel_y;
+				acc_z_offset += Buffer_Data_0[i].raw_accel_z - (int)ACCEL_SENS;
+				gyro_x_offset += Buffer_Data_0[i].raw_gyro_x;
+				gyro_y_offset += Buffer_Data_0[i].raw_gyro_y;
+				gyro_z_offset += Buffer_Data_0[i].raw_gyro_z;
 				}
-			   	data_available--;
+
 				j++;
 
 			}
-			pos_buffer = 0;
+			pos_buffer_0 = 0;
+			data_available_0 = 0;
+		}
+
+		if(read_flag == 1 && data_available_1 > 0)
+		{
+			read_flag = 0;
+			uint8_t m = data_available_1;
+			int i = 0;
+			for(i=0;i<m; i++)
+			{
+				if(j>100)
+				{
+					acc_x_offset += Buffer_Data_1[i].raw_accel_x;
+					acc_y_offset += Buffer_Data_1[i].raw_accel_y;
+					acc_z_offset += Buffer_Data_1[i].raw_accel_z - (int)ACCEL_SENS;
+					gyro_x_offset += Buffer_Data_1[i].raw_gyro_x;
+					gyro_y_offset += Buffer_Data_1[i].raw_gyro_y;
+					gyro_z_offset += Buffer_Data_1[i].raw_gyro_z;
+				}
+				j++;
+
+			}
+			pos_buffer_1 = 0;
+			data_available_1 = 0;
 		}
 	}
 

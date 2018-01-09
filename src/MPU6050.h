@@ -279,7 +279,7 @@
 #define GYRO_SENS					MPU6050_GYRO_SENS_250
 #define GYRO_FS						MPU6050_GYRO_FS_250
 
-#define BUFFER_SIZE					100
+#define BUFFER_SIZE					50
 
 
 /**************************************************************************************************************************/
@@ -328,10 +328,14 @@ int16_t gyro_z_trim;
 
 }MPU6050_Data_Trim;
 
-MPU6050_Data_Raw Buffer_Data[BUFFER_SIZE];
-uint32_t pos_buffer;
-uint8_t data_available;
-I2C_Error_Code Main_State;
+MPU6050_Data_Raw Buffer_Data_1[BUFFER_SIZE];
+MPU6050_Data_Raw Buffer_Data_0[BUFFER_SIZE];
+uint32_t pos_buffer_0;
+uint32_t pos_buffer_1;
+uint8_t data_available_0;
+uint8_t data_available_1;
+uint8_t read_flag;
+
 MPU6050_Data_Trim offsets;
 
 
