@@ -244,9 +244,7 @@ void StateMachineSystem(void)
 				USART_Send(USART2,"\n");
 				for(i=0;i<20;i++)recibido[i]=0;//limpiamos el buff de envio de datos
 			}
-			/*
-			 *  AQUI LIBERTO TIENES QUE PONER TODO EL PROCESO PARA QUE MANDE POR USART TODO LO QUE HAYA EN LA SD
-			 */
+
 			if (transferir_fin==1)STATE=Wait;
 			break;
 
@@ -267,11 +265,7 @@ void StateMachineSystem(void)
 			Delay(2000);
 			menu_opciones();
 			Delay(2000);
-			/*
-			 *  AQUI DANI TIENES QUE PONER UN MENSAJE QUE PONGA APAGADO EL SISTEMA Y METER EN EL ENUM QUE TE HE DICHO UN
-			 *  UN NUMERO MAS QUE SEA SI HEMOS LLEGAD AL ESTADO ShutDown PARA QUE DESDE EL MAIN LO PREGUNTEMOS Y SALGAMOS DEL
-			 *  PRGRAMA
-			 */
+
 			return;
 			break;
 
